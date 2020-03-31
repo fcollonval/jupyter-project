@@ -1,0 +1,63 @@
+{
+  "name": "jupyter-project",
+  "version": "0.1.0",
+  "description": "An JupyterLab extension to handle project folders.",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/fcollonval/jupyter-project",
+  "bugs": {
+    "url": "https://github.com/fcollonval/jupyter-project/issues"
+  },
+  "license": "BSD-3-Clause",
+  "author": "Frederic Collonval",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcollonval/jupyter-project.git"
+  },
+  "scripts": {
+    "build": "jlpm run build:lib",
+    "build:labextension": "cd jupyter_project && rimraf labextension && mkdirp labextension && cd labextension && npm pack ../..",
+    "build:lib": "tsc --build --incremental tsconfig.build.json",
+    "build:all": "jlpm run build:labextension",
+    "clean": "jlpm run clean:lib",
+    "clean:lib": "tsc --build --clean tsconfig.build.json",
+    "clean:labextension": "rimraf jupyter_project/labextension",
+    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
+    "eslint": "eslint . --ext .ts,.tsx --fix packages",
+    "eslint:check": "eslint . --ext .ts,.tsx packages",
+    "install": "lerna bootstrap --hoist",
+    "prepare": "jlpm run clean && jlpm run build",
+    "watch": "tsc -w",
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/preset-env": "7.5.5",
+    "@babel/preset-react": "7.0.0",
+    "@babel/preset-typescript": "7.3.3",
+    "@types/enzyme": "3.10.3",
+    "@types/invariant": "^2.2.31",
+    "@types/jest": "24.0.17",
+    "@types/lodash": "^4.14.149",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "enzyme": "3.10.0",
+    "enzyme-adapter-react-16": "1.14.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "jest": "24.8.0",
+    "lerna": "^3.20.2",
+    "mkdirp": "^1.0.3",
+    "prettier": "1.16.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "rimraf": "^2.6.1",
+    "simpl-schema": "^1.0.0 || ^0.0.4",
+    "typescript": "~3.7.0",
+    "uniforms-bridge-simple-schema-2": "^2.6.7"
+  }
+}

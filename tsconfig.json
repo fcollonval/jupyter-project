@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "baseUrl": "packages",
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "incremental": true,
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "paths": {
+      "project-extension": ["project-extension/src"],
+      "project-extension/*": ["project-extension/src/*"],
+      "uniforms-jlab": ["uniforms-jlab/src"],
+      "uniforms-jlab/*": ["uniforms-jlab/src/*"]
+    },
+    "preserveWatchOutput": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": false,
+    "target": "es2017",
+    "types": ["node"]
+  }
+}

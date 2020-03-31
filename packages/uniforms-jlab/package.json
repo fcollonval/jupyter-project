@@ -1,0 +1,37 @@
+{
+  "name": "uniforms-jlab",
+  "version": "2.6.7",
+  "license": "MIT",
+  "main": "index.js",
+  "module": "lib/index.js",
+  "description": "Components for uniforms styled for JupyterLab.",
+  "repository": "https://github.com/fcollonval/jupyter-project/tree/master/packages/uniforms-jlab",
+  "bugs": "https://github.com/fcollonval/jupyter-project/issues",
+  "keywords": [
+    "form",
+    "forms",
+    "meteor",
+    "react",
+    "react-component",
+    "schema",
+    "validation"
+  ],
+  "files": [
+    "*.d.ts",
+    "*.js",
+    "lib/*.d.ts",
+    "lib/*.js",
+    "src/*.ts",
+    "src/*.tsx"
+  ],
+  "peerDependencies": {
+    "react": "^16.0.0 || ^15.0.0 || ^0.14.0"
+  },
+  "dependencies": {
+    "invariant": "^2.0.0",
+    "lodash": "^4.0.0",
+    "prop-types": "^15.5.7",
+    "tslib": "^1.10.0",
+    "uniforms": "^2.6.7"
+  }
+}
