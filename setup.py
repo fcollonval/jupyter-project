@@ -4,15 +4,19 @@ Setup Module to setup Python Handlers for the jupyter-project extension.
 import os
 
 from jupyter_packaging import (
-    create_cmdclass, install_npm, ensure_targets,
-    combine_commands, ensure_python, get_version,
+    create_cmdclass,
+    install_npm,
+    ensure_targets,
+    combine_commands,
+    ensure_python,
+    get_version,
 )
 import setuptools
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 # The name of the project
-name="jupyter_project"
+name = "jupyter_project"
 
 # Ensure a valid python version
 ensure_python(">=3.5")
@@ -24,29 +28,22 @@ lab_path = os.path.join(HERE, name, "labextension")
 
 # Representative files that should exist after a successful build
 jstargets = [
-    os.path.join(HERE, "lib", "jupyter-project.js"),
+    # os.path.join(HERE, "lib", "jupyter-project.js"),
 ]
 
-package_data_spec = {
-    name: [
-        "*"
-    ]
-}
+package_data_spec = {name: ["*"]}
 
 data_files_spec = [
     ("share/jupyter/lab/extensions", lab_path, "*.tgz"),
-    ("etc/jupyter/jupyter_notebook_config.d",
-     "jupyter-config", "jupyter_project.json"),
+    ("etc/jupyter/jupyter_notebook_config.d", "jupyter-config", "jupyter_project.json"),
 ]
 
-cmdclass = create_cmdclass("jsdeps", 
-    package_data_spec=package_data_spec,
-    data_files_spec=data_files_spec
+cmdclass = create_cmdclass(
+    "jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec
 )
 
 cmdclass["jsdeps"] = combine_commands(
-    install_npm(HERE, build_cmd="build:all", npm=["jlpm"]),
-    ensure_targets(jstargets),
+    install_npm(HERE, build_cmd="build:all", npm=["jlpm"]), ensure_targets(jstargets),
 )
 
 with open("README.md", "r") as fh:
@@ -58,12 +55,16 @@ setup_args = dict(
     url="https://github.com/fcollonval/jupyter-project",
     author="Frederic Collonval",
     description="An JupyterLab extension to handle project folders.",
-    long_description= long_description,
+    long_description=long_description,
     long_description_content_type="text/markdown",
-    cmdclass= cmdclass,
+    cmdclass=cmdclass,
     packages=setuptools.find_packages(),
     install_requires=[
-        "jupyterlab~=2.0",
+        "cookiecutter",
+        "jinja2~=2.9",
+        "jsonschema",
+        "jupyterlab~=1.0",
+        "jupyterlab_server~=1.0.0",
     ],
     zip_safe=False,
     include_package_data=True,

@@ -19,8 +19,8 @@
   },
   "scripts": {
     "build": "jlpm run build:lib",
-    "build:labextension": "cd jupyter_project && rimraf labextension && mkdirp labextension && cd labextension && npm pack ../..",
-    "build:lib": "tsc --build --incremental tsconfig.build.json",
+    "build:labextension": "cd jupyter_project && rimraf labextension && mkdirp labextension && cd labextension",
+    "build:lib": "lerna bootstrap --hoist && tsc --build --incremental tsconfig.build.json",
     "build:all": "jlpm run build:labextension",
     "clean": "jlpm run clean:lib",
     "clean:lib": "tsc --build --clean tsconfig.build.json",
@@ -28,20 +28,18 @@
     "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
     "eslint": "eslint . --ext .ts,.tsx --fix packages",
     "eslint:check": "eslint . --ext .ts,.tsx packages",
-    "install": "lerna bootstrap --hoist",
     "prepare": "jlpm run clean && jlpm run build",
     "watch": "tsc -w",
     "test": "jest"
   },
   "dependencies": {},
   "devDependencies": {
+    "@babel/core": "^7.9.0",
     "@babel/preset-env": "7.5.5",
     "@babel/preset-react": "7.0.0",
     "@babel/preset-typescript": "7.3.3",
     "@types/enzyme": "3.10.3",
-    "@types/invariant": "^2.2.31",
     "@types/jest": "24.0.17",
-    "@types/lodash": "^4.14.149",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
     "enzyme": "3.10.0",
@@ -56,8 +54,6 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "rimraf": "^2.6.1",
-    "simpl-schema": "^1.0.0 || ^0.0.4",
-    "typescript": "~3.7.0",
-    "uniforms-bridge-simple-schema-2": "^2.6.7"
+    "typescript": "~3.7.0"
   }
 }

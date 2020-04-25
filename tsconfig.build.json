@@ -1,7 +1,6 @@
 {
     "files": [],
     "references": [
-      { "path": "packages/project-extension/tsconfig.json" },
-      { "path": "packages/uniforms-jlab/tsconfig.json" }
+      { "path": "packages/project-extension/tsconfig.json" }
     ]
   }
