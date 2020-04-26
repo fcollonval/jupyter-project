@@ -1,9 +1,13 @@
 from typing import Any, Dict
 
-from .traits import Template
+from .traits import JSONSchema, Template
 
 
 class ProjectTemplate(Template):
+    """Jinja2 template project class."""
+
+    schema = JSONSchema(help="JSON schema describing the template parameters", config=True)
+
     def render(self, params: Dict) -> Any:
         """Render the template.
         

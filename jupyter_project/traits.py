@@ -39,11 +39,11 @@ class Path(TraitType):
         except:
             self.error(obj, value)
 
+
 class Template(HasTraits):
 
     destination = Path(default_value=".", help="Relative destination folder", config=True)
     name = Unicode(help="Template name", config=True)
-    schema = JSONSchema(help="JSON schema describing the template parameters", config=True)
     template = Unicode(help="Template path", config=True)
 
     def __init__(self, *args, **kwargs):
