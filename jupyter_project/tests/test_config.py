@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from traitlets import TraitError
 from traitlets.config import Config
 
 from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
@@ -43,6 +44,13 @@ from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
                 destination=".",
             ),
         ),
+        (
+            {"file_templates": [{"template": "/dummy/file_templates/template1.py",}]},
+            TraitError,
+            None,
+            None,
+        ),
+        ({"file_templates": [{"name": "template1",}]}, TraitError, None, None),
         (
             {
                 "file_templates": [
@@ -99,6 +107,18 @@ from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
             ),
         ),
         (
+            {"project_template": {"template": "my_magic.package",},},
+            TraitError,
+            None,
+            None,
+        ),
+        (
+            {"project_template": {"name": "my-project-template",},},
+            TraitError,
+            None,
+            None,
+        ),
+        (
             {
                 "project_file": "my-project.json",
                 "project_template": {
@@ -126,15 +146,28 @@ from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
     ],
 )
 def test_JupyterProject(config, files, pfile, ptemplate):
-    jp = JupyterProject(
-        config=Config(
-            {
-                "NotebookApp": {"nbserver_extensions": {"jupyter_project": True}},
-                "JupyterProject": config,
-            }
+    if isinstance(files, type) and issubclass(files, Exception):
+        with pytest.raises(files):
+            jp = JupyterProject(
+                config=Config(
+                    {
+                        "NotebookApp": {
+                            "nbserver_extensions": {"jupyter_project": True}
+                        },
+                        "JupyterProject": config,
+                    }
+                )
+            )
+    else:
+        jp = JupyterProject(
+            config=Config(
+                {
+                    "NotebookApp": {"nbserver_extensions": {"jupyter_project": True}},
+                    "JupyterProject": config,
+                }
+            )
         )
-    )
 
-    assert jp.file_templates == [FileTemplate(**kw) for kw in files]
-    assert jp.project_file == pfile
-    assert jp.project_template == ProjectTemplate(**ptemplate)
+        assert jp.file_templates == [FileTemplate(**kw) for kw in files]
+        assert jp.project_file == pfile
+        assert jp.project_template == ProjectTemplate(**ptemplate)
