@@ -1,8 +1,8 @@
-from traitlets import Instance, List, Unicode
+from traitlets import List, Unicode
 from traitlets.config import Configurable
 
 from .autoinstance import AutoInstance
-from .files import FileTemplate
+from .files import FileTemplateLoader
 from .project import ProjectTemplate
 
 
@@ -11,7 +11,7 @@ class JupyterProject(Configurable):
 
     file_templates = List(
         default_value=list(),
-        trait=AutoInstance(FileTemplate),
+        trait=AutoInstance(FileTemplateLoader),
         help="List of file templates",
         config=True,
     )

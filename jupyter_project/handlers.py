@@ -106,13 +106,13 @@ def setup_handlers(web_app: "NotebookWebApplication", config: JupyterProject, lo
                 "loader": None,
                 "files": template.files,
             }
-            target = Path(template.template)
-            if target.exists() and target.is_dir():
-                new_template["loader"] = FileSystemLoader(str(target))
+            location = Path(template.location)
+            if location.exists() and location.is_dir():
+                new_template["loader"] = FileSystemLoader(str(location))
             elif len(template.module) > 0:
                 try:
                     new_template["loader"] = PackageLoader(
-                        template.module, package_path=str(target)
+                        template.module, package_path=str(location)
                     )
                 except ModuleNotFoundError:
                     logger.warning(f"Unable to find module '{template.module}'")
@@ -130,7 +130,7 @@ def setup_handlers(web_app: "NotebookWebApplication", config: JupyterProject, lo
     for name, template in templates.items():
         filenames = set()
         for file in template["files"]:
-            pfile = Path(file)
+            pfile = Path(file.template)
             suffixes = "".join(pfile.suffixes)
             short_name = pfile.as_posix()[: -(len(suffixes))]
             if short_name in filenames:

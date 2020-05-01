@@ -1,10 +1,8 @@
-from pathlib import Path
-
 import pytest
 from traitlets import TraitError
 from traitlets.config import Config
 
-from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
+from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTemplate
 
 
 @pytest.mark.parametrize(
@@ -24,16 +22,16 @@ from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
                 "file_templates": [
                     {
                         "name": "template1",
-                        "template": "/dummy/file_templates/template1.py",
+                        "location": "/dummy/file_templates",
+                        "files": [{"template": "template1.py"}],
                     }
                 ]
             },
             [
                 dict(
                     name="template1",
-                    template="/dummy/file_templates/template1.py",
-                    schema=dict(),
-                    destination=".",
+                    location="/dummy/file_templates",
+                    files=[dict(template="template1.py",)],
                 )
             ],
             "jupyter-project.json",
@@ -45,29 +43,69 @@ from jupyter_project.config import JupyterProject, FileTemplate, ProjectTemplate
             ),
         ),
         (
-            {"file_templates": [{"template": "/dummy/file_templates/template1.py",}]},
+            {
+                "file_templates": [
+                    {
+                        "location": "/dummy/file_templates",
+                        "files": [{"template": "template1.py"}],
+                    }
+                ]
+            },
             TraitError,
             None,
             None,
         ),
-        ({"file_templates": [{"name": "template1",}]}, TraitError, None, None),
+        (
+            {
+                "file_templates": [
+                    {"name": "template1", "files": [{"template": "template1.py"}]}
+                ]
+            },
+            TraitError,
+            None,
+            None,
+        ),
+        (
+            {
+                "file_templates": [
+                    {"name": "template1", "location": "/dummy/file_templates"}
+                ]
+            },
+            TraitError,
+            None,
+            None,
+        ),
         (
             {
                 "file_templates": [
                     {
                         "name": "template1",
-                        "template": "/dummy/file_templates/template1.py",
-                        "schema": dict(title="schema", description="empty schema"),
-                        "destination": "star_folder",
+                        "location": "/dummy/file_templates",
+                        "files": [
+                            {
+                                "template": "template1.py",
+                                "schema": dict(
+                                    title="schema", description="empty schema"
+                                ),
+                                "default_name": "new_file",
+                                "destination": "star_folder",
+                            }
+                        ],
                     }
                 ]
             },
             [
                 dict(
                     name="template1",
-                    template="/dummy/file_templates/template1.py",
-                    schema=dict(title="schema", description="empty schema"),
-                    destination="star_folder",
+                    location="/dummy/file_templates",
+                    files=[
+                        dict(
+                            template="template1.py",
+                            schema=dict(title="schema", description="empty schema"),
+                            default_name="new_file",
+                            destination="star_folder",
+                        )
+                    ],
                 )
             ],
             "jupyter-project.json",
@@ -168,6 +206,6 @@ def test_JupyterProject(config, files, pfile, ptemplate):
             )
         )
 
-        assert jp.file_templates == [FileTemplate(**kw) for kw in files]
+        assert jp.file_templates == [FileTemplateLoader(**kw) for kw in files]
         assert jp.project_file == pfile
         assert jp.project_template == ProjectTemplate(**ptemplate)
