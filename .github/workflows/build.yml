@@ -21,14 +21,15 @@ jobs:
       with:
         python-version: '3.7'
         architecture: 'x64'
-    - name: Install dependencies
-      run: python -m pip install jupyterlab
-    - name: Build the extension
+    - name: Test the extension
       run: |
         jlpm
         jlpm run eslint:check
 
-        pip install .
+        pip install .[test]
+
+        pytest jupyter_project
+
         jupyter lab build
         jupyter serverextension list 1>serverextensions 2>&1
         cat serverextensions | grep "jupyter_project.*OK"

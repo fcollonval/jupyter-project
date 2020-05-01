@@ -66,6 +66,9 @@ setup_args = dict(
         "jupyterlab~=1.0",
         "jupyterlab_server~=1.0.0",
     ],
+    extras_require={
+        "test": ["pytest", "pytest-asyncio"]
+    },
     zip_safe=False,
     include_package_data=True,
     license="BSD-3-Clause",
