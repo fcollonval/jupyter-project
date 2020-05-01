@@ -2,7 +2,10 @@
 
 ![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Build/badge.svg)
 
-An JupyterLab extension to handle project folders.
+An JupyterLab extension to handle project folders. It adds the ability to 
+generate project from a [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/) template as well as generate files
+from [Jinja2](https://jinja.palletsprojects.com/en/master/) templates. Those templates can be parametrized directly from
+the frontend by specifying a [JSON schema](https://json-schema.org/).
 
 
 This extension is composed of a Python package named `jupyter_project`
@@ -12,7 +15,10 @@ for the frontend extension.
 
 ## Requirements
 
-* JupyterLab >= 2.0
+* JupyterLab = 1.x
+* cookiecutter
+* jinja2
+* jsonschema
 
 ## Install
 
@@ -59,7 +65,7 @@ The `jlpm` command is JupyterLab's pinned version of
 # Move to jupyter-project directory
 
 # Install server extension
-pip install -e .
+pip install -e .[test]
 # Register server extension
 jupyter serverextension enable --py jupyter_project
 
@@ -87,7 +93,6 @@ jupyter lab --watch
 ### Uninstall
 
 ```bash
-
 pip uninstall jupyter_project
 
 jupyter labextension uninstall jupyter-project

@@ -2,6 +2,7 @@ import functools
 import json
 from pathlib import Path
 from shutil import rmtree
+from typing import Any, Dict
 from urllib.parse import quote
 
 from jinja2 import (
@@ -22,14 +23,14 @@ from .config import JupyterProject
 NAMESPACE = "jupyter-project"
 
 
-class ConfigHandler(APIHandler):
-    def initialize(self, config: JupyterProject = None):
-        self.config = config
+class SettingsHandler(APIHandler):
+    def initialize(self, settings: Dict[str, Any] = None):
+        self.settings = settings or {}
 
     @tornado.web.authenticated
     async def get(self):
-        self.log.debug(f"GET /{NAMESPACE}/config")
-        self.finish(json.dumps({}))
+        self.log.debug(f"GET /{NAMESPACE}/settings")
+        self.finish(json.dumps(self.settings))
 
 
 class JProjectHandler(APIHandler):
@@ -49,10 +50,8 @@ class ProjectsHandler(JProjectHandler):
     def initialize(self, template: str = ""):
         """Initialize request handler
 
-        Parameters
-        ----------
-        template : str
-            Folder containing the cookiecutter template to be used to generate a CoSApp project.
+        Args:
+            template (str): Folder containing the cookiecutter template to be used to generate a CoSApp project.
         """
         self.template = template
 
@@ -80,12 +79,9 @@ class FileTemplatesHandler(JProjectHandler):
     def initialize(self, default_name: Template = None, template: Template = None):
         """Initialize request handler
 
-        Parameters
-        ----------
-        default_name : jinja2.Template
-            File default name - will be rendered with same parameters than template
-        template : jinja2.Template
-            Jinja2 template to use for component generation.
+        Args:
+            default_name (jinja2.Template): File default name - will be rendered with same parameters than template
+            template (jinja2.Template): Jinja2 template to use for component generation.
         """
         self.default_name = default_name or Template("Untitled")
         self.template = template
@@ -96,7 +92,8 @@ class FileTemplatesHandler(JProjectHandler):
 
         POST creates a new file applying the parameters to the Jinja template.
 
-        Request json body: dictionary of parameters for the Jinja template.
+        Request json body:
+            Dictionary of parameters for the Jinja template.
         """
         if self.template is None:
             raise tornado.web.HTTPError(404, reason="Jinja template not found.")

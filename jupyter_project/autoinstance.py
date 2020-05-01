@@ -2,7 +2,7 @@
 Dynamically build instance from dictionary
 
 Reference:
-https://github.com/ipython/traitlets/pull/466#issuecomment-369971116
+    https://github.com/ipython/traitlets/pull/466#issuecomment-369971116
 """
 from traitlets import HasTraits, Instance
 from traitlets.config import Configurable
