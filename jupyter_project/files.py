@@ -13,7 +13,7 @@ class FileTemplate(HasTraits):
 
     default_name = Unicode(
         default_value="Untitled",
-        help="Default file name (without extension; support Jinja2 templating using schema)",
+        help="Default file name (without extension; support Jinja2 templating using the schema parameters)",
         config=True,
     )
     destination = Path(help="Relative destination folder [optional]", config=True)

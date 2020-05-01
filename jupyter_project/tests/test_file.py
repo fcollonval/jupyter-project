@@ -15,7 +15,7 @@ from traitlets.config import Config
 
 from utils import ServerTest, assert_http_error, url_path_join
 
-template_folder = tempfile.TemporaryDirectory()
+template_folder = tempfile.TemporaryDirectory(suffix="files")
 
 
 def generate_path():
@@ -87,6 +87,7 @@ class TestPathFileTemplate(ServerTest):
     @classmethod
     def teardown_class(cls):
         super().teardown_class()
+        sys.path.remove(str(Path(template_folder.name) / "file_templates"))
         template_folder.cleanup()
 
     @mock.patch("jupyter_project.handlers.Template")
