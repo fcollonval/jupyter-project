@@ -87,14 +87,3 @@ class FileTemplateLoader(HasTraits):
         if len(proposal["value"]) == 0:
             raise TraitError("'location' cannot be empty.")
         return proposal["value"]
-
-    def render(self, params: Dict) -> str:
-        """Render the Jinja2 template.
-        
-        Args:
-            params (Dict): Template parameters
-
-        Returns:
-            str : The rendered template.
-        """
-        raise NotImplementedError()

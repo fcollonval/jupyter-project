@@ -1,9 +1,18 @@
+import functools
 import json
 from pathlib import Path
 from shutil import rmtree
 from urllib.parse import quote
 
-from jinja2 import Environment, FileSystemLoader, PackageLoader, PrefixLoader, Template
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    PackageLoader,
+    PrefixLoader,
+    Template,
+    TemplateError,
+)
+from jupyter_client.jsonutil import date_default
 from notebook.base.handlers import APIHandler, path_regex
 from notebook.utils import url_path_join, url2path
 import tornado
@@ -68,19 +77,67 @@ class ProjectsHandler(JProjectHandler):
 
 
 class FileTemplatesHandler(JProjectHandler):
-    def initialize(self, template: Template = None):
+    def initialize(self, default_name: Template = None, template: Template = None):
         """Initialize request handler
 
         Parameters
         ----------
+        default_name : jinja2.Template
+            File default name - will be rendered with same parameters than template
         template : jinja2.Template
             Jinja2 template to use for component generation.
         """
+        self.default_name = default_name or Template("Untitled")
         self.template = template
 
     @tornado.web.authenticated
     async def post(self, path: str = ""):
-        self.log.debug(f"POST /{NAMESPACE}/{self.template}{path}")
+        """Create a new file in the specified path.
+
+        POST creates a new file applying the parameters to the Jinja template.
+
+        Request json body: dictionary of parameters for the Jinja template.
+        """
+        if self.template is None:
+            raise tornado.web.HTTPError(404, reason="Jinja template not found.")
+
+        cm = self.contents_manager
+        root_dir = Path(cm.root_dir)
+        params = self.get_json_body()
+
+        try:
+            default_name = self.default_name.render(**params)
+        except TemplateError as error:
+            self.log.warning(
+                f"Fail to render the default name for template '{self.template.name}'"
+            )
+            default_name = cm.untitled_file
+
+        ext = "".join(Path(self.template.name).suffixes)
+        filename = default_name + ext
+        filename = cm.increment_filename(filename, path)
+        fullpath = url_path_join(path, filename)
+
+        realpath = root_dir / url2path(fullpath)
+        if not realpath.parent.exists():
+            realpath.parent.mkdir(parents=True)
+
+        current_loop = tornado.ioloop.IOLoop.current()
+        try:
+            content = await current_loop.run_in_executor(
+                None, functools.partial(self.template.render, **params)
+            )
+            realpath.write_text(content)
+        except (OSError, TemplateError) as error:
+            raise tornado.web.HTTPError(
+                500,
+                log_message=f"Fail to generate the file from template {self.template.name}.",
+                reason=repr(error),
+            )
+
+        model = cm.get(fullpath, content=False, type="file", format="text")
+        self.set_status(201)
+        self.finish(json.dumps(model, default=date_default))
 
 
 def setup_handlers(web_app: "NotebookWebApplication", config: JupyterProject, logger):
@@ -145,7 +202,7 @@ def setup_handlers(web_app: "NotebookWebApplication", config: JupyterProject, lo
                 (
                     url_path_join(
                         base_url,
-                        r"{:s}{:s}".format(quote(endpoint, safe=""), path_regex),
+                        r"files/{:s}{:s}".format(quote(endpoint, safe=""), path_regex),
                     ),
                     FileTemplatesHandler,
                     {"template": env.get_template(f"{name}/{pfile.as_posix()}")},
