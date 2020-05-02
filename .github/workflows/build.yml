@@ -31,7 +31,7 @@ jobs:
         pip install .[test]
 
         python -m coverage run -m pytest jupyter_project
-        python -m coverage report -m
+        python -m coverage report
 
         jupyter lab build
         jupyter serverextension list 1>serverextensions 2>&1

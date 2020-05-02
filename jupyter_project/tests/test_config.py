@@ -64,6 +64,45 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                     {
                         "name": "template1",
                         "location": "/dummy/file_templates",
+                        "files": [],
+                    }
+                ],
+            },
+            TraitError,
+            None,
+        ),
+        (
+            {
+                "file_templates": [
+                    {
+                        "name": "template1",
+                        "location": "/dummy/file_templates",
+                        "files": [{"template": ""}],
+                    }
+                ],
+            },
+            TraitError,
+            None,
+        ),
+        (
+            {
+                "file_templates": [
+                    {
+                        "name": "template1",
+                        "location": "/dummy/file_templates",
+                        "files": [{"default_name": "", "template": "template1.py"}],
+                    }
+                ],
+            },
+            TraitError,
+            None,
+        ),
+        (
+            {
+                "file_templates": [
+                    {
+                        "name": "template1",
+                        "location": "/dummy/file_templates",
                         "files": [
                             {
                                 "template": "template1.py",

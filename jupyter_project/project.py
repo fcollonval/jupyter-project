@@ -1,3 +1,4 @@
+import importlib
 import json
 import pathlib
 from typing import Any, Dict, NoReturn
@@ -106,8 +107,14 @@ class ProjectTemplate(HasTraits):
         if self.template is None:
             return dict()
 
+        if len(self.module):
+            module = importlib.import_module(self.module)
+            template = str(pathlib.Path(module.__path__[0]) / self.template)
+        else:
+            template = self.template
+            
         cookiecutter(
-            self.template, no_input=True, extra_context=params, output_dir=str(path),
+            template, no_input=True, extra_context=params, output_dir=str(path),
         )
 
         if len(self.configuration_filename) == 0:

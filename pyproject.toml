@@ -3,8 +3,8 @@ requires = ["jupyter_packaging~=0.4.0", "jupyterlab~=2.0", "setuptools>=40.8.0",
 build-backend = "setuptools.build_meta"
 
 [tool.coverage.run]
-source = """
-    jupyter_project"""
+omit = ["*/tests/*", ]
+source = ["jupyter_project", ]
 
 [tool.coverage.report]
-show_missing = on
+show_missing = true

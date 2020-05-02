@@ -18,8 +18,6 @@ from traitlets.config import Config
 from jupyter_project.project import ProjectTemplate
 from utils import ServerTest, assert_http_error, url_path_join, generate_path
 
-template_folder = tempfile.TemporaryDirectory(suffix="project")
-
 
 @pytest.mark.parametrize("kwargs, exception", [(dict(template=""), TraitError)])
 def test_ProjectTemplate_constructor(kwargs, exception):
@@ -86,27 +84,47 @@ def test_ProjectTemplate_get_configuration(tmp_path, kwargs, configuration, exce
         dict(template=None),
         dict(template="https://github.com/me/my-template"),
         dict(template="https://github.com/me/my-template", configuration_filename=""),
+        dict(module="my_magic.package", template="my-project-template"),
     ),
 )
 def test_ProjectTemplate_render(tmp_path, kwargs):
-    tpl = ProjectTemplate(**kwargs)
-    params = dict(key1=22, key2="hello darling")
-    with mock.patch("jupyter_project.project.cookiecutter") as cookiecutter:
-        configuration = tpl.render(params, tmp_path)
+    if "module" in kwargs:
+        folder = tmp_path / "project_template" / "my_magic" / "package" / kwargs["template"]
+        folder.mkdir(exist_ok=True, parents=True)
+        parent = folder.parent
+        for i in range(2):
+            init = parent / "__init__.py"
+            init.write_bytes(b"")
+            parent = parent.parent
 
-    assert configuration == dict()
-    if tpl.template is not None:
-        cookiecutter.assert_called_once_with(
-            tpl.template, no_input=True, extra_context=params, output_dir=str(tmp_path)
-        )
-        
-        if len(tpl.configuration_filename) > 0:
-            (tmp_path / tpl.configuration_filename).exists()
-
+        sys.path.insert(0, str(parent))
+        template_uri = str(folder)
     else:
-        cookiecutter.assert_not_called()
-        assert not (tmp_path / tpl.configuration_filename).exists()
+        parent = None
+        template_uri = kwargs.get("template", None)
 
+    try:
+        tpl = ProjectTemplate(**kwargs)
+        params = dict(key1=22, key2="hello darling")
+        with mock.patch("jupyter_project.project.cookiecutter") as cookiecutter:
+            configuration = tpl.render(params, tmp_path)
+
+        assert configuration == dict()
+        if template_uri is not None:
+            cookiecutter.assert_called_once_with(
+                template_uri, no_input=True, extra_context=params, output_dir=str(tmp_path)
+            )
+            
+            if len(tpl.configuration_filename) > 0:
+                (tmp_path / tpl.configuration_filename).exists()
+
+        else:
+            cookiecutter.assert_not_called()
+            assert not (tmp_path / tpl.configuration_filename).exists()
+
+    finally:
+        if parent is not None:
+            sys.path.remove(str(parent))
 
 class TestProjectTemplate(ServerTest):
 
@@ -129,26 +147,6 @@ class TestProjectTemplate(ServerTest):
         }
     )
 
-    @classmethod
-    def setup_class(cls):
-        # Given
-        folder = Path(template_folder.name) / "project_template" / "my_magic" / "package" / "my-project-template"
-        folder.mkdir(exist_ok=True, parents=True)
-        parent = folder.parent
-        for i in range(2):
-            init = parent / "__init__.py"
-            init.write_bytes(b"")
-            parent = parent.parent
-
-        sys.path.insert(0, str(parent))
-        super().setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        super().teardown_class()
-        sys.path.remove(str(Path(template_folder.name) / "project_template"))
-        template_folder.cleanup()
-
     def test_project_get(self):
         path = generate_path()
         configuration = dict(key1=22, key2="hello darling")
@@ -162,6 +160,12 @@ class TestProjectTemplate(ServerTest):
             assert conf == configuration
 
         mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
+
+    def test_project_get_no_path(self):
+        answer = self.api_tester.get(["projects", ])
+        assert answer.status_code == 200
+        conf = answer.json()
+        assert conf == dict()
 
     def test_project_get_no_configuration(self):
         path = generate_path()
