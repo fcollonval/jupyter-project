@@ -233,7 +233,7 @@ class TestProjectTemplate(ServerTest):
     def test_project_delete(self):
         path = generate_path()
 
-        with mock.patch("jupyter_project.project.ProjectTemplate.get_configuration") as mock_configuration:
+        with mock.patch("jupyter_project.project.ProjectTemplate.get_configuration"):
             with mock.patch("jupyter_project.handlers.rmtree") as mock_rmtree:
                 answer = self.api_tester.delete(["projects", path])
                 assert answer.status_code == 204
@@ -250,11 +250,10 @@ class TestProjectTemplate(ServerTest):
         path = generate_path()
 
         with mock.patch("jupyter_project.project.ProjectTemplate.get_configuration") as mock_configuration:
-            with mock.patch("jupyter_project.handlers.rmtree") as mock_rmtree:
-                mock_configuration.side_effect = ValueError
+            mock_configuration.side_effect = ValueError
 
-                with assert_http_error(404):
-                    self.api_tester.delete(["projects", path])
+            with assert_http_error(404):
+                self.api_tester.delete(["projects", path])
 
         mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
 
@@ -262,10 +261,9 @@ class TestProjectTemplate(ServerTest):
         path = generate_path()
 
         with mock.patch("jupyter_project.project.ProjectTemplate.get_configuration") as mock_configuration:
-            with mock.patch("jupyter_project.handlers.rmtree") as mock_rmtree:
-                mock_configuration.side_effect = jsonschema.ValidationError(message="failure")
+            mock_configuration.side_effect = jsonschema.ValidationError(message="failure")
 
-                with assert_http_error(404):
-                    self.api_tester.delete(["projects", path])
+            with assert_http_error(404):
+                self.api_tester.delete(["projects", path])
 
         mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
