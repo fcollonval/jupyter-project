@@ -28,6 +28,9 @@ class FileTemplate(HasTraits):
         self._valid_template({"value": self.template})
 
     def __eq__(self, other: "FileTemplate") -> bool:
+        if self is other:
+            return True
+
         for attr in ("default_name", "destination", "schema", "template"):
             if getattr(self, attr) != getattr(other, attr):
                 return False

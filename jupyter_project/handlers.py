@@ -6,6 +6,7 @@ from shutil import rmtree
 from typing import Any, Dict
 from urllib.parse import quote
 
+from cookiecutter.exceptions import CookiecutterException
 from jinja2 import (
     Environment,
     FileSystemLoader,
@@ -14,17 +15,225 @@ from jinja2 import (
     Template,
     TemplateError,
 )
+from jsonschema.exceptions import ValidationError
 from jupyter_client.jsonutil import date_default
 from notebook.base.handlers import APIHandler, path_regex
 from notebook.utils import url_path_join, url2path
 import tornado
 
-from .config import JupyterProject
+from .config import JupyterProject, ProjectTemplate
 
 NAMESPACE = "jupyter-project"
 
 
+class FileTemplatesHandler(APIHandler):
+    """Handler for generating file from templates."""
+
+    def initialize(self, default_name: Template = None, template: Template = None):
+        """Initialize request handler
+
+        Args:
+            default_name (jinja2.Template): File default name - will be rendered with same parameters than template
+            template (jinja2.Template): Jinja2 template to use for component generation.
+        """
+        self.default_name = default_name or Template("Untitled")
+        self.template = template
+
+    @tornado.web.authenticated
+    async def post(self, path: str = ""):
+        """Create a new file in the specified path.
+
+        POST /jupyter-project/files/<parent-file-path>
+            Creates a new file applying the parameters to the Jinja template.
+
+        Request json body:
+            Dictionary of parameters for the Jinja template.
+        """
+        if self.template is None:
+            raise tornado.web.HTTPError(404, reason="File Jinja template not found.")
+
+        cm = self.contents_manager
+        params = self.get_json_body()
+
+        try:
+            default_name = self.default_name.render(**params)
+        except TemplateError as error:
+            self.log.warning(
+                f"Fail to render the default name for template '{self.template.name}'"
+            )
+            default_name = cm.untitled_file
+
+        ext = "".join(Path(self.template.name).suffixes)
+        filename = default_name + ext
+        filename = cm.increment_filename(filename, path)
+        fullpath = url_path_join(path, filename)
+
+        realpath = Path(cm.root_dir) / url2path(fullpath)
+        if not realpath.parent.exists():
+            realpath.parent.mkdir(parents=True)
+
+        current_loop = tornado.ioloop.IOLoop.current()
+        try:
+            content = await current_loop.run_in_executor(
+                None, functools.partial(self.template.render, **params)
+            )
+            realpath.write_text(content)
+        except (OSError, TemplateError) as error:
+            raise tornado.web.HTTPError(
+                500,
+                log_message=f"Fail to generate the file from template {self.template.name}.",
+                reason=repr(error),
+            )
+
+        model = cm.get(fullpath, content=False, type="file", format="text")
+        self.set_status(201)
+        self.finish(json.dumps(model, default=date_default))
+
+
+class ProjectsHandler(APIHandler):
+    """Handler for project requests."""
+
+    def initialize(self, template: ProjectTemplate = None):
+        """Initialize request handler
+
+        Args:
+            template (ProjectTemplate): Project template object.
+        """
+        self.template = template
+
+    def _get_realpath(self, path: str) -> Path:
+        """Tranform notebook path to absolute path.
+
+        Args:
+            path (str): Path to be transformed
+
+        Returns:
+            Path: Absolute path
+        """
+        return Path(self.contents_manager.root_dir) / url2path(path)
+
+    @tornado.web.authenticated
+    async def get(self, path: str = ""):
+        """Open a specific project or close any open once if path is empty.
+        
+        GET /jupyter-project/projects/<path-to-project>
+            Open the project in the given path
+
+            Answer json body:
+                Project configuration file content
+
+        GET /jupyter-project/projects
+            Close any opened project
+
+            Answer json body:
+                Empty dictionary
+        """
+        if self.template is None:
+            raise tornado.web.HTTPError(
+                404, reason="Project cookiecutter template not found."
+            )
+
+        configuration = dict()
+        if len(path) == 0:
+            # Close the current open project
+            pass
+        else:
+            fullpath = self._get_realpath(path)
+            # Check that the path is a project
+            current_loop = tornado.ioloop.IOLoop.current()
+            try:
+                configuration = await current_loop.run_in_executor(
+                    None, self.template.get_configuration, fullpath
+                )
+            except (ValidationError, ValueError):
+                raise tornado.web.HTTPError(
+                    404, reason=f"Path {path} is not a valid project"
+                )
+
+        self.finish(json.dumps(configuration))
+
+    @tornado.web.authenticated
+    async def post(self, path: str = ""):
+        """Create a new project in the provided path.
+        
+        POST /jupyter-project/projects/<path-to-project>
+            Create a new project in the given path
+
+        Request json body:
+            Parameters dictionary for the cookiecutter template
+
+            Answer json body:
+                Project configuration file content
+        """
+        if self.template is None:
+            raise tornado.web.HTTPError(
+                404, reason="Project cookiecutter template not found."
+            )
+
+        params = self.get_json_body()
+
+        realpath = self._get_realpath(path)
+        if not realpath.parent.exists():
+            realpath.parent.mkdir(parents=True)
+
+        current_loop = tornado.ioloop.IOLoop.current()
+        try:
+            configuration = await current_loop.run_in_executor(
+                None, self.template.render, params, realpath
+            )
+        except (CookiecutterException, OSError) as error:
+            raise tornado.web.HTTPError(
+                500,
+                log_message=f"Fail to generate the project from the cookiecutter template.",
+                reason=repr(error),
+            )
+        except ValidationError as error:
+            raise tornado.web.HTTPError(
+                500,
+                log_message=f"Invalid default project configuration file.",
+                reason=repr(error),
+            )
+
+        self.set_status(201)
+        self.finish(json.dumps(configuration))
+
+    @tornado.web.authenticated
+    async def delete(self, path: str = ""):
+        """Delete the project at the given path.
+        
+        DELETE /jupyter-project/projects/<path-to-project>
+            Delete the project
+        """
+        if self.template is None:
+            raise tornado.web.HTTPError(
+                404, reason="Project cookiecutter template not found."
+            )
+
+        if len(path) == 0:
+            self.finish()
+            return
+
+        fullpath = self._get_realpath(path)
+        # Check that the path is a project
+        current_loop = tornado.ioloop.IOLoop.current()
+        try:
+            await current_loop.run_in_executor(
+                None, self.template.get_configuration, fullpath
+            )
+        except (ValidationError, ValueError):
+            raise tornado.web.HTTPError(
+                404, reason=f"Path {path} is not a valid project"
+            )
+
+        rmtree(fullpath, ignore_errors=True)
+
+        self.set_status(204)
+        self.finish()
+
+
 class SettingsHandler(APIHandler):
+    """Handler to get the extension server configuration."""
+
     def initialize(self, project_settings: Dict[str, Any] = None):
         self.project_settings = project_settings or {}
 
@@ -46,111 +255,6 @@ class SettingsHandler(APIHandler):
         }
         """
         self.finish(json.dumps(self.project_settings))
-
-
-class ProjectsHandler(APIHandler):
-    def initialize(self, template: str = ""):
-        """Initialize request handler
-
-        Args:
-            template (str): Folder containing the cookiecutter template to be used to generate a CoSApp project.
-        """
-        self.template = template
-
-    def _get_realpath(self, path: str) -> Path:
-        """Tranform notebook path to absolute path.
-
-        Args:
-            path (str): Path to be transformed
-
-        Returns:
-            Path: Absolute path
-        """
-        return Path(self.contents_manager.root_dir) / url2path(path)
-
-    @tornado.web.authenticated
-    async def get(self, path: str = ""):
-        self.log.debug(f"GET /{NAMESPACE}/projects{path}")
-        self.finish(json.dumps({}))
-
-    @tornado.web.authenticated
-    async def post(self, path: str = ""):
-        self.log.debug(f"POST /{NAMESPACE}/projects{path}")
-
-        self.set_status(201)
-        self.finish()
-
-    @tornado.web.authenticated
-    async def delete(self, path: str = ""):
-        self.log.debug(f"DELETE /{NAMESPACE}/projects{path}")
-
-        fullpath = self._get_realpath(path)
-        # rmtree(fullpath, ignore_errors=True)
-
-        self.set_status(204)
-        self.finish()
-
-
-class FileTemplatesHandler(APIHandler):
-    def initialize(self, default_name: Template = None, template: Template = None):
-        """Initialize request handler
-
-        Args:
-            default_name (jinja2.Template): File default name - will be rendered with same parameters than template
-            template (jinja2.Template): Jinja2 template to use for component generation.
-        """
-        self.default_name = default_name or Template("Untitled")
-        self.template = template
-
-    @tornado.web.authenticated
-    async def post(self, path: str = ""):
-        """Create a new file in the specified path.
-
-        POST creates a new file applying the parameters to the Jinja template.
-
-        Request json body:
-            Dictionary of parameters for the Jinja template.
-        """
-        if self.template is None:
-            raise tornado.web.HTTPError(404, reason="Jinja template not found.")
-
-        cm = self.contents_manager
-        root_dir = Path(cm.root_dir)
-        params = self.get_json_body()
-
-        try:
-            default_name = self.default_name.render(**params)
-        except TemplateError as error:
-            self.log.warning(
-                f"Fail to render the default name for template '{self.template.name}'"
-            )
-            default_name = cm.untitled_file
-
-        ext = "".join(Path(self.template.name).suffixes)
-        filename = default_name + ext
-        filename = cm.increment_filename(filename, path)
-        fullpath = url_path_join(path, filename)
-
-        realpath = root_dir / url2path(fullpath)
-        if not realpath.parent.exists():
-            realpath.parent.mkdir(parents=True)
-
-        current_loop = tornado.ioloop.IOLoop.current()
-        try:
-            content = await current_loop.run_in_executor(
-                None, functools.partial(self.template.render, **params)
-            )
-            realpath.write_text(content)
-        except (OSError, TemplateError) as error:
-            raise tornado.web.HTTPError(
-                500,
-                log_message=f"Fail to generate the file from template {self.template.name}.",
-                reason=repr(error),
-            )
-
-        model = cm.get(fullpath, content=False, type="file", format="text")
-        self.set_status(201)
-        self.finish(json.dumps(model, default=date_default))
 
 
 def setup_handlers(
@@ -224,7 +328,9 @@ def setup_handlers(
                 )
             )
 
-            destination = None if file.destination == Path("") else str(file.destination)
+            destination = (
+                None if file.destination == Path("") else file.destination.as_posix()
+            )
 
             file_settings.append(
                 {
@@ -235,13 +341,29 @@ def setup_handlers(
             )
 
     project_template = config.project_template
-    handlers.append(
-        (
-            url_path_join(base_url, r"projects{:s}".format(path_regex)),
-            ProjectsHandler,
-            {"template": project_template},
+    if project_template is None or project_template.template is None:
+        project_settings = None
+    else:
+        handlers.append(
+            (
+                url_path_join(base_url, r"projects{:s}".format(path_regex)),
+                ProjectsHandler,
+                {"template": project_template},
+            )
         )
-    )
+
+        default_path = (
+            None
+            if project_template.default_path == Path("")
+            else project_template.default_path.as_posix()
+        )
+        project_settings = {
+            "configuration_filename": project_template.configuration_filename,
+            "default_path": default_path,
+            "schema": (
+                project_template.schema if len(project_template.schema) else None
+            ),
+        }
 
     handlers.append(
         (
@@ -250,10 +372,7 @@ def setup_handlers(
             {
                 "project_settings": {
                     "file_templates": file_settings,
-                    "project_file": config.project_file,
-                    "project_template": project_template.schema
-                    if len(project_template.schema)
-                    else None,
+                    "project_template": project_settings,
                 }
             },
         ),

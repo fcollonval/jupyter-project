@@ -6,17 +6,9 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
 
 
 @pytest.mark.parametrize(
-    "config, files, pfile, ptemplate",
+    "config, files, ptemplate",
     [
-        (
-            {},
-            [],
-            "jupyter-project.json",
-            dict(
-                name="drivendata",
-                template="https://github.com/drivendata/cookiecutter-data-science",
-            ),
-        ),
+        ({}, [], None,),
         (
             {
                 "file_templates": [
@@ -25,7 +17,7 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                         "location": "/dummy/file_templates",
                         "files": [{"template": "template1.py"}],
                     }
-                ]
+                ],
             },
             [
                 dict(
@@ -34,13 +26,7 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                     files=[dict(template="template1.py",)],
                 )
             ],
-            "jupyter-project.json",
-            dict(
-                name="drivendata",
-                template="https://github.com/drivendata/cookiecutter-data-science",
-                schema=dict(),
-                destination=".",
-            ),
+            None,
         ),
         (
             {
@@ -49,30 +35,27 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                         "location": "/dummy/file_templates",
                         "files": [{"template": "template1.py"}],
                     }
-                ]
+                ],
             },
             TraitError,
-            None,
             None,
         ),
         (
             {
                 "file_templates": [
                     {"name": "template1", "files": [{"template": "template1.py"}]}
-                ]
+                ],
             },
             TraitError,
-            None,
             None,
         ),
         (
             {
                 "file_templates": [
                     {"name": "template1", "location": "/dummy/file_templates"}
-                ]
+                ],
             },
             TraitError,
-            None,
             None,
         ),
         (
@@ -92,7 +75,7 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                             }
                         ],
                     }
-                ]
+                ],
             },
             [
                 dict(
@@ -108,61 +91,74 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                     ],
                 )
             ],
-            "jupyter-project.json",
-            dict(
-                name="drivendata",
-                template="https://github.com/drivendata/cookiecutter-data-science",
-                schema=dict(),
-                destination=".",
-            ),
+            None,
         ),
         (
-            {"project_file": "my-project.json"},
+            {
+                "project_template": {
+                    "template": "my_magic.package",
+                    "configuration_filename": "my-project.json",
+                }
+            },
             [],
-            "my-project.json",
             dict(
-                name="drivendata",
-                template="https://github.com/drivendata/cookiecutter-data-science",
-                schema=dict(),
-                destination=".",
+                template="my_magic.package", configuration_filename="my-project.json",
             ),
         ),
         (
             {
-                "project_file": "my-project.json",
                 "project_template": {
-                    "name": "my-project-template",
                     "template": "my_magic.package",
-                },
+                    "configuration_schema": dict(
+                        title="schema", description="empty schema"
+                    ),
+                }
             },
             [],
-            "my-project.json",
             dict(
-                name="my-project-template",
                 template="my_magic.package",
-                schema=dict(),
-                destination=".",
+                configuration_schema=dict(title="schema", description="empty schema"),
+            ),
+        ),
+        (
+            {
+                "project_template": {
+                    "template": "my_magic.package",
+                    "default_path": "my-project.json",
+                }
+            },
+            [],
+            dict(template="my_magic.package", default_path="my-project.json",),
+        ),
+        (
+            {
+                "project_template": {
+                    "template": "my_magic.package",
+                    "schema": dict(title="schema", description="empty schema"),
+                }
+            },
+            [],
+            dict(
+                template="my_magic.package",
+                schema=dict(title="schema", description="empty schema"),
             ),
         ),
         (
             {"project_template": {"template": "my_magic.package",},},
-            TraitError,
-            None,
-            None,
+            [],
+            dict(template="my_magic.package",),
         ),
-        (
-            {"project_template": {"name": "my-project-template",},},
-            TraitError,
-            None,
-            None,
-        ),
+        ({"project_template": {"template": "",},}, TraitError, None,),
         (
             {
-                "project_file": "my-project.json",
                 "project_template": {
-                    "name": "my-project-template",
+                    "configuration_filename": "my-project.json",
+                    "configuration_schema": dict(
+                        title="Project configuration",
+                        description="My project configuration structure",
+                    ),
                     "template": "my_magic.package",
-                    "destination": "my_workspace",
+                    "default_path": "my_workspace",
                     "schema": dict(
                         title="Project parameters",
                         description="My project template parameters",
@@ -170,20 +166,23 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                 },
             },
             [],
-            "my-project.json",
             dict(
-                name="my-project-template",
+                configuration_filename="my-project.json",
+                configuration_schema=dict(
+                    title="Project configuration",
+                    description="My project configuration structure",
+                ),
                 template="my_magic.package",
                 schema=dict(
                     title="Project parameters",
                     description="My project template parameters",
                 ),
-                destination="my_workspace",
+                default_path="my_workspace",
             ),
         ),
     ],
 )
-def test_JupyterProject(config, files, pfile, ptemplate):
+def test_JupyterProject(config, files, ptemplate):
     if isinstance(files, type) and issubclass(files, Exception):
         with pytest.raises(files):
             jp = JupyterProject(
@@ -207,5 +206,7 @@ def test_JupyterProject(config, files, pfile, ptemplate):
         )
 
         assert jp.file_templates == [FileTemplateLoader(**kw) for kw in files]
-        assert jp.project_file == pfile
-        assert jp.project_template == ProjectTemplate(**ptemplate)
+        if ptemplate is None:
+            assert jp.project_template is None
+        else:
+            assert jp.project_template == ProjectTemplate(**ptemplate)

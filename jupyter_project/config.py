@@ -16,18 +16,9 @@ class JupyterProject(Configurable):
         config=True,
     )
 
-    project_file = Unicode(
-        default_value="jupyter-project.json",
-        help="Name of the project configuration file",
-        config=True,
-    )
-
     project_template = AutoInstance(
         ProjectTemplate,
-        kw=dict(
-            name="drivendata",
-            template="https://github.com/drivendata/cookiecutter-data-science",
-        ),
-        help="The project cookiecutter template (can be local path or URL).",
+        allow_none=True,
+        help="The project template options",
         config=True,
     )

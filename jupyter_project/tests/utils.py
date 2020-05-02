@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import List
 
 from traitlets.config import Config
@@ -69,3 +70,7 @@ class ServerTest(ServerTestBase):
     def setUp(self):
         super(ServerTest, self).setUp()
         self.api_tester = APITester(self.request)
+
+
+def generate_path():
+    return url_path_join(*str(uuid.uuid4()).split("-"))

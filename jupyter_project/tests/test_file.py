@@ -9,17 +9,12 @@ from urllib.parse import quote
 
 import jinja2
 import pytest
-import requests
 import tornado
 from traitlets.config import Config
 
-from utils import ServerTest, assert_http_error, url_path_join
+from utils import ServerTest, assert_http_error, url_path_join, generate_path
 
 template_folder = tempfile.TemporaryDirectory(suffix="files")
-
-
-def generate_path():
-    return url_path_join(*str(uuid.uuid4()).split("-"))
 
 
 class TestPathFileTemplate(ServerTest):
@@ -100,15 +95,17 @@ class TestPathFileTemplate(ServerTest):
         path = generate_path()
         body = dict(dummy="hello", smart="world")
 
-        answer = self.api_tester.post(["files", quote("template1/file1", safe=""), path], body=body)
+        answer = self.api_tester.post(
+            ["files", quote("template1/file1", safe=""), path], body=body
+        )
         assert answer.status_code == 201
 
         instance.render.assert_called_with(**body)
         renderer.assert_called_with(**body)
         model = answer.json()
-        assert model['content'] is None
-        assert model['name'] == name + ".py"
-        assert model['path'] == url_path_join(path, name + ".py")
+        assert model["content"] is None
+        assert model["name"] == name + ".py"
+        assert model["path"] == url_path_join(path, name + ".py")
 
     @mock.patch("jupyter_project.handlers.Template")
     @mock.patch("jinja2.Template.render")
@@ -120,16 +117,18 @@ class TestPathFileTemplate(ServerTest):
         path = generate_path()
         body = dict(dummy="hello", smart="world")
 
-        answer = self.api_tester.post(["files", quote("template1/file2", safe=""), path], body=body)
+        answer = self.api_tester.post(
+            ["files", quote("template1/file2", safe=""), path], body=body
+        )
         assert answer.status_code == 201
 
         instance.render.assert_called_with(**body)
         renderer.assert_called_with(**body)
         model = answer.json()
-        assert model['content'] is None
-        assert model['name'] == name + ".html"
-        assert model['path'] == url_path_join(path, name + ".html")
-        
+        assert model["content"] is None
+        assert model["name"] == name + ".html"
+        assert model["path"] == url_path_join(path, name + ".html")
+
     @mock.patch("jupyter_project.handlers.Template")
     @mock.patch("jinja2.Template.render")
     def test_template2_file1(self, renderer, default_name):
@@ -139,16 +138,18 @@ class TestPathFileTemplate(ServerTest):
         renderer.return_value = "dummy content"
         path = generate_path()
         body = dict(dummy="hello", smart="world")
-        
-        answer = self.api_tester.post(["files", quote("template2/file1", safe=""), path], body=body)
+
+        answer = self.api_tester.post(
+            ["files", quote("template2/file1", safe=""), path], body=body
+        )
         assert answer.status_code == 201
 
         instance.render.assert_called_with(**body)
         renderer.assert_called_with(**body)
         model = answer.json()
-        assert model['content'] is None
-        assert model['name'] == name + ".py"
-        assert model['path'] == url_path_join(path, name + ".py")
+        assert model["content"] is None
+        assert model["name"] == name + ".py"
+        assert model["path"] == url_path_join(path, name + ".py")
 
     @mock.patch("jupyter_project.handlers.Template")
     @mock.patch("jinja2.Template.render")
@@ -159,23 +160,25 @@ class TestPathFileTemplate(ServerTest):
         renderer.return_value = "dummy content"
         path = generate_path()
         body = dict(dummy="hello", smart="world")
-        
-        answer = self.api_tester.post(["files", quote("template3/file1", safe=""), path], body=body)
+
+        answer = self.api_tester.post(
+            ["files", quote("template3/file1", safe=""), path], body=body
+        )
         assert answer.status_code == 201
 
         instance.render.assert_called_with(**body)
         renderer.assert_called_with(**body)
         model = answer.json()
-        assert model['content'] is None
-        assert model['name'] == name + ".py"
-        assert model['path'] == url_path_join(path, name + ".py")
+        assert model["content"] is None
+        assert model["name"] == name + ".py"
+        assert model["path"] == url_path_join(path, name + ".py")
 
     def test_missing_endpoint(self):
-        with pytest.raises(requests.exceptions.HTTPError):
+        with assert_http_error(404):
             self.api_tester.post(["files", quote("template4/file", safe="")], body={})
 
     def test_missing_body(self):
-        with pytest.raises(requests.exceptions.HTTPError):
+        with assert_http_error(500):
             self.api_tester.post(["files", quote("template3/file1", safe="")])
 
     @mock.patch("jupyter_project.handlers.Template")
@@ -187,16 +190,18 @@ class TestPathFileTemplate(ServerTest):
         path = generate_path()
         body = dict(dummy="hello", smart="world")
 
-        answer = self.api_tester.post(["files", quote("template1/file1", safe=""), path], body=body)
+        answer = self.api_tester.post(
+            ["files", quote("template1/file1", safe=""), path], body=body
+        )
         assert answer.status_code == 201
 
         instance.render.assert_called_with(**body)
         renderer.assert_called_with(**body)
         model = answer.json()
-        assert model['content'] is None
-        print(model['name'])
-        assert re.match(r"untitled\d*\.py", model['name']) is not None
-        assert re.match(path + r"/untitled\d*\.py", model['path']) is not None
+        assert model["content"] is None
+        print(model["name"])
+        assert re.match(r"untitled\d*\.py", model["name"]) is not None
+        assert re.match(path + r"/untitled\d*\.py", model["path"]) is not None
 
     @mock.patch("jupyter_project.handlers.Template")
     @mock.patch("jinja2.Template.render")
@@ -208,5 +213,8 @@ class TestPathFileTemplate(ServerTest):
         path = generate_path()
         body = dict(dummy="hello", smart="world")
 
-        with pytest.raises(requests.exceptions.HTTPError):
-            self.api_tester.post(["files", quote("template1/file1", safe=""), path], body=body)
+        with assert_http_error(500):
+            self.api_tester.post(
+                ["files", quote("template1/file1", safe=""), path], body=body
+            )
+

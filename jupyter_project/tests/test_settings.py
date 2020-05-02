@@ -5,6 +5,7 @@ from unittest import mock
 from urllib.parse import quote
 
 import pytest
+import requests
 import tornado
 from traitlets.config import Config
 
@@ -45,9 +46,14 @@ class TestSettings(ServerTest):
                         ],
                     },
                 ],
-                "project_file": "my-project.json",
                 "project_template": {
-                    "name": "my-project-template",
+                    "configuration_filename": "my-project.json",
+                    "configuration_schema": {
+                        "title": "Project configuration schema",
+                        "description": "Project configuration",
+                        "properties": {"n_notebooks": {"type": "number"}},
+                    },
+                    "default_path": "notebooks",
                     "template": "my_magic.package",
                     "schema": {
                         "title": "My Project",
@@ -118,10 +124,38 @@ class TestSettings(ServerTest):
                     "schema": {"properties": {"count": {"type": "number"}}},
                 },
             ],
-            "project_file": "my-project.json",
             "project_template": {
-                "title": "My Project",
-                "description": "Project template description",
-                "properties": {"count": {"type": "number"}},
+                "configuration_filename": "my-project.json",
+                "default_path": "notebooks",
+                "schema": {
+                    "title": "My Project",
+                    "description": "Project template description",
+                    "properties": {"count": {"type": "number"}},
+                },
             },
         }
+
+
+class TestEmptySettings(ServerTest):
+
+    config = Config(
+        {
+            "NotebookApp": {"nbserver_extensions": {"jupyter_project": True}}
+        }
+    )
+
+    def test_get_empty_settings(self):
+        answer = self.api_tester.get(["settings",])
+        assert answer.status_code == 200
+        settings = answer.json()
+        assert settings == {"file_templates": [], "project_template": None}
+
+    def test_no_project_endpoint(self):
+        with assert_http_error(404):
+            self.api_tester.get(["projects"])
+
+        with assert_http_error(404):
+            self.api_tester.post(["projects"])
+
+        with assert_http_error(404):
+            self.api_tester.delete(["projects"])
