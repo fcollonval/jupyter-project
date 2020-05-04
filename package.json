@@ -1,11 +1,12 @@
 {
   "name": "jupyter-project",
   "version": "0.1.0",
-  "description": "An JupyterLab extension to handle project folders.",
+  "description": "An JupyterLab extension to handle project and files template.",
   "keywords": [
     "jupyter",
     "jupyterlab",
-    "jupyterlab-extension"
+    "jupyterlab-extension",
+    "template"
   ],
   "homepage": "https://github.com/fcollonval/jupyter-project",
   "bugs": {
@@ -13,47 +14,63 @@
   },
   "license": "BSD-3-Clause",
   "author": "Frederic Collonval",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "style": "style/index.css",
   "repository": {
     "type": "git",
     "url": "https://github.com/fcollonval/jupyter-project.git"
   },
   "scripts": {
     "build": "jlpm run build:lib",
-    "build:labextension": "cd jupyter_project && rimraf labextension && mkdirp labextension && cd labextension",
-    "build:lib": "lerna bootstrap --hoist && tsc --build --incremental tsconfig.build.json",
+    "build:labextension": "cd jupyter_project && rimraf labextension && mkdirp labextension && cd labextension && npm pack ../..",
+    "build:lib": "tsc",
     "build:all": "jlpm run build:labextension",
     "clean": "jlpm run clean:lib",
-    "clean:lib": "tsc --build --clean tsconfig.build.json",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:labextension": "rimraf jupyter_project/labextension",
     "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "eslint": "eslint . --ext .ts,.tsx --fix packages",
-    "eslint:check": "eslint . --ext .ts,.tsx packages",
+    "eslint": "eslint . --ext .ts,.tsx --fix",
+    "eslint:check": "eslint . --ext .ts,.tsx",
     "prepare": "jlpm run clean && jlpm run build",
-    "watch": "tsc -w",
-    "test": "jest"
+    "watch": "tsc -w"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@jupyterlab/application": "^1.2.0",
+    "@jupyterlab/coreutils": "^3.2.0",
+    "@jupyterlab/services": "^4.2.0"
+  },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "7.5.5",
-    "@babel/preset-react": "7.0.0",
-    "@babel/preset-typescript": "7.3.3",
-    "@types/enzyme": "3.10.3",
-    "@types/jest": "24.0.17",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
-    "enzyme": "3.10.0",
-    "enzyme-adapter-react-16": "1.14.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
-    "jest": "24.8.0",
     "lerna": "^3.20.2",
     "mkdirp": "^1.0.3",
     "prettier": "1.16.4",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
     "rimraf": "^2.6.1",
-    "typescript": "~3.7.0"
+    "typescript": "~3.5.2"
+  },
+  "sideEffects": [
+    "style/*.css"
+  ],
+  "jupyterlab": {
+    "discovery": {
+      "server": {
+        "managers": [
+          "pip",
+          "conda"
+        ],
+        "base": {
+          "name": "jupyter-project"
+        }
+      }
+    },
+    "extension": true
   }
 }
