@@ -2,10 +2,10 @@
 
 ![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Build/badge.svg)
 
-An JupyterLab extension to handle project folders. It adds the ability to 
+An JupyterLab extension to handle project and files templates. It adds the ability to 
 generate project from a [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/) template as well as generate files
 from [Jinja2](https://jinja.palletsprojects.com/en/master/) templates. Those templates can be parametrized directly from
-the frontend by specifying a [JSON schema](https://json-schema.org/).
+the frontend by specifying [JSON schemas](https://json-schema.org/).
 
 
 This extension is composed of a Python package named `jupyter_project`

@@ -54,7 +54,7 @@ setup_args = dict(
     version=version,
     url="https://github.com/fcollonval/jupyter-project",
     author="Frederic Collonval",
-    description="An JupyterLab extension to handle project folders.",
+    description="An JupyterLab extension to handle project and files templates.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     cmdclass=cmdclass,
@@ -63,8 +63,7 @@ setup_args = dict(
         "cookiecutter",
         "jinja2~=2.9",
         "jsonschema",
-        "jupyterlab~=1.0",
-        "jupyterlab_server~=1.0.0",
+        "jupyterlab~=1.2"
     ],
     extras_require={
         "test": ["pytest", "pytest-asyncio"]
@@ -73,7 +72,7 @@ setup_args = dict(
     include_package_data=True,
     license="BSD-3-Clause",
     platforms="Linux, Mac OS X, Windows",
-    keywords=["Jupyter", "JupyterLab"],
+    keywords=["Jupyter", "JupyterLab", "template"],
     classifiers=[
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
