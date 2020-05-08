@@ -17,6 +17,7 @@ class FileTemplate(HasTraits):
         config=True,
     )
     destination = Path(help="Relative destination folder [optional]", config=True)
+    template_name = Unicode(help="Template name in the UI [optional]", config=True)
     schema = JSONSchema(
         help="JSON schema list describing the templates parameters", config=True
     )

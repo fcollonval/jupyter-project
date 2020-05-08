@@ -243,15 +243,18 @@ class SettingsHandler(APIHandler):
 
         Return body:
         {
-            "file_templates": [
+            "fileTemplates": [
                 {
                     "endpoint": str,
                     "destination": str | null,
                     "schema": JSONschema | null
                 }
             ],
-            "project_file" : str,
-            "project_template": JSONschema | null
+            "projectTemplate": {
+                configurationFilename: str,
+                defaultPath: str | null,
+                schema: JSONschema | null
+            }
         }
         """
         self.finish(json.dumps(self.project_settings))
@@ -334,6 +337,7 @@ def setup_handlers(
 
             file_settings.append(
                 {
+                    "name": file.template_name or endpoint,
                     "endpoint": endpoint,
                     "destination": destination,
                     "schema": file.schema if len(file.schema) else None,
@@ -358,8 +362,8 @@ def setup_handlers(
             else project_template.default_path.as_posix()
         )
         project_settings = {
-            "configuration_filename": project_template.configuration_filename,
-            "default_path": default_path,
+            "configurationFilename": project_template.configuration_filename,
+            "defaultPath": default_path,
             "schema": (
                 project_template.schema if len(project_template.schema) else None
             ),
@@ -371,8 +375,8 @@ def setup_handlers(
             SettingsHandler,
             {
                 "project_settings": {
-                    "file_templates": file_settings,
-                    "project_template": project_settings,
+                    "fileTemplates": file_settings,
+                    "projectTemplate": project_settings,
                 }
             },
         ),

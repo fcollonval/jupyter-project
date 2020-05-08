@@ -4,6 +4,12 @@ import {
 } from '@jupyterlab/application';
 
 import { requestAPI } from './jupyter-project';
+import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import { ILauncher } from '@jupyterlab/launcher';
+import { IMainMenu } from '@jupyterlab/mainmenu';
+import { ICommandPalette } from '@jupyterlab/apputils';
+import { activateFileGenerator } from './filetemplates';
+import { Templates } from './tokens';
 
 /**
  * Initialization data for the jupyter-project extension.
@@ -11,19 +17,32 @@ import { requestAPI } from './jupyter-project';
 const extension: JupyterFrontEndPlugin<void> = {
   id: 'jupyter-project',
   autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
+  activate: async (
+    app: JupyterFrontEnd,
+    palette: ICommandPalette,
+    browserFactory: IFileBrowserFactory,
+    launcher: ILauncher | null,
+    menu: IMainMenu | null
+  ) => {
     console.log('JupyterLab extension jupyter-project is activated!');
 
-    requestAPI<any>('get_example')
-      .then(data => {
-        console.log(data);
-      })
-      .catch(reason => {
-        console.error(
-          `The jupyter_project server extension appears to be missing.\n${reason}`
-        );
-      });
-  }
+    const { commands } = app;
+
+    const settings = await requestAPI<Templates.ISettings>('settings', {
+      method: 'GET'
+    });
+
+    await activateFileGenerator(
+      commands,
+      browserFactory,
+      settings.fileTemplates,
+      palette,
+      launcher,
+      menu
+    );
+  },
+  requires: [ICommandPalette, IFileBrowserFactory],
+  optional: [ILauncher, IMainMenu]
 };
 
 export default extension;
