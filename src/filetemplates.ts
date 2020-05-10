@@ -13,7 +13,7 @@ import Ajv from 'ajv';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { requestAPI } from './jupyter-project';
 import { CommandIDs, Templates } from './tokens';
-import { Form } from './form';
+import { showForm } from './form';
 
 const ajv = new Ajv({ allErrors: true, useDefaults: true });
 
@@ -153,11 +153,18 @@ export async function activateFileGenerator(
         }
 
         endpoint = generator.endpoint;
+      } else {
+        generator = generators.find(
+          generator => generator.endpoint === endpoint
+        );
       }
 
       let params = {};
       if (generator.schema) {
-        const userForm = await new Form(generator.schema).launch();
+        const userForm = await showForm({
+          schema: generator.schema,
+          title: `Parameters of ${generator.name}`
+        });
         if (!userForm.button.accept) {
           return;
         }

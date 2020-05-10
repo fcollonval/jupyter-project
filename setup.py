@@ -28,7 +28,7 @@ lab_path = os.path.join(HERE, name, "labextension")
 
 # Representative files that should exist after a successful build
 jstargets = [
-    # os.path.join(HERE, "lib", "jupyter-project.js"),
+    os.path.join(HERE, "lib", "jupyter-project.js"),
 ]
 
 package_data_spec = {name: ["*"]}

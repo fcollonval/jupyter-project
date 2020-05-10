@@ -1,0 +1,39 @@
+{
+  "JupyterProject": {
+    "file_templates": [
+      {
+        "name": "files",
+        "module": "jupyter_project",
+        "location": "examples",
+        "files": [
+          {
+            "template": "demo.ipynb"
+          },
+          {
+            "template_name": "Example",
+            "template": "example.ipynb"
+          },
+          {
+            "default_name": "{{ modelName }}",
+            "destination": "src/models",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "authorName": {
+                        "type": "string"
+                    },
+                    "modelName": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z_]\\w*$"
+                    }
+                },
+                "required": ["modelName"]
+            },
+            "template_name": "Train Model",
+            "template": "train_model.py"
+          }
+        ]
+      }
+    ]
+  }
+}

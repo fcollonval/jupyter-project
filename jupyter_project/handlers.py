@@ -327,7 +327,10 @@ def setup_handlers(
                         base_url, r"files/{:s}{:s}".format(endpoint, path_regex),
                     ),
                     FileTemplatesHandler,
-                    {"template": env.get_template(f"{name}/{pfile.as_posix()}")},
+                    {
+                        "default_name": Template(file.default_name),
+                        "template": env.get_template(f"{name}/{pfile.as_posix()}")
+                    },
                 )
             )
 
