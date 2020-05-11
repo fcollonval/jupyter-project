@@ -1,8 +1,13 @@
 {
+  "NotebookApp": {
+    "nbserver_extensions": {
+      "jupyter_project": true
+    }
+  },
   "JupyterProject": {
     "file_templates": [
       {
-        "name": "files",
+        "name": "data-sciences",
         "module": "jupyter_project",
         "location": "examples",
         "files": [
@@ -17,17 +22,17 @@
             "default_name": "{{ modelName }}",
             "destination": "src/models",
             "schema": {
-                "type": "object",
-                "properties": {
-                    "authorName": {
-                        "type": "string"
-                    },
-                    "modelName": {
-                        "type": "string",
-                        "pattern": "^[a-zA-Z_]\\w*$"
-                    }
+              "type": "object",
+              "properties": {
+                "authorName": {
+                  "type": "string"
                 },
-                "required": ["modelName"]
+                "modelName": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z_]\\w*$"
+                }
+              },
+              "required": ["modelName"]
             },
             "template_name": "Train Model",
             "template": "train_model.py"
@@ -60,7 +65,6 @@
             "description": "A short description of the project."
           },
           "open_source_license": {
-            "title": "License",
             "type": "string",
             "enum": ["MIT", "BSD-3-Clause", "No license file"]
           }

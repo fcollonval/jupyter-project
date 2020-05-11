@@ -1,6 +1,8 @@
 # jupyter-project
 
-![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Build/badge.svg)
+[![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Test/badge.svg)](https://github.com/fcollonval/jupyter-project/actions?query=workflow%3ATest)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/master?urlpath=lab)
+
 
 An JupyterLab extension to handle project and files templates. It adds the ability to 
 generate project from a [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/) template as well as generate files

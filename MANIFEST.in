@@ -1,6 +1,7 @@
 include LICENSE
 include README.md
 include pyproject.toml
+include jupyter_notebook_config.json
 
 include jupyter-config/jupyter_project.json
 
