@@ -11,6 +11,7 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { Contents } from '@jupyterlab/services';
 import { IStatusBar } from '@jupyterlab/statusbar';
+import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
 import { Signal } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
@@ -22,6 +23,13 @@ import { CommandIDs, PluginID, Project, Templates } from './tokens';
 import { createValidator } from './validator';
 
 const StateID = `${PluginID}:project`;
+
+namespace ForeignCommandIDs {
+  export const closeAll = 'application:close-all';
+  export const goTo = 'filebrowser:go-to-path';
+  export const openPath = 'filebrowser:open-path';
+  export const saveAll = 'docmanager:save-all';
+}
 
 class ProjectManager implements Project.IManager {
   constructor(
@@ -73,7 +81,7 @@ class ProjectManager implements Project.IManager {
 
   protected _setProject(newProject: Project.IModel | null): void {
     let changed = this._project !== newProject;
-    if (!this._project && !newProject) {
+    if (!changed && !this._project && !newProject) {
       changed = !JSONExt.deepEqual(newProject as any, this._project as any);
     }
 
@@ -124,6 +132,9 @@ class ProjectManager implements Project.IManager {
       endpoint = URLExt.join(endpoint, this.project.path);
     }
 
+    // Close the project before requesting its deletion
+    await this.close();
+
     return requestAPI<void>(endpoint, {
       method: 'DELETE'
     });
@@ -158,7 +169,16 @@ class ProjectManager implements Project.IManager {
   private _state: IStateDB;
 }
 
-export async function activateProjectManager(
+async function resetWorkspace(commands: CommandRegistry): Promise<void> {
+  await commands.execute(ForeignCommandIDs.saveAll);
+  await commands.execute(ForeignCommandIDs.closeAll);
+
+  await commands.execute(ForeignCommandIDs.goTo, {
+    path: '/'
+  });
+}
+
+export function activateProjectManager(
   app: JupyterFrontEnd,
   state: IStateDB,
   browserFactory: IFileBrowserFactory,
@@ -167,7 +187,7 @@ export async function activateProjectManager(
   launcher: ILauncher | null,
   menu: IMainMenu | null,
   statusbar: IStatusBar | null
-): Promise<Project.IManager> {
+): Project.IManager {
   const { commands } = app;
   const category = 'Project';
 
@@ -204,9 +224,7 @@ export async function activateProjectManager(
         showErrorMessage('Fail to render the project', error);
       }
     },
-    iconClass: (
-      args // TODO add icon to settings
-    ) =>
+    iconClass: args =>
       args['isPalette'] || !args['isLauncher']
         ? ''
         : 'jp-JupyterProjectProjectIcon',
@@ -261,7 +279,7 @@ export async function activateProjectManager(
       }
 
       if (manager.defaultPath) {
-        commands.execute('filebrowser:open-path', {
+        commands.execute(ForeignCommandIDs.openPath, {
           path: PathExt.join(manager.project.path, manager.defaultPath)
         });
       }
@@ -274,11 +292,9 @@ export async function activateProjectManager(
     isEnabled: () => manager.project !== null,
     execute: async () => {
       try {
-        manager.open('');
+        await resetWorkspace(commands);
+        manager.close();
         // TODO Clean kernel white list
-        commands.execute('filebrowser:go-to-path', {
-          path: '/'
-        });
       } catch (error) {
         showErrorMessage('Failed to remove the current project', error);
       }
@@ -293,23 +309,22 @@ export async function activateProjectManager(
       // TODO let environment = manager.project.environment;
       const userChoice = await showDialog({
         title: 'Delete',
-        body: `Are you sure you want to permanently delete the project: ${
+        body: `Are you sure you want to permanently delete the project\n'${
           manager.project.name
-        }?`,
+        }' in ${manager.project.path}?`,
         buttons: [Dialog.cancelButton(), Dialog.warnButton({ label: 'DELETE' })]
       });
       if (!userChoice.button.accept) {
         return;
       }
-      // 1. Close the project
-      await commands.execute(CommandIDs.closeProject);
-      // 2. Remove asynchronously the folder
+      // 1. Remove asynchronously the folder
+      resetWorkspace(commands);
       try {
         await manager.delete();
       } catch (error) {
         showErrorMessage('Failed to remove the project folder', error);
       }
-      // TODO 3. Remove associated conda environment
+      // TODO 2. Remove associated conda environment
       // try {
       //   if (environment) {
       //     manager.environmentManager.remove(environment);
