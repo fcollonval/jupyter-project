@@ -2,7 +2,7 @@ import importlib
 import json
 import logging
 import pathlib
-from typing import Any, Dict, NoReturn
+from typing import Any, Dict, NoReturn, Tuple
 
 from jinja2 import (
     Template,
@@ -44,13 +44,13 @@ class ProjectTemplate(HasTraits):
         help="JSON schema describing the project configuration file [optional]",
         config=True,
     )
-    folder_name = Unicode(
-        default_value="{{ name }}",
-        help="Folder project name (support Jinja2 templating using the schema parameters)",
-        config=True,
-    )
     default_path = Path(
         help="Default file or folder to open; relative to the project root [optional]",
+        config=True,
+    )
+    folder_name = Unicode(
+        default_value="{{ name|lower|replace(' ', '_') }}",
+        help="Project name (support Jinja2 templating using the schema parameters) [optional]",
         config=True,
     )
     module = Unicode(
@@ -76,7 +76,7 @@ class ProjectTemplate(HasTraits):
         super().__init__(*args, **kwargs)
         # Force checking the default value as they are not valid
         self._valid_template({"value": self.template})
-        self._name = Template(self.folder_name, extensions=jinja2_extensions)
+        self._folder_name = Template(self.folder_name, extensions=jinja2_extensions)
 
     def __eq__(self, other: "ProjectTemplate") -> bool:
         if self is other:
@@ -100,7 +100,7 @@ class ProjectTemplate(HasTraits):
     def _valid_folder_name(self, proposal: Bunch) -> str:
         if len(proposal["value"]) == 0:
             raise TraitError("'folder_name' cannot be empty.")
-        self._name = Template(proposal["value"], extensions=jinja2_extensions)
+        self._folder_name = Template(proposal["value"], extensions=jinja2_extensions)
         return proposal["value"]
 
     @validate("template")
@@ -134,7 +134,7 @@ class ProjectTemplate(HasTraits):
 
         return configuration
 
-    def render(self, params: Dict, path: pathlib.Path) -> Dict:
+    def render(self, params: Dict, path: pathlib.Path) -> Tuple[str, Dict]:
         """Render the cookiecutter template.
         
         Args:
@@ -142,15 +142,17 @@ class ProjectTemplate(HasTraits):
             path (pathlib.Path): Path in which the project will be created
 
         Returns:
-            Dict: Project configuration
+            Tuple[str, Dict]: (Project folder name, Project configuration)
         """
         if self.template is None:
             return dict()
 
         try:
-            name = self._name.render(**params)
+            folder_name = self._folder_name.render(**params)
         except TemplateError as error:
             raise ValueError("Project 'folder_name' cannot be rendered.")
+
+        project_name = folder_name.replace('_', ' ').capitalize()
 
         if len(self.module):
             module = importlib.import_module(self.module)
@@ -162,18 +164,18 @@ class ProjectTemplate(HasTraits):
             template, no_input=True, extra_context=params, output_dir=str(path),
         )
 
-        content = {"name": name}
+        content = {"name": project_name}
         if len(self.configuration_filename) > 0:
-            configuration_file = path / name / self.configuration_filename
+            configuration_file = path / folder_name / self.configuration_filename
             if configuration_file.exists():
                 try:
                     content = json.loads(configuration_file.read_text())
                 except json.JSONDecodeError as error:
                     logger.debug(f"Unable to load configuration file {configuration_file!s}:\n{error!s}")
                 else:
-                    content["name"] = name
+                    content["name"] = project_name
             configuration_file.write_text(json.dumps(content))
 
             content = self.get_configuration(configuration_file.parent)
 
-        return content
+        return folder_name, content

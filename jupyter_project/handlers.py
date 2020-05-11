@@ -192,7 +192,7 @@ class ProjectsHandler(APIHandler):
 
         current_loop = tornado.ioloop.IOLoop.current()
         try:
-            configuration = await current_loop.run_in_executor(
+            folder_name, configuration = await current_loop.run_in_executor(
                 None, self.template.render, params, realpath
             )
         except (CookiecutterException, OSError, ValueError) as error:
@@ -208,7 +208,7 @@ class ProjectsHandler(APIHandler):
                 reason=repr(error),
             )
         else:
-            configuration["path"] = url_path_join(path, configuration["name"])
+            configuration["path"] = url_path_join(path, folder_name)
 
         self.set_status(201)
         self.finish(json.dumps({"project": configuration}))
@@ -244,7 +244,6 @@ class ProjectsHandler(APIHandler):
         rmtree(fullpath, ignore_errors=True)
 
         self.set_status(204)
-        self.finish(b"{}")
 
 
 class SettingsHandler(APIHandler):
