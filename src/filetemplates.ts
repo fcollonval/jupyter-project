@@ -55,7 +55,7 @@ class FileGenerator {
    * User friendly template name
    */
   get name(): string {
-    return this._name;
+    return decodeURIComponent(this._name);
   }
 
   /**
@@ -100,7 +100,7 @@ class FileGenerator {
  * @param menu Application menu
  * @param launcher Application launcher
  */
-export async function activateFileGenerator(
+export function activateFileGenerator(
   commands: CommandRegistry,
   browserFactory: IFileBrowserFactory,
   fileSettings: Templates.IFile[],
@@ -108,7 +108,7 @@ export async function activateFileGenerator(
   palette: ICommandPalette,
   launcher: ILauncher | null,
   menu: IMainMenu | null
-): Promise<void> {
+): void {
   if (fileSettings.length === 0) {
     return; // Bail early
   }

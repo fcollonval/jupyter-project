@@ -13,7 +13,7 @@ import { activateFileGenerator } from './filetemplates';
 import { requestAPI } from './jupyter-project';
 import { activateProjectManager } from './project';
 import { registerIcons } from './style';
-import { PluginID, Templates } from './tokens';
+import { PluginID, Templates, Project } from './tokens';
 
 /**
  * Initialization data for the jupyter-project extension.
@@ -21,7 +21,7 @@ import { PluginID, Templates } from './tokens';
 const extension: JupyterFrontEndPlugin<void> = {
   id: PluginID,
   autoStart: true,
-  activate: async (
+  activate: (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     browserFactory: IFileBrowserFactory,
@@ -30,41 +30,45 @@ const extension: JupyterFrontEndPlugin<void> = {
     menu: IMainMenu | null,
     statusbar: IStatusBar | null
   ) => {
-    console.log('JupyterLab extension jupyter-project is activated!');
-
     const { commands } = app;
 
     const iconRegistry = defaultIconRegistry;
     registerIcons(iconRegistry);
 
-    const settings = await requestAPI<Templates.ISettings>('settings', {
+    let manager: Project.IManager | null = null;
+
+    requestAPI<Templates.ISettings>('settings', {
       method: 'GET'
-    });
+    })
+      .then(settings => {
+        if (settings.projectTemplate) {
+          manager = activateProjectManager(
+            app,
+            state,
+            browserFactory,
+            settings.projectTemplate,
+            palette,
+            launcher,
+            menu,
+            statusbar
+          );
+        }
 
-    let manager = null;
+        activateFileGenerator(
+          commands,
+          browserFactory,
+          settings.fileTemplates,
+          manager,
+          palette,
+          launcher,
+          menu
+        );
 
-    if (settings.projectTemplate) {
-      manager = await activateProjectManager(
-        app,
-        state,
-        browserFactory,
-        settings.projectTemplate,
-        palette,
-        launcher,
-        menu,
-        statusbar
-      );
-    }
-
-    await activateFileGenerator(
-      commands,
-      browserFactory,
-      settings.fileTemplates,
-      manager,
-      palette,
-      launcher,
-      menu
-    );
+        console.log('JupyterLab extension jupyter-project is activated!');
+      })
+      .catch(error => {
+        console.error(`Fail to activate ${PluginID}`, error);
+      });
   },
   requires: [ICommandPalette, IFileBrowserFactory, IStateDB],
   optional: [ILauncher, IMainMenu, IStatusBar]
