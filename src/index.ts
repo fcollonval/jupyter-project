@@ -8,9 +8,11 @@ import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { IStatusBar } from '@jupyterlab/statusbar';
+import { defaultIconRegistry } from '@jupyterlab/ui-components';
 import { activateFileGenerator } from './filetemplates';
 import { requestAPI } from './jupyter-project';
 import { activateProjectManager } from './project';
+import { registerIcons } from './style';
 import { PluginID, Templates } from './tokens';
 
 /**
@@ -31,6 +33,9 @@ const extension: JupyterFrontEndPlugin<void> = {
     console.log('JupyterLab extension jupyter-project is activated!');
 
     const { commands } = app;
+
+    const iconRegistry = defaultIconRegistry;
+    registerIcons(iconRegistry);
 
     const settings = await requestAPI<Templates.ISettings>('settings', {
       method: 'GET'

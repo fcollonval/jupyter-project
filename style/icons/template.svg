@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 16" version="1.1">
+  <g class="jp-icon3" stroke="rgb(97, 97, 97)">
+    <path
+      style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+      d="M 8,1 C 5.5,1 3,1 0.5,1 c 0,4.66667 0,9.33333 0,14 3.6666667,0 7.3333333,0 11,0 0,-3.5 0,-7 0,-10.5 C 10.333333,3.33333 9.1666667,2.16667 8,1 Z"
+    />
+    <path
+      style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+      d="M 3.5,6 C 3,6.66667 2.5,7.33333 2,8 2.5,8.66667 3,9.33333 3.5,10"
+    />
+    <path
+      style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+      d="M 8.5,6 C 9,6.66667 9.5,7.33333 10,8 9.5,8.66667 9,9.33333 8.5,10"
+    />
+    <path
+      style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+      d="m 6,5 c 0,2 0,4 0,6 M 3.5,5 c 1.6666667,0 3.3333333,0 5,0"
+    />
+  </g>
+</svg>

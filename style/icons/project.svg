@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 16" version="1.1">
+  <g class="jp-icon2" stroke="rgb(66, 66, 66)">
+    <path
+      d="M 10,0.5 H 2.5 v 14 h 11 V 4 Z"
+      style="fill:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+    />
+    <path
+      d="m 5.5,5.5 -1.5,2 1.5,2"
+      style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+    />
+    <path
+      d="m 10.5,5.5 1.5,2 -1.5,2"
+      style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+    />
+    <path
+      d="m 8,4.5 v 6 m -2.5,-6 h 5"
+      style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+    />
+  </g>
+  <path
+    class="jp-icon3"
+    fill="rgb(97, 97, 97)"
+    stroke="rgb(97, 97, 97)"
+    d="m 13.5,14.5 h -13 l 1.765e-4,-9 H 5 V 7 h 8.5 z"
+    style="fill-opacity:1;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
+  />
+  <path
+    class="jp-icon-accent2"
+    stroke="rgb(238, 238, 238)"
+    d="M 5.5,14.0118 V 8 C 5.5,8 7.0491968,7.85224 7.75,8 8.337998,8.12397 9,8.89907 9,9.5 9,10.10093 8.3223439,10.81688 7.75,11 7.1396493,11.19528 5.5,11 5.5,11"
+    style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
+  />
+</svg>

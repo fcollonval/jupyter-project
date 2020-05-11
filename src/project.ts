@@ -206,14 +206,18 @@ export async function activateProjectManager(
     },
     iconClass: (
       args // TODO add icon to settings
-    ) => (args['isPalette'] || !args['isLauncher'] ? '' : 'fa fa-cogs'),
+    ) =>
+      args['isPalette'] || !args['isLauncher']
+        ? ''
+        : 'jp-JupyterProjectProjectIcon',
     label: args => (!args['isLauncher'] ? 'New Project' : 'New')
   });
 
   commands.addCommand(CommandIDs.openProject, {
     label: args => (!args['isLauncher'] ? 'Open Project' : 'Open'),
     caption: 'Open a project',
-    iconClass: args => (args['isLauncher'] ? 'fa fa-folder-open fa-4x' : ''),
+    iconClass: args =>
+      args['isLauncher'] ? 'jp-JupyterProjectIcon fa fa-folder-open fa-4x' : '',
     execute: async args => {
       // 1. Get the configuration file
       const path = args['path'] as string;

@@ -134,12 +134,7 @@ export async function activateFileGenerator(
         : 'Create a new file from a template.',
     iconClass: (
       args // TODO add icon to settings
-    ) =>
-      args['isPalette']
-        ? ''
-        : args['isLauncher']
-        ? 'fa fa-cogs fa-4x'
-        : 'fa fa-cogs',
+    ) => (args['isPalette'] ? '' : 'jp-JupyterProjectTemplateIcon'),
     execute: async args => {
       const cwd: string =
         (args['cwd'] as string) || browserFactory.defaultBrowser.model.path; // TODO or project folder

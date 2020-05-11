@@ -1,3 +1,21 @@
+:root {
+    --jp-project-template: url(./icons/template.svg);
+    --jp-project: url(./icons/project.svg);
+}
+
+.jp-JupyterProjectProjectIcon {
+    background-image: var(--jp-project);
+}
+
+.jp-JupyterProjectTemplateIcon {
+    background-image: var(--jp-project-template);
+}
+
+/* Color for FontAwesome icons */
+.jp-JupyterProjectIcon.fa {
+    color: var(--jp-inverse-layout-color3);
+}
+
 .p-Widget.jp-Dialog.jpproject-Form {
     z-index: 999; /* Need to lower z-index to display select options */
 }
