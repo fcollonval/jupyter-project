@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
 set -eux
-python -m pip install -e . --ignore-installed --no-deps
-jlpm bootstrap
-jlpm lab:link
+python -m pip install . --ignore-installed --no-deps
 jupyter lab build --minimize=True --dev-build=False --debug
