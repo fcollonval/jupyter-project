@@ -9,54 +9,65 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { Contents } from '@jupyterlab/services';
 import { CommandRegistry } from '@phosphor/commands';
-import Ajv from 'ajv';
+import { ReadonlyJSONObject } from '@phosphor/coreutils';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
-import { requestAPI } from './jupyter-project';
-import { CommandIDs, Templates } from './tokens';
 import { showForm } from './form';
+import { requestAPI } from './jupyter-project';
+import { CommandIDs, Templates, Project } from './tokens';
+import { createValidator } from './validator';
 
-const ajv = new Ajv({ allErrors: true, useDefaults: true });
-
-function createValidator(schema: boolean | object): (model: object) => void {
-  const validator = ajv.compile(schema);
-
-  return (model: object): void => {
-    validator(model);
-
-    if (validator.errors && validator.errors.length) {
-      throw { details: validator.errors };
-    }
-  };
-}
-
+/**
+ * Generator of file from template
+ */
 class FileGenerator {
-  constructor(templates: Templates.IFile) {
-    this._name = templates.name;
-    this._endpoint = templates.endpoint;
-    this._destination = templates.destination;
-    if (templates.schema) {
+  /**
+   * Constructor
+   *
+   * @param template File template description
+   */
+  constructor(template: Templates.IFile) {
+    this._name = template.name;
+    this._endpoint = template.endpoint;
+    this._destination = template.destination;
+    if (template.schema) {
       this._bridge = new JSONSchemaBridge(
-        templates.schema,
-        createValidator(templates.schema)
+        template.schema,
+        createValidator(template.schema)
       );
     }
   }
 
+  /**
+   * Schema to be handled by the form
+   */
   get schema(): JSONSchemaBridge | null {
     return this._bridge;
   }
 
+  /**
+   * Server endpoint to request for generating the file.
+   */
   get endpoint(): string {
     return decodeURIComponent(this._endpoint);
   }
 
+  /**
+   * User friendly template name
+   */
   get name(): string {
     return this._name;
   }
 
+  /**
+   * Generate a file from the template with the given parameters
+   *
+   * @param path Path in which the file should be rendered
+   * @param params Template parameters
+   * @param inProject Is the template generated in a project context
+   */
   async render(
     path: string,
-    params: any,
+    params: ReadonlyJSONObject,
     inProject = false
   ): Promise<Contents.IModel> {
     let fullpath = path;
@@ -81,17 +92,19 @@ class FileGenerator {
  *
  * Note: this is actually called at the end of the activation function for the project plugin
  *
- * @param app
- * @param manager
- * @param palette
- * @param menu
- * @param launcher
+ * @param commands Application commands registry
+ * @param browserFactory File browser factory
+ * @param manager Project manager
+ * @param fileSettings File template parameters
+ * @param palette Commands palette
+ * @param menu Application menu
+ * @param launcher Application launcher
  */
 export async function activateFileGenerator(
   commands: CommandRegistry,
   browserFactory: IFileBrowserFactory,
-  //   manager: Project.IModel,
   fileSettings: Templates.IFile[],
+  manager: Project.IManager | null,
   palette: ICommandPalette,
   launcher: ILauncher | null,
   menu: IMainMenu | null

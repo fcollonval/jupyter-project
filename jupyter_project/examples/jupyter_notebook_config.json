@@ -34,6 +34,40 @@
           }
         ]
       }
-    ]
+    ],
+    "project_template": {
+      "default_path": "README.md",
+      "folder_name": "{{ repo_name }}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "default": "Project Name"
+          },
+          "repo_name": {
+            "title": "Folder name",
+            "type": "string",
+            "pattern": "^[a-zA-Z_]\\w*$",
+            "default": "project_name"
+          },
+          "author_name": {
+            "type": "string",
+            "description": "Your name (or your organization/company/team)"
+          },
+          "description": {
+            "type": "string",
+            "description": "A short description of the project."
+          },
+          "open_source_license": {
+            "title": "License",
+            "type": "string",
+            "enum": ["MIT", "BSD-3-Clause", "No license file"]
+          }
+        },
+        "required": ["project_name", "repo_name"]
+      },
+      "template": "https://github.com/fcollonval/cookiecutter-data-science"
+    }
   }
 }

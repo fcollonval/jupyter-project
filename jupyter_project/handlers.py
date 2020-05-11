@@ -15,6 +15,10 @@ from jinja2 import (
     Template,
     TemplateError,
 )
+try:
+    import jinja2_time
+except ImportError:
+    jinja2_time = None
 from jsonschema.exceptions import ValidationError
 from jupyter_client.jsonutil import date_default
 from notebook.base.handlers import APIHandler, path_regex
@@ -120,24 +124,30 @@ class ProjectsHandler(APIHandler):
             Open the project in the given path
 
             Answer json body:
-                Project configuration file content
+                {
+                    project: Project configuration file content
+                }
 
         GET /jupyter-project/projects
             Close any opened project
 
             Answer json body:
-                Empty dictionary
+                {
+                    project: null
+                }
         """
         if self.template is None:
             raise tornado.web.HTTPError(
                 404, reason="Project cookiecutter template not found."
             )
-
-        configuration = dict()
+        
+        configuration = None
         if len(path) == 0:
             # Close the current open project
             pass
+
         else:
+            configuration = dict()
             fullpath = self._get_realpath(path)
             # Check that the path is a project
             current_loop = tornado.ioloop.IOLoop.current()
@@ -149,8 +159,10 @@ class ProjectsHandler(APIHandler):
                 raise tornado.web.HTTPError(
                     404, reason=f"Path {path} is not a valid project"
                 )
+            else:
+                configuration["path"] = path
 
-        self.finish(json.dumps(configuration))
+        self.finish(json.dumps({"project": configuration}))
 
     @tornado.web.authenticated
     async def post(self, path: str = ""):
@@ -163,7 +175,9 @@ class ProjectsHandler(APIHandler):
             Parameters dictionary for the cookiecutter template
 
             Answer json body:
-                Project configuration file content
+                {
+                    project: Project configuration file content
+                }
         """
         if self.template is None:
             raise tornado.web.HTTPError(
@@ -181,7 +195,7 @@ class ProjectsHandler(APIHandler):
             configuration = await current_loop.run_in_executor(
                 None, self.template.render, params, realpath
             )
-        except (CookiecutterException, OSError) as error:
+        except (CookiecutterException, OSError, ValueError) as error:
             raise tornado.web.HTTPError(
                 500,
                 log_message=f"Fail to generate the project from the cookiecutter template.",
@@ -193,9 +207,11 @@ class ProjectsHandler(APIHandler):
                 log_message=f"Invalid default project configuration file.",
                 reason=repr(error),
             )
+        else:
+            configuration["path"] = url_path_join(path, configuration["name"])
 
         self.set_status(201)
-        self.finish(json.dumps(configuration))
+        self.finish(json.dumps({"project": configuration}))
 
     @tornado.web.authenticated
     async def delete(self, path: str = ""):
@@ -210,7 +226,7 @@ class ProjectsHandler(APIHandler):
             )
 
         if len(path) == 0:
-            self.finish()
+            self.finish(b"{}")
             return
 
         fullpath = self._get_realpath(path)
@@ -228,7 +244,7 @@ class ProjectsHandler(APIHandler):
         rmtree(fullpath, ignore_errors=True)
 
         self.set_status(204)
-        self.finish()
+        self.finish(b"{}")
 
 
 class SettingsHandler(APIHandler):
@@ -301,8 +317,13 @@ def setup_handlers(
             templates[name] = new_template
 
     ## Create the Jinja2 environment
+    jinja2_extensions = list()
+    if jinja2_time is not None:
+        jinja2_extensions.append('jinja2_time.TimeExtension')
+
     env = Environment(
-        loader=PrefixLoader({name: t["loader"] for name, t in templates.items()})
+        loader=PrefixLoader({name: t["loader"] for name, t in templates.items()}),
+        extensions=jinja2_extensions
     )
 
     ## Create the handlers
@@ -328,7 +349,7 @@ def setup_handlers(
                     ),
                     FileTemplatesHandler,
                     {
-                        "default_name": Template(file.default_name),
+                        "default_name": Template(file.default_name, extensions=jinja2_extensions),
                         "template": env.get_template(f"{name}/{pfile.as_posix()}")
                     },
                 )

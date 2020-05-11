@@ -1,0 +1,3 @@
+.p-Widget.jp-Dialog.jpproject-Form {
+    z-index: 999; /* Need to lower z-index to display select options */
+}

@@ -9,18 +9,21 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { ICommandPalette } from '@jupyterlab/apputils';
 import { activateFileGenerator } from './filetemplates';
-import { Templates } from './tokens';
+import { Templates, PluginID } from './tokens';
+import { IStateDB } from '@jupyterlab/coreutils';
+import { activateProjectManager } from './project';
 
 /**
  * Initialization data for the jupyter-project extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: 'jupyter-project',
+  id: PluginID,
   autoStart: true,
   activate: async (
     app: JupyterFrontEnd,
     palette: ICommandPalette,
     browserFactory: IFileBrowserFactory,
+    state: IStateDB,
     launcher: ILauncher | null,
     menu: IMainMenu | null
   ) => {
@@ -32,16 +35,31 @@ const extension: JupyterFrontEndPlugin<void> = {
       method: 'GET'
     });
 
+    let manager = null;
+
+    if (settings.projectTemplate) {
+      manager = await activateProjectManager(
+        app,
+        state,
+        browserFactory,
+        settings.projectTemplate,
+        palette,
+        launcher,
+        menu
+      );
+    }
+
     await activateFileGenerator(
       commands,
       browserFactory,
       settings.fileTemplates,
+      manager,
       palette,
       launcher,
       menu
     );
   },
-  requires: [ICommandPalette, IFileBrowserFactory],
+  requires: [ICommandPalette, IFileBrowserFactory, IStateDB],
   optional: [ILauncher, IMainMenu]
 };
 

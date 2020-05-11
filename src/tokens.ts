@@ -1,10 +1,19 @@
 import { Dialog } from '@jupyterlab/apputils';
 import { JSONObject } from '@phosphor/coreutils';
+import { Signal } from '@phosphor/signaling';
+
+export const PluginID = 'jupyter-project';
 
 /**
  * Command IDs
  */
 export namespace CommandIDs {
+  export const closeProject = 'jupyter-project:project-close';
+  export const deleteProject = 'jupyter-project:project-delete';
+  // TODO export const importProject = "jupyter-project:project-import";
+  export const newProject = 'jupyter-project:project-create';
+  export const openProject = 'jupyter-project:project-open';
+
   export const newTemplateFile = 'jupyter-project:file-template';
 }
 
@@ -54,6 +63,22 @@ export namespace Form {
      * default renderer.
      */
     renderer?: Dialog.IRenderer;
+  }
+}
+
+export namespace Project {
+  export interface IManager {
+    /** Current project properties */
+    project: IModel | null;
+    /** Signal emitted when project changes */
+    projectChanged: Signal<IManager, IModel>;
+  }
+
+  export interface IModel {
+    /** Project name */
+    name: string;
+    /** Current project path */
+    path: string;
   }
 }
 

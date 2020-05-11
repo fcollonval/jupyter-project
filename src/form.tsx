@@ -23,6 +23,8 @@ class FormDialog extends Dialog<JSONObject> {
       ]
     });
 
+    this.addClass('jpproject-Form');
+
     // this._body is private... Dialog API is bad for inheritance
     this._formBody = body;
   }
