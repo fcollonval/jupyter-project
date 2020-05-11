@@ -2,16 +2,16 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-
-import { requestAPI } from './jupyter-project';
+import { ICommandPalette } from '@jupyterlab/apputils';
+import { IStateDB } from '@jupyterlab/coreutils';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
-import { ICommandPalette } from '@jupyterlab/apputils';
+import { IStatusBar } from '@jupyterlab/statusbar';
 import { activateFileGenerator } from './filetemplates';
-import { Templates, PluginID } from './tokens';
-import { IStateDB } from '@jupyterlab/coreutils';
+import { requestAPI } from './jupyter-project';
 import { activateProjectManager } from './project';
+import { PluginID, Templates } from './tokens';
 
 /**
  * Initialization data for the jupyter-project extension.
@@ -25,7 +25,8 @@ const extension: JupyterFrontEndPlugin<void> = {
     browserFactory: IFileBrowserFactory,
     state: IStateDB,
     launcher: ILauncher | null,
-    menu: IMainMenu | null
+    menu: IMainMenu | null,
+    statusbar: IStatusBar | null
   ) => {
     console.log('JupyterLab extension jupyter-project is activated!');
 
@@ -45,7 +46,8 @@ const extension: JupyterFrontEndPlugin<void> = {
         settings.projectTemplate,
         palette,
         launcher,
-        menu
+        menu,
+        statusbar
       );
     }
 
@@ -60,7 +62,7 @@ const extension: JupyterFrontEndPlugin<void> = {
     );
   },
   requires: [ICommandPalette, IFileBrowserFactory, IStateDB],
-  optional: [ILauncher, IMainMenu]
+  optional: [ILauncher, IMainMenu, IStatusBar]
 };
 
 export default extension;

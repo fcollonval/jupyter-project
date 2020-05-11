@@ -123,6 +123,29 @@
     react-dom "~16.8.4"
     sanitize-html "~1.20.1"
 
+"@jupyterlab/apputils@^1.2.8":
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/apputils/-/apputils-1.2.8.tgz#67006606024ec8767e4be7188287e3ebf090ef5a"
+  integrity sha512-y7NL/LPKGvHlzawQsfZufAkRuuW0m0QukDX5n1swzzdOrmjv7n8HApZFKPpw0i832jadArVjkUqBV2ELQILnCQ==
+  dependencies:
+    "@jupyterlab/coreutils" "^3.2.0"
+    "@jupyterlab/services" "^4.2.2"
+    "@jupyterlab/ui-components" "^1.2.1"
+    "@phosphor/algorithm" "^1.2.0"
+    "@phosphor/commands" "^1.7.0"
+    "@phosphor/coreutils" "^1.3.1"
+    "@phosphor/disposable" "^1.3.0"
+    "@phosphor/domutils" "^1.1.3"
+    "@phosphor/messaging" "^1.3.0"
+    "@phosphor/properties" "^1.1.3"
+    "@phosphor/signaling" "^1.3.0"
+    "@phosphor/virtualdom" "^1.2.0"
+    "@phosphor/widgets" "^1.9.0"
+    "@types/react" "~16.8.18"
+    react "~16.8.4"
+    react-dom "~16.8.4"
+    sanitize-html "~1.20.1"
+
 "@jupyterlab/codeeditor@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@jupyterlab/codeeditor/-/codeeditor-1.2.0.tgz#76a3efc38738e5bd0f1a892cfcabdcfde2556e90"
@@ -314,6 +337,25 @@
     node-fetch "^2.6.0"
     ws "^7.0.0"
 
+"@jupyterlab/statusbar@^1.2.0":
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/statusbar/-/statusbar-1.2.8.tgz#43e4298ae8cd7f3922f54a341c5c31698ef75071"
+  integrity sha512-uxz6KWx7+LI8IJa/FOEamkV3kq/AqV0HfArkmDWk+sXqsVSWIGruPlIfuMy+2dl4I84Kv91YEWPvVwoxgTtngA==
+  dependencies:
+    "@jupyterlab/apputils" "^1.2.8"
+    "@jupyterlab/codeeditor" "^1.2.0"
+    "@jupyterlab/coreutils" "^3.2.0"
+    "@jupyterlab/services" "^4.2.2"
+    "@jupyterlab/ui-components" "^1.2.1"
+    "@phosphor/algorithm" "^1.2.0"
+    "@phosphor/coreutils" "^1.3.1"
+    "@phosphor/disposable" "^1.3.0"
+    "@phosphor/messaging" "^1.3.0"
+    "@phosphor/signaling" "^1.3.0"
+    "@phosphor/widgets" "^1.9.0"
+    react "~16.8.4"
+    typestyle "^2.0.1"
+
 "@jupyterlab/statusbar@^1.2.7":
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/@jupyterlab/statusbar/-/statusbar-1.2.7.tgz#095a9d8391a1785e8be42e986c2f1cbc20c5e7d4"
@@ -333,7 +375,7 @@
     react "~16.8.4"
     typestyle "^2.0.1"
 
-"@jupyterlab/ui-components@^1.2.1":
+"@jupyterlab/ui-components@^1.2.0", "@jupyterlab/ui-components@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@jupyterlab/ui-components/-/ui-components-1.2.1.tgz#c3690585c4bf4a41b3a9d9238584f4ec4274e277"
   integrity sha512-GUtIRwTmFnlJaPUM8SiFw1STmsyMVGjchLKqIoQnn0qYAJvaSUGyRqqoSD5iIpwov6OHCOOyxH6fQ5OAtH1kwA==

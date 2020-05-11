@@ -10,12 +10,14 @@ import { FileDialog, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { Contents } from '@jupyterlab/services';
+import { IStatusBar } from '@jupyterlab/statusbar';
 import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
 import { Signal } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
+import { createProjectStatus } from './statusbar';
 import { CommandIDs, PluginID, Project, Templates } from './tokens';
 import { createValidator } from './validator';
 
@@ -113,7 +115,7 @@ class ProjectManager implements Project.IManager {
   }
 
   async close(): Promise<void> {
-    await this.open("");
+    await this.open('');
   }
 
   async delete(): Promise<void> {
@@ -163,7 +165,8 @@ export async function activateProjectManager(
   settings: Templates.IProject,
   palette: ICommandPalette,
   launcher: ILauncher | null,
-  menu: IMainMenu | null
+  menu: IMainMenu | null,
+  statusbar: IStatusBar | null
 ): Promise<Project.IManager> {
   const { commands } = app;
   const category = 'Project';
@@ -364,6 +367,14 @@ export async function activateProjectManager(
       args: { isPalette: true }
     });
   });
+
+  if (statusbar) {
+    statusbar.registerStatusItem(`${PluginID}:project-status`, {
+      align: 'left',
+      item: createProjectStatus({ manager }),
+      rank: -3
+    });
+  }
 
   return manager;
 }
