@@ -1,8 +1,12 @@
 import { Dialog } from '@jupyterlab/apputils';
-import { JSONObject } from '@phosphor/coreutils';
+import { JSONObject, Token } from '@phosphor/coreutils';
 import { Signal } from '@phosphor/signaling';
 
 export const PluginID = 'jupyter-project';
+
+export const IProjectManager = new Token<IProjectManager>(
+  `${PluginID}:IProjectManager`
+);
 
 /**
  * Command IDs
@@ -67,19 +71,18 @@ export namespace Form {
 }
 
 export namespace Project {
-  export interface IManager {
-    /** Current project properties */
-    project: IModel | null;
-    /** Signal emitted when project changes */
-    projectChanged: Signal<IManager, IModel>;
-  }
-
   export interface IModel {
     /** Project name */
     name: string;
     /** Current project path */
     path: string;
   }
+}
+export interface IProjectManager {
+  /** Current project properties */
+  project: Project.IModel | null;
+  /** Signal emitted when project changes */
+  projectChanged: Signal<IProjectManager, Project.IModel>;
 }
 
 /**

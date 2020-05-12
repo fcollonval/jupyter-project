@@ -13,7 +13,7 @@ import { ReadonlyJSONObject } from '@phosphor/coreutils';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
-import { CommandIDs, Templates, Project } from './tokens';
+import { CommandIDs, IProjectManager, Templates } from './tokens';
 import { createValidator } from './validator';
 
 /**
@@ -104,15 +104,11 @@ export function activateFileGenerator(
   commands: CommandRegistry,
   browserFactory: IFileBrowserFactory,
   fileSettings: Templates.IFile[],
-  manager: Project.IManager | null,
+  manager: IProjectManager | null,
   palette: ICommandPalette,
   launcher: ILauncher | null,
   menu: IMainMenu | null
 ): void {
-  if (fileSettings.length === 0) {
-    return; // Bail early
-  }
-
   const paletteCategory = 'Text Editor';
   const launcherCategory = 'Templates';
 

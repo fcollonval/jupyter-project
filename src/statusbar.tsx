@@ -2,10 +2,10 @@ import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
 import { TextItem } from '@jupyterlab/statusbar';
 import { Widget } from '@phosphor/widgets';
 import * as React from 'react';
-import { Project } from './tokens';
+import { IProjectManager } from './tokens';
 
 export interface IProjectStatusProps {
-  manager: Project.IManager;
+  manager: IProjectManager;
 }
 
 const ProjectComponent: React.FunctionComponent<IProjectStatusProps> = (

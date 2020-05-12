@@ -19,7 +19,13 @@ import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
 import { createProjectStatus } from './statusbar';
-import { CommandIDs, PluginID, Project, Templates } from './tokens';
+import {
+  CommandIDs,
+  IProjectManager,
+  PluginID,
+  Project,
+  Templates
+} from './tokens';
 import { createValidator } from './validator';
 
 const StateID = `${PluginID}:project`;
@@ -31,7 +37,7 @@ namespace ForeignCommandIDs {
   export const saveAll = 'docmanager:save-all';
 }
 
-class ProjectManager implements Project.IManager {
+class ProjectManager implements IProjectManager {
   constructor(
     settings: Templates.IProject,
     state: IStateDB,
@@ -187,7 +193,7 @@ export function activateProjectManager(
   launcher: ILauncher | null,
   menu: IMainMenu | null,
   statusbar: IStatusBar | null
-): Project.IManager {
+): IProjectManager {
   const { commands } = app;
   const category = 'Project';
 
