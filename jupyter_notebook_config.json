@@ -15,8 +15,56 @@
             "template": "demo.ipynb"
           },
           {
+            "destination": "notebooks",
             "template_name": "Example",
-            "template": "example.ipynb"
+            "template": "example.ipynb",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "exampleBoolean": {
+                  "default": false,
+                  "title": "A choice",
+                  "type": "boolean"
+                },
+                "exampleList": {
+                  "default": [1, 2, 3],
+                  "title": "A list of number",
+                  "type": "array",
+                  "items": {
+                    "default": 0,
+                    "type": "number"
+                  }
+                },
+                "exampleNumber": {
+                  "default": 42,
+                  "title": "A number",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "exampleObject": {
+                  "default": {"number": 1, "street_name": "Dog", "street_type": "Street"},
+                  "title": "A object",
+                  "type": "object",
+                  "properties": {
+                    "number": { "type": "integer" },
+                    "street_name": { "type": "string" },
+                    "street_type": {
+                      "type": "string",
+                      "enum": ["Street", "Avenue", "Boulevard"]
+                    }
+                  },
+                  "required": ["number"]
+                },
+                "exampleString": {
+                  "default": "I_m_Beautiful",
+                  "title": "A string",
+                  "type": "string",
+                  "pattern": "^[a-zA-Z_]\\w*$"
+                }
+              },
+              "required": ["exampleString"]
+            }
           },
           {
             "default_name": "{{ modelName }}",
