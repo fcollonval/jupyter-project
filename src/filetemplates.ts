@@ -37,11 +37,8 @@ class FileGenerator {
     }
   }
 
-  /**
-   * Schema to be handled by the form
-   */
-  get schema(): JSONSchemaBridge | null {
-    return this._bridge;
+  get destination(): string | null {
+    return this._destination;
   }
 
   /**
@@ -56,6 +53,13 @@ class FileGenerator {
    */
   get name(): string {
     return decodeURIComponent(this._name);
+  }
+
+  /**
+   * Schema to be handled by the form
+   */
+  get schema(): JSONSchemaBridge | null {
+    return this._bridge;
   }
 
   /**
@@ -132,9 +136,7 @@ export function activateFileGenerator(
       args // TODO add icon to settings
     ) => (args['isPalette'] ? '' : 'jp-JupyterProjectTemplateIcon'),
     execute: async args => {
-      const cwd: string =
-        (args['cwd'] as string) || browserFactory.defaultBrowser.model.path; // TODO or project folder
-
+      // 1. Find the file generator
       let endpoint = args['endpoint'] as string;
       let generator: FileGenerator;
       if (!endpoint) {
@@ -163,6 +165,22 @@ export function activateFileGenerator(
         );
       }
 
+      // 2. Find where to generate the file
+      let cwd: string;
+      let inProject = false;
+      if (args['cwd']) {
+        // Use the argument path
+        cwd = args['cwd'] as string;
+      } else if (manager.project && generator.destination) {
+        // Use the project path
+        inProject = true;
+        cwd = manager.project.path;
+      } else {
+        // Use the current path
+        cwd = browserFactory.defaultBrowser.model.path;
+      }
+
+      // 3. Ask for parameters value
       let params = {};
       if (generator.schema) {
         const userForm = await showForm({
@@ -175,9 +193,8 @@ export function activateFileGenerator(
         params = userForm.value;
       }
 
-      // if (isProject) TODO
       try {
-        const model = await generator.render(cwd, params);
+        const model = await generator.render(cwd, params, inProject);
         commands.execute('docmanager:open', {
           path: model.path
         });
