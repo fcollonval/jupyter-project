@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+# Binder postBuild instructions
+#
+# Note: binder is launching jupyter server in the code repository folder
+# Therefore the `jupyter_notebook_config.json` will be picked automatically
+# as server configuration
+# 
 set -eux
 python -m pip install . --ignore-installed --no-deps
 jupyter lab build --minimize=True --dev-build=False --debug
