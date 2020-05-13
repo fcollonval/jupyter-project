@@ -1,8 +1,10 @@
 import { Dialog, ReactWidget, InputDialog } from '@jupyterlab/apputils';
+import { ThemeProvider } from '@material-ui/core/styles';
 import { JSONObject, PromiseDelegate } from '@phosphor/coreutils';
 import * as React from 'react';
 import { AutoForm, AutoFields, ErrorsField } from 'uniforms-material';
 import { Form } from './tokens';
+import { getMuiTheme } from './theme';
 
 export async function showForm(
   options: Form.IOptions
@@ -71,19 +73,26 @@ class FormWidget extends ReactWidget implements Form.IWidget {
   }
 
   render(): JSX.Element {
+    const theme = getMuiTheme();
+
     return (
-      <AutoForm
-        ref={(ref: typeof AutoForm): void => {
-          this._formRef = ref;
-        }}
-        schema={this._schema}
-        onSubmit={(model: JSONObject): void => {
-          this._model = model;
-        }}
-      >
-        <AutoFields />
-        <ErrorsField />
-      </AutoForm>
+      <ThemeProvider theme={theme}>
+        <AutoForm
+          className={'jp-project-form'}
+          ref={(ref: typeof AutoForm): void => {
+            this._formRef = ref;
+          }}
+          schema={this._schema}
+          onSubmit={(model: JSONObject): void => {
+            this._model = model;
+          }}
+        >
+          <div className={'jp-project-form-fields'}>
+            <AutoFields />
+          </div>
+          <ErrorsField className={'jp-project-form-errors'} />
+        </AutoForm>
+      </ThemeProvider>
     );
   }
 
