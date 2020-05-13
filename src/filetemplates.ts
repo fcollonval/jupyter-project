@@ -168,7 +168,8 @@ export function activateFileGenerator(
       // 2. Find where to generate the file
       let cwd: string;
       let inProject = false;
-      if (args['cwd']) {
+      if (args['cwd'] && !args['isLauncher']) {
+        // Launcher add automatically cwd to args - so we ignore that case
         // Use the argument path
         cwd = args['cwd'] as string;
       } else if (manager.project && generator.destination) {
