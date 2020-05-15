@@ -6,6 +6,9 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:react/recommended'
   ],
+  env: {
+    "es2017": true
+  },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',

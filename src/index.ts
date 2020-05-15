@@ -2,7 +2,7 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { ICommandPalette } from '@jupyterlab/apputils';
+import { ICommandPalette, IThemeManager } from '@jupyterlab/apputils';
 import { IStateDB } from '@jupyterlab/coreutils';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
@@ -13,6 +13,7 @@ import { activateFileGenerator } from './filetemplates';
 import { requestAPI } from './jupyter-project';
 import { activateProjectManager } from './project';
 import { registerIcons } from './style';
+import { setCurrentTheme } from './theme';
 import { IProjectManager, PluginID, Templates } from './tokens';
 
 /**
@@ -28,7 +29,8 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
     state: IStateDB,
     launcher: ILauncher | null,
     menu: IMainMenu | null,
-    statusbar: IStatusBar | null
+    statusbar: IStatusBar | null,
+    themeManager: IThemeManager | null
   ): Promise<IProjectManager> => {
     const { commands } = app;
 
@@ -72,10 +74,17 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
       console.error(`Fail to activate ${PluginID}`, error);
     }
 
+    app.restored.then(() => {
+      themeManager.themeChanged.connect((_, changedTheme) => {
+        setCurrentTheme(changedTheme.newValue);
+      });
+      setCurrentTheme(themeManager.theme);
+    });
+
     return manager;
   },
   requires: [ICommandPalette, IFileBrowserFactory, IStateDB],
-  optional: [ILauncher, IMainMenu, IStatusBar]
+  optional: [ILauncher, IMainMenu, IStatusBar, IThemeManager]
 };
 
 export default extension;
