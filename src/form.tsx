@@ -5,6 +5,7 @@ import * as React from 'react';
 import { AutoForm, AutoFields, ErrorsField } from 'uniforms-material';
 import { Form } from './tokens';
 import { getMuiTheme } from './theme';
+import { Bridge } from 'uniforms';
 
 export async function showForm(
   options: Form.IOptions
@@ -63,7 +64,7 @@ class FormDialog extends Dialog<JSONObject> {
 }
 
 class FormWidget extends ReactWidget implements Form.IWidget {
-  constructor(schema: any) {
+  constructor(schema: Bridge) {
     super();
     this._schema = schema;
   }
@@ -109,5 +110,5 @@ class FormWidget extends ReactWidget implements Form.IWidget {
 
   protected _formRef: typeof AutoForm;
   private _model: JSONObject | null = null;
-  private _schema: any;
+  private _schema: Bridge;
 }

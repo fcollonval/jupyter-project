@@ -28,8 +28,14 @@ import {
 } from './tokens';
 import { createValidator } from './validator';
 
+/**
+ * Project manager state ID
+ */
 const StateID = `${PluginID}:project`;
 
+/**
+ * Namespace of foreign command IDs used
+ */
 namespace ForeignCommandIDs {
   export const closeAll = 'application:close-all';
   export const goTo = 'filebrowser:go-to-path';
@@ -37,7 +43,17 @@ namespace ForeignCommandIDs {
   export const saveAll = 'docmanager:save-all';
 }
 
+/**
+ * Project Manager
+ */
 class ProjectManager implements IProjectManager {
+  /**
+   * Project Manager constructor
+   *
+   * @param settings Project template settings
+   * @param state Application state handler
+   * @param appRestored Promise that resolve when the application is restored
+   */
   constructor(
     settings: Templates.IProject,
     state: IStateDB,
@@ -73,18 +89,34 @@ class ProjectManager implements IProjectManager {
       });
   }
 
+  /**
+   * Name of the project configuration file
+   */
   get configurationFilename(): string {
     return this._configurationFilename;
   }
 
+  /**
+   * Default path to open in a project
+   */
   get defaultPath(): string {
     return this._defaultPath;
   }
 
+  /**
+   * Active project
+   */
   get project(): Project.IModel | null {
     return this._project;
   }
 
+  /**
+   * Set the active project
+   *
+   * null = no active project
+   *
+   * @param newProject Project model
+   */
   protected _setProject(newProject: Project.IModel | null): void {
     let changed = this._project !== newProject;
     if (!changed && !this._project && !newProject) {
@@ -110,6 +142,12 @@ class ProjectManager implements IProjectManager {
     return this._schema;
   }
 
+  /**
+   * Generate a new project in path
+   *
+   * @param path Path where to generate the project
+   * @param options Project template parameters
+   */
   async create(
     path: string,
     options: ReadonlyJSONObject
@@ -128,10 +166,16 @@ class ProjectManager implements IProjectManager {
     return this.project;
   }
 
+  /**
+   * Close the current project
+   */
   async close(): Promise<void> {
     await this.open('');
   }
 
+  /**
+   * Delete the current project
+   */
   async delete(): Promise<void> {
     let endpoint = 'projects';
     if (this.project.path.length > 0) {
@@ -146,6 +190,14 @@ class ProjectManager implements IProjectManager {
     });
   }
 
+  /**
+   * Open the folder path as the active project
+   *
+   * If path is empty, close the active project.
+   *
+   * @param path Project folder path
+   * @returns The opened project model
+   */
   async open(path: string): Promise<Project.IModel> {
     let endpoint = 'projects';
     if (path.length > 0) {
@@ -175,6 +227,14 @@ class ProjectManager implements IProjectManager {
   private _state: IStateDB;
 }
 
+/**
+ * Reset the current application workspace:
+ * - Save all opened files
+ * - Close all opened files
+ * - Go to the root path
+ *
+ * @param commands Commands registry
+ */
 async function resetWorkspace(commands: CommandRegistry): Promise<void> {
   await commands.execute(ForeignCommandIDs.saveAll);
   await commands.execute(ForeignCommandIDs.closeAll);
@@ -184,6 +244,18 @@ async function resetWorkspace(commands: CommandRegistry): Promise<void> {
   });
 }
 
+/**
+ * Activate the project manager plugin
+ *
+ * @param app The application object
+ * @param state The application state handler
+ * @param browserFactory The file browser factory
+ * @param settings The project template settings
+ * @param palette The command palette
+ * @param launcher The application launcher
+ * @param menu The application menu
+ * @param statusbar The application status bar
+ */
 export function activateProjectManager(
   app: JupyterFrontEnd,
   state: IStateDB,

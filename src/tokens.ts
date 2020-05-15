@@ -1,9 +1,16 @@
 import { Dialog } from '@jupyterlab/apputils';
 import { JSONObject, Token } from '@phosphor/coreutils';
 import { Signal } from '@phosphor/signaling';
+import { Bridge } from 'uniforms';
 
+/**
+ * Plugin ID
+ */
 export const PluginID = 'jupyter-project';
 
+/**
+ * Project Manager Plugin Token
+ */
 export const IProjectManager = new Token<IProjectManager>(
   `${PluginID}:IProjectManager`
 );
@@ -12,12 +19,27 @@ export const IProjectManager = new Token<IProjectManager>(
  * Command IDs
  */
 export namespace CommandIDs {
+  /**
+   * Close current project command
+   */
   export const closeProject = 'jupyter-project:project-close';
+  /**
+   * Delete current project command
+   */
   export const deleteProject = 'jupyter-project:project-delete';
   // TODO export const importProject = "jupyter-project:project-import";
+  /**
+   * Create new project command
+   */
   export const newProject = 'jupyter-project:project-create';
+  /**
+   * Open project command
+   */
   export const openProject = 'jupyter-project:project-open';
 
+  /**
+   * Create new file from template command
+   */
   export const newTemplateFile = 'jupyter-project:file-template';
 }
 
@@ -43,9 +65,9 @@ export namespace Form {
    */
   export interface IOptions {
     /**
-     * JSON schema defining the forms
+     * uniforms.Bridge schema defining the forms
      */
-    schema: any;
+    schema: Bridge;
     /**
      * The top level text for the dialog.  Defaults to an empty string.
      */
