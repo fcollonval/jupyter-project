@@ -7,6 +7,11 @@ import { Form } from './tokens';
 import { getMuiTheme } from './theme';
 import { Bridge } from 'uniforms';
 
+/**
+ * Show a form
+ *
+ * @param options Form options
+ */
 export async function showForm(
   options: Form.IOptions
 ): Promise<Dialog.IResult<JSONObject>> {
@@ -15,8 +20,17 @@ export async function showForm(
   return new FormDialog(body, dialogOptions).launch();
 }
 
+/**
+ * Form within a JupyterLab dialog
+ */
 class FormDialog extends Dialog<JSONObject> {
-  constructor(body: Form.IWidget, options: InputDialog.IOptions) {
+  /**
+   * Form constructor
+   *
+   * @param body Form's body
+   * @param options Dialog options
+   */
+  constructor(body: Form.IWidget, options: Partial<InputDialog.IOptions>) {
     super({
       ...options,
       body: body,
@@ -30,6 +44,28 @@ class FormDialog extends Dialog<JSONObject> {
 
     // this._body is private... Dialog API is bad for inheritance
     this._formBody = body;
+  }
+
+  /**
+   * Handle the DOM events for the directory listing.
+   *
+   * @param event - The DOM event sent to the widget.
+   *
+   * #### Notes
+   * This method implements the DOM `EventListener` interface and is
+   * called in response to events on the panel's DOM node. It should
+   * not be called directly by user code.
+   */
+  handleEvent(event: Event): void {
+    switch (event.type) {
+      case 'focus':
+        // Prevent recursion error
+        event.stopImmediatePropagation();
+        break;
+      default:
+        break;
+    }
+    super.handleEvent(event);
   }
 
   /**
@@ -63,16 +99,31 @@ class FormDialog extends Dialog<JSONObject> {
   protected _formBody: Form.IWidget;
 }
 
+/**
+ * Widget containing a form automatically constructed from
+ * a uniform.Bridge
+ */
 class FormWidget extends ReactWidget implements Form.IWidget {
+  /**
+   * Form widget constructor
+   *
+   * @param schema Schema defining the form
+   */
   constructor(schema: Bridge) {
     super();
     this._schema = schema;
   }
 
+  /**
+   * Get the form value
+   */
   getValue(): JSONObject | null {
     return this._model;
   }
 
+  /**
+   * Render the form
+   */
   render(): JSX.Element {
     const theme = getMuiTheme();
 
@@ -97,6 +148,11 @@ class FormWidget extends ReactWidget implements Form.IWidget {
     );
   }
 
+  /**
+   * Submit the form
+   *
+   * The promise is resolved if the form is valid otherwise it is rejected.
+   */
   submit(): Promise<void> {
     const submitPromise = new PromiseDelegate<void>();
     this._formRef
