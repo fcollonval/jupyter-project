@@ -27,7 +27,6 @@ export namespace CommandIDs {
    * Delete current project command
    */
   export const deleteProject = 'jupyter-project:project-delete';
-  // TODO export const importProject = "jupyter-project:project-import";
   /**
    * Create new project command
    */
@@ -36,7 +35,6 @@ export namespace CommandIDs {
    * Open project command
    */
   export const openProject = 'jupyter-project:project-open';
-
   /**
    * Create new file from template command
    */
@@ -127,6 +125,10 @@ export namespace Templates {
      * Destination folder of the template within the project directory
      */
     destination?: string;
+    /**
+     * Icon to display for this template
+     */
+    icon?: string;
     /**
      * JSON schema of the template parameters
      */

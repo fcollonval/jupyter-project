@@ -8,12 +8,18 @@ import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { Contents } from '@jupyterlab/services';
+import {
+  defaultIconRegistry,
+  Icon,
+  IconRegistry
+} from '@jupyterlab/ui-components';
 import { CommandRegistry } from '@phosphor/commands';
 import { ReadonlyJSONObject } from '@phosphor/coreutils';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
-import { CommandIDs, IProjectManager, Templates } from './tokens';
+import { isSvg } from './style';
+import { CommandIDs, IProjectManager, PluginID, Templates } from './tokens';
 import { createValidator } from './validator';
 
 /**
@@ -29,6 +35,14 @@ class FileGenerator {
     this._name = template.name;
     this._endpoint = template.endpoint;
     this._destination = template.destination;
+    if (template.icon && isSvg(template.icon)) {
+      const icon: Icon.IModel = {
+        name: `${PluginID}-${this._endpoint}`,
+        svg: template.icon
+      };
+      defaultIconRegistry.addIcon(icon);
+      this._icon = IconRegistry.iconClassName(icon.name);
+    }
     if (template.schema) {
       this._bridge = new JSONSchemaBridge(
         template.schema,
@@ -37,6 +51,9 @@ class FileGenerator {
     }
   }
 
+  /**
+   * Default destination within a project folder
+   */
   get destination(): string | null {
     return this._destination;
   }
@@ -46,6 +63,13 @@ class FileGenerator {
    */
   get endpoint(): string {
     return decodeURIComponent(this._endpoint);
+  }
+
+  /**
+   * Icon class name to display for this template
+   */
+  get icon(): string | null {
+    return this._icon;
   }
 
   /**
@@ -88,6 +112,7 @@ class FileGenerator {
   private _bridge: JSONSchemaBridge | null = null;
   private _destination: string | null = null;
   private _endpoint: string;
+  private _icon: string | null = null;
   private _name: string;
 }
 
@@ -132,9 +157,10 @@ export function activateFileGenerator(
       args['endpoint']
         ? `Create a new file from a template ${args['endpoint']}.`
         : 'Create a new file from a template.',
-    iconClass: (
-      args // TODO add icon to settings
-    ) => (args['isPalette'] ? '' : 'jp-JupyterProjectTemplateIcon'),
+    iconClass: args =>
+      args['isPalette']
+        ? ''
+        : (args['icon'] as string) || 'jp-JupyterProjectTemplateIcon',
     execute: async args => {
       // 1. Find the file generator
       let endpoint = args['endpoint'] as string;
@@ -214,8 +240,8 @@ export function activateFileGenerator(
         args: {
           isLauncher: true,
           name: generator.name,
-          endpoint: generator.endpoint
-          // TODO icon: generator.icon
+          endpoint: generator.endpoint,
+          icon: generator.icon
         }
       });
     });
@@ -228,7 +254,11 @@ export function activateFileGenerator(
       generators.map(generator => {
         return {
           command: CommandIDs.newTemplateFile,
-          args: { name: generator.name, endpoint: generator.endpoint }
+          args: {
+            name: generator.name,
+            endpoint: generator.endpoint,
+            icon: generator.icon
+          }
         };
       }),
       -1

@@ -17,11 +17,17 @@ class FileTemplate(HasTraits):
         config=True,
     )
     destination = Path(help="Relative destination folder [optional]", config=True)
-    template_name = Unicode(help="Template name in the UI [optional]", config=True)
+    icon = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="Template icon to display in the frontend.",
+        config=True,
+    )
     schema = JSONSchema(
         help="JSON schema list describing the templates parameters", config=True
     )
     template = Path(help="Template path", config=True)
+    template_name = Unicode(help="Template name in the UI [optional]", config=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

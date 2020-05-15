@@ -363,6 +363,7 @@ def setup_handlers(
                     "name": file.template_name or endpoint,
                     "endpoint": endpoint,
                     "destination": destination,
+                    "icon": file.icon,
                     "schema": file.schema if len(file.schema) else None,
                 }
             )
