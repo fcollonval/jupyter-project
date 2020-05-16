@@ -30,7 +30,9 @@ jobs:
 
         pip install .[test]
 
-        python -m coverage run -m pytest jupyter_project
+        # Avoid the example jupyter_notebook_config.json to be read.
+        mv jupyter_notebook_config.json example.json
+        python -m coverage run -m pytest .
         python -m coverage report
 
         jupyter lab build

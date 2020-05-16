@@ -8,23 +8,15 @@ from jinja2 import (
     Template,
     TemplateError,
 )
-
-try:
-    import jinja2_time
-except ImportError:
-    jinja2_time = None
 import jsonschema
 from cookiecutter.main import cookiecutter
 from traitlets import HasTraits, TraitError, TraitType, Unicode, validate
 from traitlets.utils.bunch import Bunch
 
+from .jinja2 import jinja2_extensions
 from .traits import JSONSchema, Path
 
 logger = logging.getLogger(__name__)
-
-jinja2_extensions = list()
-if jinja2_time is not None:
-    jinja2_extensions.append("jinja2_time.TimeExtension")
 
 
 class ProjectTemplate(HasTraits):
@@ -89,6 +81,8 @@ class ProjectTemplate(HasTraits):
             "configuration_filename",
             "configuration_schema",
             "default_path",
+            "folder_name",
+            "module",
             "schema",
             "template",
         ):
@@ -145,14 +139,14 @@ class ProjectTemplate(HasTraits):
             Tuple[str, Dict]: (Project folder name, Project configuration)
         """
         if self.template is None:
-            return dict()
+            return None, dict()
 
         try:
             folder_name = self._folder_name.render(**params)
         except TemplateError as error:
             raise ValueError("Project 'folder_name' cannot be rendered.")
 
-        project_name = folder_name.replace('_', ' ').capitalize()
+        project_name = folder_name.replace("_", " ").capitalize()
 
         if len(self.module):
             module = importlib.import_module(self.module)
@@ -171,9 +165,12 @@ class ProjectTemplate(HasTraits):
                 try:
                     content = json.loads(configuration_file.read_text())
                 except json.JSONDecodeError as error:
-                    logger.debug(f"Unable to load configuration file {configuration_file!s}:\n{error!s}")
+                    logger.debug(
+                        f"Unable to load configuration file {configuration_file!s}:\n{error!s}"
+                    )
                 else:
                     content["name"] = project_name
+            configuration_file.parent.mkdir(parents=True, exist_ok=True)
             configuration_file.write_text(json.dumps(content))
 
             content = self.get_configuration(configuration_file.parent)

@@ -104,13 +104,45 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                         "name": "template1",
                         "location": "/dummy/file_templates",
                         "files": [
+                            {"template": "template1.py", "template_name": 24}
+                        ],
+                    }
+                ],
+            },
+            TraitError,
+            None,
+        ),
+        (
+            {
+                "file_templates": [
+                    {
+                        "name": "template1",
+                        "location": "/dummy/file_templates",
+                        "files": [
+                            {"template": "template1.py", "icon": "<notsvg></svg>"}
+                        ],
+                    }
+                ],
+            },
+            TraitError,
+            None,
+        ),
+        (
+            {
+                "file_templates": [
+                    {
+                        "name": "template1",
+                        "location": "/dummy/file_templates",
+                        "files": [
                             {
                                 "template": "template1.py",
+                                "template_name": "My beautiful template",
                                 "schema": dict(
                                     title="schema", description="empty schema"
                                 ),
                                 "default_name": "new_file",
                                 "destination": "star_folder",
+                                "icon": '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>',
                             }
                         ],
                     }
@@ -123,9 +155,11 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                     files=[
                         dict(
                             template="template1.py",
+                            template_name="My beautiful template",
                             schema=dict(title="schema", description="empty schema"),
                             default_name="new_file",
                             destination="star_folder",
+                            icon='<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>',
                         )
                     ],
                 )

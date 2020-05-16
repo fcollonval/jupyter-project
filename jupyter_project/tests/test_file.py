@@ -12,6 +12,8 @@ import pytest
 import tornado
 from traitlets.config import Config
 
+from jupyter_project.handlers import FileTemplatesHandler
+
 from utils import ServerTest, assert_http_error, url_path_join, generate_path
 
 template_folder = tempfile.TemporaryDirectory(suffix="files")

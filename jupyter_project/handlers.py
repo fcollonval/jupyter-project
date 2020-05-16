@@ -15,10 +15,6 @@ from jinja2 import (
     Template,
     TemplateError,
 )
-try:
-    import jinja2_time
-except ImportError:
-    jinja2_time = None
 from jsonschema.exceptions import ValidationError
 from jupyter_client.jsonutil import date_default
 from notebook.base.handlers import APIHandler, path_regex
@@ -26,6 +22,7 @@ from notebook.utils import url_path_join, url2path
 import tornado
 
 from .config import JupyterProject, ProjectTemplate
+from .jinja2 import jinja2_extensions
 
 NAMESPACE = "jupyter-project"
 
@@ -33,14 +30,14 @@ NAMESPACE = "jupyter-project"
 class FileTemplatesHandler(APIHandler):
     """Handler for generating file from templates."""
 
-    def initialize(self, default_name: Template = None, template: Template = None):
+    def initialize(self, default_name: str = None, template: Template = None):
         """Initialize request handler
 
         Args:
-            default_name (jinja2.Template): File default name - will be rendered with same parameters than template
+            default_name (str): File default name - will be rendered with same parameters than template
             template (jinja2.Template): Jinja2 template to use for component generation.
         """
-        self.default_name = default_name or Template("Untitled")
+        self.default_name = Template(default_name or "Untitled", extensions=jinja2_extensions)
         self.template = template
 
     @tornado.web.authenticated
@@ -315,11 +312,6 @@ def setup_handlers(
 
             templates[name] = new_template
 
-    ## Create the Jinja2 environment
-    jinja2_extensions = list()
-    if jinja2_time is not None:
-        jinja2_extensions.append('jinja2_time.TimeExtension')
-
     env = Environment(
         loader=PrefixLoader({name: t["loader"] for name, t in templates.items()}),
         extensions=jinja2_extensions
@@ -348,7 +340,7 @@ def setup_handlers(
                     ),
                     FileTemplatesHandler,
                     {
-                        "default_name": Template(file.default_name, extensions=jinja2_extensions),
+                        "default_name": file.default_name,
                         "template": env.get_template(f"{name}/{pfile.as_posix()}")
                     },
                 )

@@ -28,8 +28,11 @@ class TestSettings(ServerTest):
                         "files": [
                             {"template": "file1.py"},
                             {
-                                "template": "file2.html",
+                                "default_name": "documentation",
                                 "destination": "docs",
+                                "icon": '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>',
+                                "template": "file2.html",
+                                "template_name": "Doc file",
                                 "schema": {"properties": {"name": {"type": "string"}}},
                             },
                         ],
@@ -107,26 +110,32 @@ class TestSettings(ServerTest):
         assert answer.status_code == 200
         settings = answer.json()
         assert settings == {
-            "file_templates": [
+            "fileTemplates": [
                 {
                     "endpoint": quote("/".join(("template1", "file1")), safe=""),
                     "destination": None,
+                    "icon": None,
+                    "name": quote("/".join(("template1", "file1")), safe=""),
                     "schema": None,
                 },
                 {
                     "endpoint": quote("/".join(("template1", "file2")), safe=""),
                     "destination": "docs",
+                    "icon": '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>',
+                    "name": "Doc file",
                     "schema": {"properties": {"name": {"type": "string"}}},
                 },
                 {
                     "endpoint": quote("/".join(("template2", "file1")), safe=""),
                     "destination": None,
+                    "icon": None,
+                    "name": quote("/".join(("template2", "file1")), safe=""),
                     "schema": {"properties": {"count": {"type": "number"}}},
                 },
             ],
-            "project_template": {
-                "configuration_filename": "my-project.json",
-                "default_path": "notebooks",
+            "projectTemplate": {
+                "configurationFilename": "my-project.json",
+                "defaultPath": "notebooks",
                 "schema": {
                     "title": "My Project",
                     "description": "Project template description",
@@ -138,17 +147,13 @@ class TestSettings(ServerTest):
 
 class TestEmptySettings(ServerTest):
 
-    config = Config(
-        {
-            "NotebookApp": {"nbserver_extensions": {"jupyter_project": True}}
-        }
-    )
+    config = Config({"NotebookApp": {"nbserver_extensions": {"jupyter_project": True}}})
 
     def test_get_empty_settings(self):
         answer = self.api_tester.get(["settings",])
         assert answer.status_code == 200
         settings = answer.json()
-        assert settings == {"file_templates": [], "project_template": None}
+        assert settings == {"fileTemplates": [], "projectTemplate": None}
 
     def test_no_project_endpoint(self):
         with assert_http_error(404):
