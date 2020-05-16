@@ -302,6 +302,10 @@ jupyter lab build
 
 ## Contributing
 
+The frontend extension is based on [uniforms](https://uniforms.tools/) with its
+[material-ui](https://material-ui.com/) flavor to handle and display automatic
+forms from JSON schema.
+
 ### Install
 
 The `jlpm` command is JupyterLab's pinned version of
@@ -352,4 +356,5 @@ jupyter labextension uninstall jupyter-project
 
 ### v0.1.0
 
-- First version
+- Handle Jinja2 file templates
+- Handle project cookiecutter template
