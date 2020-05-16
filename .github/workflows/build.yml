@@ -27,7 +27,7 @@ jobs:
     - name: Test the extension
       run: |
         jlpm
-        jlpm run eslint:check
+        jlpm run lint:check
 
         pip install .[test]
 
