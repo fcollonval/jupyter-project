@@ -18,7 +18,6 @@ import { ReadonlyJSONObject } from '@phosphor/coreutils';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
-import { isSvg } from './style';
 import { CommandIDs, IProjectManager, PluginID, Templates } from './tokens';
 import { createValidator } from './validator';
 
@@ -35,7 +34,7 @@ class FileGenerator {
     this._name = template.name;
     this._endpoint = template.endpoint;
     this._destination = template.destination;
-    if (template.icon && isSvg(template.icon)) {
+    if (template.icon) {
       const icon: Icon.IModel = {
         name: `${PluginID}-${this._endpoint}`,
         svg: template.icon
