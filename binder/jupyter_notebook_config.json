@@ -44,7 +44,11 @@
                   "maximum": 100
                 },
                 "exampleObject": {
-                  "default": {"number": 1, "street_name": "Dog", "street_type": "Street"},
+                  "default": {
+                    "number": 1,
+                    "street_name": "Dog",
+                    "street_type": "Street"
+                  },
                   "title": "A object",
                   "type": "object",
                   "properties": {
@@ -90,8 +94,7 @@
       }
     ],
     "project_template": {
-      "default_path": "README.md",
-      "folder_name": "{{ repo_name }}",
+      "template": "https://github.com/fcollonval/cookiecutter-data-science",
       "schema": {
         "type": "object",
         "properties": {
@@ -120,7 +123,8 @@
         },
         "required": ["project_name", "repo_name"]
       },
-      "template": "https://github.com/fcollonval/cookiecutter-data-science"
+      "folder_name": "{{ repo_name }}",
+      "default_path": "README.md"
     }
   }
 }
