@@ -3,7 +3,8 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/master?urlpath=lab)
 [![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Test/badge.svg)](https://github.com/fcollonval/jupyter-project/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter-project/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter-project?branch=master)
-
+[![PyPI](https://img.shields.io/pypi/v/jupyter-project)](https://pypi.org/project/jupyter-project/)
+[![npm](https://img.shields.io/npm/v/jupyter-project)](https://www.npmjs.com/package/jupyter-project)
 
 An JupyterLab extension to handle (a unique) project and files templates. It adds the ability
 to generate projects from a [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/) template as well as generate files
