@@ -387,9 +387,8 @@ export function activateProjectManager(
       // TODO let environment = manager.project.environment;
       const userChoice = await showDialog({
         title: 'Delete',
-        body: `Are you sure you want to permanently delete the project\n'${
-          manager.project.name
-        }' in ${manager.project.path}?`,
+        // eslint-disable-next-line prettier/prettier
+        body: `Are you sure you want to permanently delete the project '${manager.project.name}' in ${manager.project.path}?`,
         buttons: [Dialog.cancelButton(), Dialog.warnButton({ label: 'DELETE' })]
       });
       if (!userChoice.button.accept) {
