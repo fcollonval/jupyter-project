@@ -54,6 +54,7 @@
     "@phosphor/widgets": "^1.9.0",
     "ajv": "^6.12.2",
     "jupyterlab_conda": "^1.2.0",
+    "jupyterlab_toastify": "^2.0.0",
     "uniforms": "^2.6.7",
     "uniforms-bridge-json-schema": "^2.6.7",
     "uniforms-material": "^2.6.7"

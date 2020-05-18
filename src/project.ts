@@ -16,6 +16,7 @@ import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
 import { Signal } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
 import { IEnvironmentManager } from 'jupyterlab_conda';
+import { INotification } from 'jupyterlab_toastify';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
@@ -306,6 +307,8 @@ export function activateProjectManager(
     execute: async args => {
       const cwd: string =
         (args['cwd'] as string) || browserFactory.defaultBrowser.model.path;
+      let toastId = args['toastId'] as number;
+      const cleanToast = toastId === undefined;
 
       let params = {};
       if (manager.schema) {
@@ -320,15 +323,40 @@ export function activateProjectManager(
       }
 
       try {
+        const message = 'Creating project.';
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message
+          });
+        } else {
+          toastId = INotification.inProgress(message);
+        }
         const model = await manager.create(cwd, params);
 
         await commands.execute(CommandIDs.openProject, {
-          path: model.path
+          path: model.path,
+          toastId
         });
+
+        if (cleanToast) {
+          INotification.update({
+            toastId,
+            message: `Project '${model.name}' successfully created.`,
+            type: 'success',
+            autoClose: 5000
+          });
+        }
       } catch (error) {
+        const message = 'Fail to create the project';
         await manager.close();
-        console.error('Fail to render the project', error);
-        showErrorMessage('Fail to render the project', error);
+        console.error(message, error);
+
+        INotification.update({
+          toastId,
+          message,
+          type: 'error'
+        });
       }
     },
     iconClass: args =>
@@ -346,6 +374,9 @@ export function activateProjectManager(
     execute: async args => {
       // 1. Get the configuration file
       const path = args['path'] as string;
+      let toastId = args['toastId'] as number;
+      const cleanToast = toastId === undefined;
+
       let configurationFile: Contents.IModel;
       if (path) {
         // From commands arguments
@@ -378,28 +409,60 @@ export function activateProjectManager(
 
       // 2. Open the project
       try {
-        await manager.open(PathExt.dirname(configurationFile.path));
+        const message = 'Opening project...';
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message
+          });
+        } else {
+          toastId = INotification.inProgress(message);
+        }
+        const model = await manager.open(
+          PathExt.dirname(configurationFile.path)
+        );
 
         if (manager.defaultPath) {
           await commands.execute(ForeignCommandIDs.openPath, {
-            path: PathExt.join(manager.project.path, manager.defaultPath)
+            path: PathExt.join(model.path, manager.defaultPath)
           });
         }
 
         if (condaManager && manager.withConda) {
-          await Private.openProject(
+          toastId = await Private.openProject(
             manager,
             serviceManager.contents,
-            condaManager
+            condaManager,
+            toastId
           );
 
           // Force refreshing session to take into account the new environment
           serviceManager.sessions.refreshSpecs();
         }
+
+        if (cleanToast) {
+          if (toastId) {
+            INotification.update({
+              toastId,
+              message: `Project '${model.name}' is ready.`,
+              type: 'success',
+              autoClose: 5000
+            });
+          }
+        } else {
+          if (toastId === null) {
+            throw new Error('Fail to open conda environment');
+          }
+        }
       } catch (error) {
-        console.error('Fail to open project', error);
-        showErrorMessage('Fail to open project', error);
-        return;
+        const message = 'Fail to open project';
+        console.error(message, error);
+
+        INotification.update({
+          toastId,
+          message,
+          type: 'error'
+        });
       }
     }
   });
@@ -414,7 +477,7 @@ export function activateProjectManager(
         manager.close();
         // TODO Clean kernel white list
       } catch (error) {
-        showErrorMessage('Failed to remove the current project', error);
+        showErrorMessage('Failed to close the current project', error);
       }
     }
   });
@@ -425,6 +488,7 @@ export function activateProjectManager(
     isEnabled: () => manager.project !== null,
     execute: async () => {
       const condaEnvironment = manager.project.environment;
+      const projectName = manager.project.name;
 
       const userChoice = await showDialog({
         title: 'Delete',
@@ -436,25 +500,48 @@ export function activateProjectManager(
         return;
       }
 
+      let toastId = INotification.inProgress(
+        `Removing project '${projectName}'...`
+      );
       // 1. Remove asynchronously the folder
       await resetWorkspace(commands);
       try {
         await manager.delete();
       } catch (error) {
-        showErrorMessage('Failed to remove the project folder', error);
+        const message = 'Failed to remove the project folder';
+        console.error(message, error);
+        INotification.update({ toastId, message, type: 'error' });
+        toastId = null;
       }
-      // 2. Remove associated conda environment
-      try {
-        if (condaEnvironment) {
-          condaManager.remove(condaEnvironment);
+      if (condaEnvironment && condaManager) {
+        // 2. Remove associated conda environment
+        const message = `Removing conda environment '${condaEnvironment}'...`;
+        if (toastId) {
+          INotification.update({ toastId, message });
+        } else {
+          toastId = INotification.inProgress(message);
+        }
+
+        try {
+          await condaManager.remove(condaEnvironment);
 
           // Force refreshing session to take into account the new environment
-          serviceManager.sessions.refreshSpecs();
+          await serviceManager.sessions.refreshSpecs();
+        } catch (error) {
+          const message = `Failed to remove the project environment ${condaEnvironment}`;
+          console.error(message, error);
+
+          INotification.update({ toastId, message, type: 'error' });
+          toastId = null;
         }
-      } catch (error) {
-        const msg = `Failed to remove the project environment ${condaEnvironment}`;
-        console.error(msg, error);
-        showErrorMessage(msg, error);
+      }
+      if (toastId) {
+        INotification.update({
+          toastId,
+          message: `Project '${projectName}' removed.`,
+          type: 'success',
+          autoClose: 5000
+        });
       }
     }
   });
@@ -528,12 +615,16 @@ namespace Private {
    * @param manager Project manager
    * @param contentService JupyterLab content service
    * @param conda Conda environment manager
+   * @param toastId Toast ID to be updated with user information
+   *
+   * @returns The toast ID to be updated or null if it is dismissed
    */
   export async function openProject(
     manager: ProjectManager,
     contentService: Contents.IManager,
-    conda: IEnvironmentManager
-  ): Promise<void> {
+    conda: IEnvironmentManager,
+    toastId: number
+  ): Promise<number | null> {
     const model = manager.project;
     let environmentName = (
       model.environment || model.name.replace(FORBIDDEN_ENV_CHAR, '_')
@@ -553,26 +644,40 @@ namespace Private {
       console.log(`${ENVIRONMENT_FILE} not found`);
       console.debug(error);
     }
+
     if (foundEnvironment) {
       environmentName = foundEnvironment.name;
+
+      INotification.update({
+        toastId,
+        message: `Updating conda environment ${environmentName}... Please wait`
+      });
+
       try {
         if (requirement) {
           // Update the environment
           // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
           // @ts-ignore
-          conda.update(
+          await conda.update(
             foundEnvironment.name,
             requirement.content,
             ENVIRONMENT_FILE
           );
         }
       } catch (error) {
-        const msg = `Fail to update environment ${foundEnvironment.name}`;
-        console.error(msg, error);
-        showErrorMessage(msg, error);
+        const message = `Fail to update environment ${foundEnvironment.name}`;
+        console.error(message, error);
+        INotification.update({ toastId, message });
+        toastId = null;
       }
     } else {
       // Import an environment
+
+      INotification.update({
+        toastId,
+        message: `Creating conda environment ${environmentName}... Please wait`
+      });
+
       try {
         if (requirement) {
           // Create the environment from the requirements
@@ -587,10 +692,10 @@ namespace Private {
         }
         await conda.getPackageManager(environmentName).develop(model.path);
       } catch (error) {
-        const msg = `Fail to create the environment for ${model.name}`;
-        console.error(msg, error);
-        showErrorMessage(msg, error);
-        return;
+        const message = `Fail to create the environment for ${model.name}`;
+        console.error(message, error);
+        INotification.update({ toastId, message });
+        return null;
       }
     }
 
@@ -602,6 +707,8 @@ namespace Private {
       format: 'text',
       content: JSON.stringify(model)
     });
+
+    return toastId;
   }
 }
 /* eslint-enable no-inner-declarations */
