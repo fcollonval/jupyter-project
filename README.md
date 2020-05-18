@@ -1,6 +1,6 @@
 # jupyter-project
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/master?urlpath=lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/with-conda?urlpath=lab)
 [![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Test/badge.svg)](https://github.com/fcollonval/jupyter-project/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter-project/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter-project?branch=master)
 [![PyPI](https://img.shields.io/pypi/v/jupyter-project)](https://pypi.org/project/jupyter-project/)
@@ -11,18 +11,16 @@ to generate projects from a [cookiecutter](https://cookiecutter.readthedocs.io/e
 from [Jinja2](https://jinja.palletsprojects.com/en/master/) templates. Those templates can be parametrized directly from
 the frontend by specifying [JSON schemas](https://json-schema.org/).
 
-
 This extension is composed of a Python package named `jupyter_project`
 for the server extension and a NPM package named `jupyter-project`
 for the frontend extension.
 
-
 ## Requirements
 
-* JupyterLab = 1.x
-* cookiecutter
-* jinja2
-* jsonschema
+- JupyterLab = 1.x
+- cookiecutter
+- jinja2
+- jsonschema
 
 ## Install
 
@@ -48,7 +46,7 @@ The section for this extension must be named **JupyterProject**:
 "JupyterProject": {
 ```
 
-It accepts to optional keys: *file_templates* and *project_template*. The first defines a list
+It accepts to optional keys: _file_templates_ and _project_template_. The first defines a list
 of places containing templated files. And the second describe the project template. They can
 both exist alone (i.e. only file templates or only the project template).
 
@@ -66,7 +64,7 @@ part of the `jupyter_project` Python module:
     "location": "examples",
 ```
 
-The last parameter appearing here is *name*. It described uniquely the source of file templates.
+The last parameter appearing here is _name_. It described uniquely the source of file templates.
 
 Than comes the list of templated files available in that source. There are three templated
 file examples. The shortest configuration is:
@@ -113,14 +111,13 @@ to rendered the templates.
 
 In the settings, you can see three additional entries that have not been explained yet:
 
-* `template_name`: A nicer name for the template to be displayed in the frontend.
-* `default_name`: Default name for the file generated from the template (the string may contain Jinja2 variables defined in the `schema`).
-* `destination`: If you are using the project template, the generated file will be placed
-within the destination folder inside the active project folder. If no project is active
-the file will be written in the current folder.
+- `template_name`: A nicer name for the template to be displayed in the frontend.
+- `default_name`: Default name for the file generated from the template (the string may contain Jinja2 variables defined in the `schema`).
+- `destination`: If you are using the project template, the generated file will be placed
+  within the destination folder inside the active project folder. If no project is active
+  the file will be written in the current folder.
 
-
-The latest file template example is a complete example of all possibilities (including 
+The latest file template example is a complete example of all possibilities (including
 type of variables that you could used in the schema):
 
 ```json5
@@ -194,7 +191,6 @@ If you need to set templates from different sources, you can add entry similar t
 The second major configuration section is `project_template`. Each template must
 specified a value for `template` that points to a valid [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/)
 template source:
-
 
 ```json5
 // ./binder/jupyter_notebook_config.json#L96-L97
@@ -277,6 +273,125 @@ been generated:
   },
   "required": ["project_name", "repo_name"]
 },
+```
+
+#### Full configuration
+
+Here is the description of all server extension settings:
+
+```json
+{
+  "JupyterProject": {
+    "file_templates": {
+      "description": "List of file template loaders",
+      "type": "array",
+      "items": {
+        "description": ,
+        "type": "object",
+        "properties": {
+          "location": {
+            "description": "Templates path",
+            "type": "string"
+          },
+          "module": {
+            "description": "Python package containing the templates 'location' [optional]",
+            "type": "string"
+          },
+          "name": {
+            "description": "Templates group name",
+            "type": "string"
+          },
+          "files": {
+            "description": "List of template files",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "default_name": {
+                  "description": "Default file name (without extension; support Jinja2 templating using the schema parameters)",
+                  "default": "Untitled",
+                  "type": "string"
+                },
+                "destination": {
+                  "description": "Relative destination folder [optional]",
+                  "type": "string"
+                },
+                "icon": {
+                  "description": "Template icon to display in the frontend [optional]",
+                  "default": null,
+                  "type": "string"
+                },
+                "schema": {
+                  "description": "JSON schema list describing the templates parameters [optional]",
+                  "type": "object"
+                },
+                "template": {
+                  "description": "Template path",
+                  "type": "string"
+                },
+                "template_name" : {
+                  "description": "Template name in the UI [optional]",
+                  "type": "string"
+                }
+              },
+              "required": ["template"]
+            }
+          }
+        },
+        "required": ["files", "location", "name"]
+      }
+    },
+    "project_template": {
+      "description": "The project template options",
+      "type": "object",
+      "properties": {
+        "configuration_filename": {
+          "description": "Name of the project configuration JSON file [optional]",
+          "default": "jupyter-project.json",
+          "type": "string"
+        },
+        "configuration_schema": {
+          "description": "JSON schema describing the project configuration file [optional]",
+          "default": {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+            "required": ["name"],
+          },
+          "type": "object"
+        },
+        "default_path": {
+          "description": "Default file or folder to open; relative to the project root [optional]",
+          "type": "string"
+        },
+        "folder_name": {
+          "description": "Project name (support Jinja2 templating using the schema parameters) [optional]",
+          "default": "{{ name|lower|replace(' ', '_') }}",
+          "type": "string"
+        },
+        "module": {
+          "description": "Python package containing the template [optional]",
+          "type": "string"
+        },
+        "schema": {
+          "description": "JSON schema describing the template parameters [optional]",
+          "default": {
+            "type": "object",
+            "properties": {"name": {"type": "string", "pattern": "^[a-zA-Z_]\\w*$"}},
+            "required": ["name"],
+          },
+          "type": "object"
+        },
+        "template": {
+          "description": "Cookiecutter template source",
+          "default": null,
+          "type": "string"
+        }
+      },
+      "required": ["template"]
+    }
+  }
+}
 ```
 
 ## Troubleshoot
