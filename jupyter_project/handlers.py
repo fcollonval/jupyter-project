@@ -383,6 +383,7 @@ def setup_handlers(
             "schema": (
                 project_template.schema if len(project_template.schema) else None
             ),
+            "defaultCondaPackages": project_template.conda_pkgs
         }
 
     handlers.append(

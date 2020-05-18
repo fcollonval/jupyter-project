@@ -1,4 +1,4 @@
-import { Dialog, ReactWidget, InputDialog } from '@jupyterlab/apputils';
+import { Dialog, ReactWidget } from '@jupyterlab/apputils';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { JSONObject, PromiseDelegate } from '@phosphor/coreutils';
 import * as React from 'react';
@@ -15,9 +15,7 @@ import { Bridge } from 'uniforms';
 export async function showForm(
   options: Form.IOptions
 ): Promise<Dialog.IResult<JSONObject>> {
-  const { schema, ...dialogOptions } = options;
-  const body = new FormWidget(schema);
-  return new FormDialog(body, dialogOptions).launch();
+  return new FormDialog(options).launch();
 }
 
 /**
@@ -27,13 +25,12 @@ class FormDialog extends Dialog<JSONObject> {
   /**
    * Form constructor
    *
-   * @param body Form's body
-   * @param options Dialog options
+   * @param options Form options
    */
-  constructor(body: Form.IWidget, options: Partial<InputDialog.IOptions>) {
+  constructor(options: Form.IOptions) {
     super({
       ...options,
-      body: body,
+      body: new FormWidget(options.schema),
       buttons: [
         Dialog.cancelButton({ label: options.cancelLabel }),
         Dialog.okButton({ label: options.okLabel })
@@ -41,9 +38,6 @@ class FormDialog extends Dialog<JSONObject> {
     });
 
     this.addClass('jpproject-Form');
-
-    // this._body is private... Dialog API is bad for inheritance
-    this._formBody = body;
   }
 
   /**
@@ -59,7 +53,7 @@ class FormDialog extends Dialog<JSONObject> {
   handleEvent(event: Event): void {
     switch (event.type) {
       case 'focus':
-        // Prevent recursion error
+        // Prevent recursion error with Material-UI combobox
         event.stopImmediatePropagation();
         break;
       default:
@@ -85,18 +79,20 @@ class FormDialog extends Dialog<JSONObject> {
     } else {
       // index === 1 if ok button is clicked
       // index === undefined if Enter is pressed
-      this._formBody
+
+      // this._body is private... Dialog API is bad for inheritance
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      this._body
         .submit()
         .then(() => {
           super.resolve(index);
         })
-        .catch(reason => {
+        .catch((reason: any) => {
           console.log(`Invalid form field:\n${reason}`);
         });
     }
   }
-
-  protected _formBody: Form.IWidget;
 }
 
 /**

@@ -15,6 +15,7 @@ import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
 import { Signal } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
+import { IEnvironmentManager } from 'jupyterlab_conda';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
@@ -22,16 +23,24 @@ import { createProjectStatus } from './statusbar';
 import {
   CommandIDs,
   IProjectManager,
-  PluginID,
+  PLUGIN_ID,
   Project,
   Templates
 } from './tokens';
 import { createValidator } from './validator';
 
 /**
+ * Default conda environment file
+ */
+const ENVIRONMENT_FILE = 'environment.yml';
+/**
+ * List of forbidden character in conda environment name
+ */
+const FORBIDDEN_ENV_CHAR = /[/\s:#]/gi;
+/**
  * Project manager state ID
  */
-const StateID = `${PluginID}:project`;
+const STATE_ID = `${PLUGIN_ID}:project`;
 
 /**
  * Namespace of foreign command IDs used
@@ -62,6 +71,10 @@ class ProjectManager implements IProjectManager {
     this._configurationFilename = settings.configurationFilename;
     this._state = state;
 
+    if (settings.defaultCondaPackages) {
+      this._defaultCondaPackages = settings.defaultCondaPackages;
+    }
+
     if (settings.defaultPath) {
       this._defaultPath = settings.defaultPath;
     }
@@ -75,7 +88,7 @@ class ProjectManager implements IProjectManager {
 
     // Restore previously loaded project
     appRestored
-      .then(() => this._state.fetch(StateID))
+      .then(() => this._state.fetch(STATE_ID))
       .then(data => {
         this._setProject(data as any);
 
@@ -97,6 +110,13 @@ class ProjectManager implements IProjectManager {
   }
 
   /**
+   * Default conda package to install in a new project - if no ENVIRONMENT_FILE found
+   */
+  get defaultCondaPackages(): string | null {
+    return this._defaultCondaPackages;
+  }
+
+  /**
    * Default path to open in a project
    */
   get defaultPath(): string {
@@ -108,6 +128,13 @@ class ProjectManager implements IProjectManager {
    */
   get project(): Project.IModel | null {
     return this._project;
+  }
+
+  /**
+   * Should we synchronize an conda environment with the project
+   */
+  get withConda(): boolean {
+    return this.defaultCondaPackages ? true : false;
   }
 
   /**
@@ -125,7 +152,7 @@ class ProjectManager implements IProjectManager {
 
     if (changed) {
       this._project = newProject;
-      this._state.save(StateID, this._project as any);
+      this._state.save(STATE_ID, this._project as any);
       this.projectChanged.emit(this._project);
     }
   }
@@ -221,6 +248,7 @@ class ProjectManager implements IProjectManager {
 
   // Private attributes
   private _configurationFilename: string;
+  private _defaultCondaPackages: string | null = null;
   private _defaultPath: string | null = null;
   private _project: Project.IModel | null = null;
   private _schema: JSONSchemaBridge | null = null;
@@ -262,11 +290,12 @@ export function activateProjectManager(
   browserFactory: IFileBrowserFactory,
   settings: Templates.IProject,
   palette: ICommandPalette,
+  condaManager: IEnvironmentManager | null,
   launcher: ILauncher | null,
   menu: IMainMenu | null,
   statusbar: IStatusBar | null
 ): IProjectManager {
-  const { commands } = app;
+  const { commands, serviceManager } = app;
   const category = 'Project';
 
   // Cannot blocking wait for the application otherwise this will bock the all application at launch time
@@ -293,7 +322,7 @@ export function activateProjectManager(
       try {
         const model = await manager.create(cwd, params);
 
-        commands.execute(CommandIDs.openProject, {
+        await commands.execute(CommandIDs.openProject, {
           path: model.path
         });
       } catch (error) {
@@ -350,16 +379,27 @@ export function activateProjectManager(
       // 2. Open the project
       try {
         await manager.open(PathExt.dirname(configurationFile.path));
+
+        if (manager.defaultPath) {
+          await commands.execute(ForeignCommandIDs.openPath, {
+            path: PathExt.join(manager.project.path, manager.defaultPath)
+          });
+        }
+
+        if (condaManager && manager.withConda) {
+          await Private.openProject(
+            manager,
+            serviceManager.contents,
+            condaManager
+          );
+
+          // Force refreshing session to take into account the new environment
+          serviceManager.sessions.refreshSpecs();
+        }
       } catch (error) {
         console.error('Fail to open project', error);
         showErrorMessage('Fail to open project', error);
         return;
-      }
-
-      if (manager.defaultPath) {
-        commands.execute(ForeignCommandIDs.openPath, {
-          path: PathExt.join(manager.project.path, manager.defaultPath)
-        });
       }
     }
   });
@@ -384,7 +424,8 @@ export function activateProjectManager(
     caption: 'Delete a Project',
     isEnabled: () => manager.project !== null,
     execute: async () => {
-      // TODO let environment = manager.project.environment;
+      const condaEnvironment = manager.project.environment;
+
       const userChoice = await showDialog({
         title: 'Delete',
         // eslint-disable-next-line prettier/prettier
@@ -394,24 +435,27 @@ export function activateProjectManager(
       if (!userChoice.button.accept) {
         return;
       }
+
       // 1. Remove asynchronously the folder
-      resetWorkspace(commands);
+      await resetWorkspace(commands);
       try {
         await manager.delete();
       } catch (error) {
         showErrorMessage('Failed to remove the project folder', error);
       }
-      // TODO 2. Remove associated conda environment
-      // try {
-      //   if (environment) {
-      //     manager.environmentManager.remove(environment);
-      //   }
-      // } catch (error) {
-      //   showErrorMessage(
-      //     `Failed to remove the project environment ${environment}`,
-      //     error
-      //   );
-      // }
+      // 2. Remove associated conda environment
+      try {
+        if (condaEnvironment) {
+          condaManager.remove(condaEnvironment);
+
+          // Force refreshing session to take into account the new environment
+          serviceManager.sessions.refreshSpecs();
+        }
+      } catch (error) {
+        const msg = `Failed to remove the project environment ${condaEnvironment}`;
+        console.error(msg, error);
+        showErrorMessage(msg, error);
+      }
     }
   });
 
@@ -465,7 +509,7 @@ export function activateProjectManager(
   });
 
   if (statusbar) {
-    statusbar.registerStatusItem(`${PluginID}:project-status`, {
+    statusbar.registerStatusItem(`${PLUGIN_ID}:project-status`, {
       align: 'left',
       item: createProjectStatus({ manager }),
       rank: -3
@@ -474,3 +518,90 @@ export function activateProjectManager(
 
   return manager;
 }
+
+/* eslint-disable no-inner-declarations */
+namespace Private {
+  /**
+   * Open a project folder from its configuration file.
+   * If no conda environment exists, creates one if requested.
+   *
+   * @param manager Project manager
+   * @param contentService JupyterLab content service
+   * @param conda Conda environment manager
+   */
+  export async function openProject(
+    manager: ProjectManager,
+    contentService: Contents.IManager,
+    conda: IEnvironmentManager
+  ): Promise<void> {
+    const model = manager.project;
+    let environmentName = (
+      model.environment || model.name.replace(FORBIDDEN_ENV_CHAR, '_')
+    ).toLocaleLowerCase();
+
+    const foundEnvironment = (await conda.environments).find(
+      value => value.name.toLocaleLowerCase() === environmentName
+    );
+
+    let requirement: Contents.IModel;
+    try {
+      requirement = await contentService.get(
+        PathExt.join(model.path, ENVIRONMENT_FILE),
+        { type: 'file', content: true }
+      );
+    } catch (error) {
+      console.log(`${ENVIRONMENT_FILE} not found`);
+      console.debug(error);
+    }
+    if (foundEnvironment) {
+      environmentName = foundEnvironment.name;
+      try {
+        if (requirement) {
+          // Update the environment
+          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // @ts-ignore
+          conda.update(
+            foundEnvironment.name,
+            requirement.content,
+            ENVIRONMENT_FILE
+          );
+        }
+      } catch (error) {
+        const msg = `Fail to update environment ${foundEnvironment.name}`;
+        console.error(msg, error);
+        showErrorMessage(msg, error);
+      }
+    } else {
+      // Import an environment
+      try {
+        if (requirement) {
+          // Create the environment from the requirements
+          await conda.import(
+            environmentName,
+            requirement.content,
+            ENVIRONMENT_FILE
+          );
+        } else {
+          // Create an environment
+          await conda.create(environmentName, manager.defaultCondaPackages);
+        }
+        await conda.getPackageManager(environmentName).develop(model.path);
+      } catch (error) {
+        const msg = `Fail to create the environment for ${model.name}`;
+        console.error(msg, error);
+        showErrorMessage(msg, error);
+        return;
+      }
+    }
+
+    // Update the config file
+    model.environment = environmentName.toLocaleLowerCase();
+    const filePath = PathExt.join(model.path, manager.configurationFilename);
+    await contentService.save(filePath, {
+      type: 'file',
+      format: 'text',
+      content: JSON.stringify(model)
+    });
+  }
+}
+/* eslint-enable no-inner-declarations */

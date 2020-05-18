@@ -124,6 +124,7 @@
         "required": ["project_name", "repo_name"]
       },
       "folder_name": "{{ repo_name }}",
+      "conda_pkgs": "Python 3",
       "default_path": "README.md"
     }
   }

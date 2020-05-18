@@ -72,6 +72,9 @@
     "rimraf": "^2.6.1",
     "typescript": "~3.5.2"
   },
+  "optionalDependencies": {
+    "jupyterlab_conda": "^1.2.0"
+  },
   "sideEffects": [
     "style/*.css"
   ],

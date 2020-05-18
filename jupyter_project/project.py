@@ -10,7 +10,7 @@ from jinja2 import (
 )
 import jsonschema
 from cookiecutter.main import cookiecutter
-from traitlets import HasTraits, TraitError, TraitType, Unicode, validate
+from traitlets import Bool, HasTraits, TraitError, TraitType, Unicode, validate
 from traitlets.utils.bunch import Bunch
 
 from .jinja2 import jinja2_extensions
@@ -62,6 +62,12 @@ class ProjectTemplate(HasTraits):
         allow_none=True,
         help="Cookiecutter template source",
         config=True,
+    )
+    conda_pkgs = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="Type of conda environment or space separated list of conda packages (requires `jupyter_conda`) [optional]",
+        config=True
     )
 
     def __init__(self, *args, **kwargs):

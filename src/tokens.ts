@@ -109,9 +109,13 @@ export namespace Project {
   }
 }
 export interface IProjectManager {
-  /** Current project properties */
+  /**
+   * Current project properties
+   */
   project: Project.IModel | null;
-  /** Signal emitted when project changes */
+  /**
+   * Signal emitted when project changes
+   */
   projectChanged: Signal<IProjectManager, Project.IModel>;
 }
 
