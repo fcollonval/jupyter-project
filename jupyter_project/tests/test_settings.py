@@ -56,6 +56,7 @@ class TestSettings(ServerTest):
                         "description": "Project configuration",
                         "properties": {"n_notebooks": {"type": "number"}},
                     },
+                    "conda_pkgs": "python=3 ipykernel",
                     "default_path": "notebooks",
                     "template": "my_magic.package",
                     "schema": {
@@ -135,6 +136,7 @@ class TestSettings(ServerTest):
             ],
             "projectTemplate": {
                 "configurationFilename": "my-project.json",
+                "defaultCondaPackages": "python=3 ipykernel",
                 "defaultPath": "notebooks",
                 "schema": {
                     "title": "My Project",
