@@ -36,6 +36,12 @@ class ProjectTemplate(HasTraits):
         help="JSON schema describing the project configuration file [optional]",
         config=True,
     )
+    conda_pkgs = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="Type of conda environment or space separated list of conda packages (requires `jupyter_conda`) [optional]",
+        config=True
+    )
     default_path = Path(
         help="Default file or folder to open; relative to the project root [optional]",
         config=True,
@@ -62,12 +68,6 @@ class ProjectTemplate(HasTraits):
         allow_none=True,
         help="Cookiecutter template source",
         config=True,
-    )
-    conda_pkgs = Unicode(
-        default_value=None,
-        allow_none=True,
-        help="Type of conda environment or space separated list of conda packages (requires `jupyter_conda`) [optional]",
-        config=True
     )
 
     def __init__(self, *args, **kwargs):

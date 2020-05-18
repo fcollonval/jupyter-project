@@ -17,10 +17,18 @@ for the frontend extension.
 
 ## Requirements
 
+Python requirements:
+
 - JupyterLab = 1.x
 - cookiecutter
 - jinja2
 - jsonschema
+- jupyter_conda ~=3.2 (optional)
+
+Optional JupyterLab extension:
+
+- jupyterlab_toastify
+- jupyterlab_conda
 
 ## Install
 
@@ -125,7 +133,7 @@ type of variables that you could used in the schema):
 
 {
   "destination": "notebooks",
-  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"> <path d=\"M 0.62754418,5.7679165 V 13.566266 L 8.5124129,13.135686 V 6.6832665 Z\" style=\"fill:#353564;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"m 0.62754418,13.566266 2.80479342,1.46719 12.1283534,-1.12061 -7.0482781,-0.77716 z\" style=\"fill:#afafde;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 8.5124129,6.6832665 15.560691,3.3386664 V 13.912846 l -7.0482781,-0.77716 z\" style=\"fill:#e9e9ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 0.62754418,5.7679165 3.4323376,0.28889643 15.560691,3.3386664 8.5124129,6.6832665 Z\" style=\"fill:#4d4d9f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 3.4323376,0.28889643 V 15.033456 L 15.560691,13.912846 V 3.3386664 Z\" style=\"fill:#d7d7ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 0.62754418,5.7679165 3.4323376,0.28889643 V 15.033456 l -2.80479342,-1.46719 z\" style=\"fill:#8686bf;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path class=\"jp-icon-accent0\" fill=\"#faff00\" d=\"m 12.098275,4.7065364 -4.9999997,-0.62651 v 8.9554396 l 4.9999997,-0.32893 v -1.1 l -3.4999997,0.19305 V 8.9065364 h 1.9999997 v -1.1 l -1.9999997,-0.1 V 5.3539365 l 3.4999997,0.3526 z\" style=\"fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\" /> </svg> ",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"> <rect class=\"jp-icon3\" fill=\"#ffffff\" width=\"16\" height=\"16\" rx=\"2\" style=\"fill-opacity:1\" /> <path class=\"jp-icon-accent0\" fill=\"#faff00\" d=\"m 12.098275,4.7065364 -4.9999997,-0.62651 v 8.9554396 l 4.9999997,-0.32893 v -1.1 l -3.4999997,0.19305 V 8.9065364 h 1.9999997 v -1.1 l -1.9999997,-0.1 V 5.3539365 l 3.4999997,0.3526 z\" style=\"fill-opacity:1;stroke:none\" /> </svg> ",
   "template_name": "Example",
   "template": "example.ipynb",
   "schema": {
@@ -243,37 +251,33 @@ provide the default path (folder or file) to be opened by JupyterLab once the pr
 been generated:
 
 ```json5
-// ./binder/jupyter_notebook_config.json#L98-L125
+// ./binder/jupyter_notebook_config.json#L126-L127
 
-"schema": {
-  "type": "object",
-  "properties": {
-    "project_name": {
-      "type": "string",
-      "default": "Project Name"
-    },
-    "repo_name": {
-      "title": "Folder name",
-      "type": "string",
-      "pattern": "^[a-zA-Z_]\\w*$",
-      "default": "project_name"
-    },
-    "author_name": {
-      "type": "string",
-      "description": "Your name (or your organization/company/team)"
-    },
-    "description": {
-      "type": "string",
-      "description": "A short description of the project."
-    },
-    "open_source_license": {
-      "type": "string",
-      "enum": ["MIT", "BSD-3-Clause", "No license file"]
-    }
-  },
-  "required": ["project_name", "repo_name"]
-},
+"folder_name": "{{ repo_name }}",
+"default_path": "README.md",
 ```
+
+#### Conda environment integration
+
+If the [`jupyter_conda`](https://github.com/fcollonval/jupyter_conda) optional extension is installed
+and if `conda_pkgs` is specified in the `project_template` configuration, then a Conda environment
+will follow the life cycle of the project; i.e. creation of an environment at project creation,
+update of the environment when opening a project and deletion at project deletion.
+
+The `conda_pkgs` setting should be set to a string matching the default environment type of conda environment
+to be created at project creation (see [`jupyter_conda`](https://github.com/fcollonval/jupyter_conda/blob/master/labextension/schema/plugin.json#L13)
+labextension for more information). You can also set a packages list separated by space.
+
+The binder example defines:
+
+```json5
+// ./binder/jupyter_notebook_config.json#L128-L128
+
+"conda_pkgs": "Python 3"
+```
+
+> The default conda packages settings is the fallback if `environment.yml` is absent of the project
+> cookiecutter template.
 
 #### Full configuration
 
@@ -359,6 +363,11 @@ Here is the description of all server extension settings:
             "required": ["name"],
           },
           "type": "object"
+        },
+        "conda_pkgs": {
+          "default": null,
+          "description": "Type of conda environment or space separated list of conda packages (requires `jupyter_conda`) [optional]",
+          "type": "string"
         },
         "default_path": {
           "description": "Default file or folder to open; relative to the project root [optional]",
