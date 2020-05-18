@@ -3,16 +3,16 @@ import { IIconRegistry } from '@jupyterlab/ui-components';
 // icon svg import statements
 import projectSvg from '../style/icons/project.svg';
 import templateSvg from '../style/icons/template.svg';
-import { PluginID } from './tokens';
+import { PLUGIN_ID } from './tokens';
 
 export function registerIcons(iconRegistry: IIconRegistry): void {
   iconRegistry.addIcon(
     {
-      name: `${PluginID}-project`,
+      name: `${PLUGIN_ID}-project`,
       svg: projectSvg
     },
     {
-      name: `${PluginID}-template`,
+      name: `${PLUGIN_ID}-template`,
       svg: templateSvg
     }
   );

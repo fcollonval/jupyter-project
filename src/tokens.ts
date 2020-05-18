@@ -6,13 +6,13 @@ import { Bridge } from 'uniforms';
 /**
  * Plugin ID
  */
-export const PluginID = 'jupyter-project';
+export const PLUGIN_ID = 'jupyter-project';
 
 /**
  * Project Manager Plugin Token
  */
 export const IProjectManager = new Token<IProjectManager>(
-  `${PluginID}:IProjectManager`
+  `${PLUGIN_ID}:IProjectManager`
 );
 
 /**
@@ -90,12 +90,22 @@ export namespace Form {
   }
 }
 
+/**
+ * Project namespace
+ */
 export namespace Project {
+  /**
+   * Project model interface
+   */
   export interface IModel {
     /** Project name */
     name: string;
     /** Current project path */
     path: string;
+    /** Conda environment associated to the project */
+    environment?: string;
+    /** Other keys from the project configuration file */
+    [key: string]: any;
   }
 }
 export interface IProjectManager {
@@ -150,6 +160,10 @@ export namespace Templates {
      * JSON schema of the template parameter
      */
     schema?: JSONObject;
+    /**
+     * Synchronize a conda environment with the project
+     */
+    defaultCondaPackages?: string;
   }
   /**
    * Jupyter project settings
