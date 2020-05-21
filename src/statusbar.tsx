@@ -12,12 +12,15 @@ const ProjectComponent: React.FunctionComponent<IProjectStatusProps> = (
   props: IProjectStatusProps
 ) => {
   return (
-    <UseSignal signal={props.manager.projectChanged}>
-      {(_, project): JSX.Element =>
-        project ? (
+    <UseSignal
+      signal={props.manager.projectChanged}
+      initialArgs={{ newValue: null }}
+    >
+      {(_, change): JSX.Element =>
+        change.newValue ? (
           <TextItem
-            source={project.name}
-            title={`Active project: ${project.path}`}
+            source={change.newValue.name}
+            title={`Active project: ${change.newValue.path}`}
           />
         ) : null
       }

@@ -94,6 +94,8 @@ export namespace Form {
  * Project namespace
  */
 export namespace Project {
+  /** Type of change project reason */
+  export type ChangeType = 'delete' | 'new' | 'open';
   /**
    * Project model interface
    */
@@ -107,6 +109,17 @@ export namespace Project {
     /** Other keys from the project configuration file */
     [key: string]: any;
   }
+  /**
+   * Project change interface
+   */
+  export interface IChangedArgs {
+    /** New project model */
+    newValue: IModel | null;
+    /** Previous project model */
+    oldValue: IModel | null;
+    /** Type of change */
+    type: ChangeType;
+  }
 }
 export interface IProjectManager {
   /**
@@ -116,7 +129,7 @@ export interface IProjectManager {
   /**
    * Signal emitted when project changes
    */
-  projectChanged: Signal<IProjectManager, Project.IModel>;
+  projectChanged: Signal<IProjectManager, Project.IChangedArgs>;
 }
 
 /**

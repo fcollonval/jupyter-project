@@ -94,7 +94,7 @@
       }
     ],
     "project_template": {
-      "template": "https://github.com/fcollonval/cookiecutter-data-science",
+      "template": "https://github.com/drivendata/cookiecutter-data-science",
       "schema": {
         "type": "object",
         "properties": {
@@ -125,7 +125,7 @@
       },
       "folder_name": "{{ repo_name }}",
       "default_path": "README.md",
-      "conda_pkgs": "Python 3"
+      "conda_pkgs": "awscli click coverage flake8 ipykernel python-dotenv>=0.5.1 sphinx"
     }
   }
 }

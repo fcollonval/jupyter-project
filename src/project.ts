@@ -18,6 +18,7 @@ import { Menu } from '@phosphor/widgets';
 import { IEnvironmentManager } from 'jupyterlab_conda';
 import { INotification } from 'jupyterlab_toastify';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
+import YAML from 'yaml';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
 import { createProjectStatus } from './statusbar';
@@ -51,6 +52,33 @@ namespace ForeignCommandIDs {
   export const goTo = 'filebrowser:go-to-path';
   export const openPath = 'filebrowser:open-path';
   export const saveAll = 'docmanager:save-all';
+}
+
+/**
+ * Namespace for Conda
+ */
+namespace CondaEnv {
+  /**
+   * Interface for conda environment file specification
+   */
+  export interface IEnvSpecs {
+    /**
+     * Channels to use
+     */
+    channels: string[];
+    /**
+     * Packages list
+     */
+    dependencies: string[];
+    /**
+     * Environment name
+     */
+    name: string;
+    /**
+     * Environment prefix
+     */
+    prefix: string;
+  }
 }
 
 /**
@@ -90,8 +118,8 @@ class ProjectManager implements IProjectManager {
     // Restore previously loaded project
     appRestored
       .then(() => this._state.fetch(STATE_ID))
-      .then(data => {
-        this._setProject(data as any);
+      .then(project => {
+        this._setProject(project as any, 'open');
 
         if (this.project) {
           this.open(this.project.path);
@@ -132,42 +160,24 @@ class ProjectManager implements IProjectManager {
   }
 
   /**
-   * Should we synchronize an conda environment with the project
-   */
-  get withConda(): boolean {
-    return this.defaultCondaPackages ? true : false;
-  }
-
-  /**
-   * Set the active project
-   *
-   * null = no active project
-   *
-   * @param newProject Project model
-   */
-  protected _setProject(newProject: Project.IModel | null): void {
-    let changed = this._project !== newProject;
-    if (!changed && !this._project && !newProject) {
-      changed = !JSONExt.deepEqual(newProject as any, this._project as any);
-    }
-
-    if (changed) {
-      this._project = newProject;
-      this._state.save(STATE_ID, this._project as any);
-      this.projectChanged.emit(this._project);
-    }
-  }
-
-  /**
    * A signal emitted when the project changes.
    */
-  readonly projectChanged = new Signal<this, Project.IModel>(this);
+  get projectChanged(): Signal<this, Project.IChangedArgs> {
+    return this._projectChanged;
+  }
 
   /**
    * Schema to be handled by the form
    */
   get schema(): JSONSchemaBridge | null {
     return this._schema;
+  }
+
+  /**
+   * Should we synchronize an conda environment with the project
+   */
+  get withConda(): boolean {
+    return this.defaultCondaPackages ? true : false;
   }
 
   /**
@@ -190,15 +200,17 @@ class ProjectManager implements IProjectManager {
       body: JSON.stringify(options)
     });
 
-    this._setProject(answer.project);
+    this._setProject(answer.project, 'new');
     return this.project;
   }
 
   /**
    * Close the current project
+   *
+   * @param changeType Type of change; default 'open'
    */
-  async close(): Promise<void> {
-    await this.open('');
+  async close(changeType: Project.ChangeType = 'open'): Promise<void> {
+    await this.open('', changeType);
   }
 
   /**
@@ -211,7 +223,7 @@ class ProjectManager implements IProjectManager {
     }
 
     // Close the project before requesting its deletion
-    await this.close();
+    await this.close('delete');
 
     return requestAPI<void>(endpoint, {
       method: 'DELETE'
@@ -224,9 +236,13 @@ class ProjectManager implements IProjectManager {
    * If path is empty, close the active project.
    *
    * @param path Project folder path
+   * @param changeType Type of change; default 'open'
    * @returns The opened project model
    */
-  async open(path: string): Promise<Project.IModel> {
+  async open(
+    path: string,
+    changeType: Project.ChangeType = 'open'
+  ): Promise<Project.IModel> {
     let endpoint = 'projects';
     if (path.length > 0) {
       endpoint = URLExt.join(endpoint, path);
@@ -236,7 +252,7 @@ class ProjectManager implements IProjectManager {
       method: 'GET'
     });
 
-    this._setProject(answer.project);
+    this._setProject(answer.project, changeType);
     return this.project;
   }
 
@@ -244,7 +260,36 @@ class ProjectManager implements IProjectManager {
    * Reset current state
    */
   reset(): void {
-    this._setProject(null);
+    this._setProject(null, 'open');
+  }
+
+  /**
+   * Set the active project
+   *
+   * null = no active project
+   *
+   * @param newProject Project model
+   * @param changeType Type of change
+   */
+  protected _setProject(
+    newProject: Project.IModel | null,
+    changeType: Project.ChangeType
+  ): void {
+    let changed = this._project !== newProject;
+    if (!changed && !this._project && !newProject) {
+      changed = !JSONExt.deepEqual(newProject as any, this._project as any);
+    }
+
+    if (changed) {
+      const oldProject = { ...this._project };
+      this._project = newProject;
+      this._state.save(STATE_ID, this._project as any);
+      this._projectChanged.emit({
+        type: changeType,
+        newValue: this._project,
+        oldValue: oldProject
+      });
+    }
   }
 
   // Private attributes
@@ -252,6 +297,7 @@ class ProjectManager implements IProjectManager {
   private _defaultCondaPackages: string | null = null;
   private _defaultPath: string | null = null;
   private _project: Project.IModel | null = null;
+  private _projectChanged = new Signal<this, Project.IChangedArgs>(this);
   private _schema: JSONSchemaBridge | null = null;
   private _state: IStateDB;
 }
@@ -299,8 +345,49 @@ export function activateProjectManager(
   const { commands, serviceManager } = app;
   const category = 'Project';
 
-  // Cannot blocking wait for the application otherwise this will bock the all application at launch time
+  // Cannot blocking wait for the application otherwise this will bock
+  // the all application at launch time
   const manager = new ProjectManager(settings, state, app.restored);
+
+  if (condaManager) {
+    // Update the conda environment description when closing a project
+    manager.projectChanged.connect((_, change) => {
+      if (
+        change.type !== 'delete' &&
+        change.oldValue &&
+        change.oldValue.environment
+      ) {
+        Private.updateEnvironmentSpec(
+          change.oldValue,
+          condaManager,
+          serviceManager.contents
+        ).catch(error => {
+          console.error(
+            `Fail to update environment '${change.oldValue.environment} specifications.`,
+            error
+          );
+        });
+      }
+    });
+    // or if the associated environment changes.
+    condaManager.getPackageManager().packageChanged.connect((_, change) => {
+      if (
+        manager.project &&
+        change.environment === manager.project.environment
+      ) {
+        Private.updateEnvironmentSpec(
+          manager.project,
+          condaManager,
+          serviceManager.contents
+        ).catch(error => {
+          console.error(
+            `Fail to update environment '${change.environment} specifications.`,
+            error
+          );
+        });
+      }
+    });
+  }
 
   commands.addCommand(CommandIDs.newProject, {
     caption: 'Create a new project.',
@@ -418,6 +505,7 @@ export function activateProjectManager(
         } else {
           toastId = INotification.inProgress(message);
         }
+
         const model = await manager.open(
           PathExt.dirname(configurationFile.path)
         );
@@ -634,41 +722,30 @@ namespace Private {
       value => value.name.toLocaleLowerCase() === environmentName
     );
 
-    let requirement: Contents.IModel;
-    try {
-      requirement = await contentService.get(
-        PathExt.join(model.path, ENVIRONMENT_FILE),
-        { type: 'file', content: true }
-      );
-    } catch (error) {
-      console.log(`${ENVIRONMENT_FILE} not found`);
-      console.debug(error);
-    }
+    const { isIdentical, file } = await Private.compareSpecification(
+      conda,
+      model,
+      contentService
+    );
 
     if (foundEnvironment) {
       environmentName = foundEnvironment.name;
 
-      INotification.update({
-        toastId,
-        message: `Updating conda environment ${environmentName}... Please wait`
-      });
+      if (!isIdentical && file) {
+        INotification.update({
+          toastId,
+          message: `Updating conda environment ${environmentName}... Please wait`
+        });
 
-      try {
-        if (requirement) {
+        try {
           // Update the environment
-          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-          // @ts-ignore
-          await conda.update(
-            foundEnvironment.name,
-            requirement.content,
-            ENVIRONMENT_FILE
-          );
+          await conda.update(foundEnvironment.name, file, ENVIRONMENT_FILE);
+        } catch (error) {
+          const message = `Fail to update environment ${foundEnvironment.name}`;
+          console.error(message, error);
+          INotification.update({ toastId, message });
+          toastId = null;
         }
-      } catch (error) {
-        const message = `Fail to update environment ${foundEnvironment.name}`;
-        console.error(message, error);
-        INotification.update({ toastId, message });
-        toastId = null;
       }
     } else {
       // Import an environment
@@ -679,16 +756,17 @@ namespace Private {
       });
 
       try {
-        if (requirement) {
+        if (file) {
           // Create the environment from the requirements
-          await conda.import(
-            environmentName,
-            requirement.content,
-            ENVIRONMENT_FILE
-          );
+          await conda.import(environmentName, file, ENVIRONMENT_FILE);
         } else {
           // Create an environment
           await conda.create(environmentName, manager.defaultCondaPackages);
+          await updateEnvironmentSpec(
+            { ...model, environment: environmentName },
+            conda,
+            contentService
+          );
         }
         await conda.getPackageManager(environmentName).develop(model.path);
       } catch (error) {
@@ -699,8 +777,21 @@ namespace Private {
       }
     }
 
+    // Communicate through the project environment change.
+    if (model.environment !== environmentName) {
+      const oldEnvironment = model.environment;
+      model.environment = environmentName;
+      manager.projectChanged.emit({
+        type: 'open',
+        oldValue: {
+          ...model,
+          environment: oldEnvironment
+        },
+        newValue: model
+      });
+    }
+
     // Update the config file
-    model.environment = environmentName.toLocaleLowerCase();
     const filePath = PathExt.join(model.path, manager.configurationFilename);
     await contentService.save(filePath, {
       type: 'file',
@@ -709,6 +800,75 @@ namespace Private {
     });
 
     return toastId;
+  }
+
+  export async function updateEnvironmentSpec(
+    project: Project.IModel | null,
+    condaManager: IEnvironmentManager | null,
+    contents: Contents.IManager
+  ): Promise<void> {
+    if (project) {
+      const { isIdentical, conda } = await compareSpecification(
+        condaManager,
+        project,
+        contents
+      );
+
+      if (!isIdentical && conda) {
+        const specPath = PathExt.join(project.path, ENVIRONMENT_FILE);
+        await contents.save(specPath, {
+          type: 'file',
+          format: 'text',
+          content: conda
+        });
+
+        INotification.info(
+          `Environment '${project.environment}' specifications updated.`
+        );
+      }
+    }
+  }
+
+  /**
+   * Compare and returns the conda environment specifications from the conda
+   * command and the environment file.
+   *
+   * @param condaManager Conda environment manager
+   * @param project Active project
+   * @param contents Content service
+   * @returns [comparison, conda specification, file specification]
+   */
+  export async function compareSpecification(
+    condaManager: IEnvironmentManager | null,
+    project: Project.IModel | null,
+    contents: Contents.IManager
+  ): Promise<{ isIdentical: boolean; conda?: string; file?: string }> {
+    let conda: string;
+    if (condaManager && project && project.environment) {
+      const description = await condaManager.export(project.environment, true);
+      const specification = YAML.parse(
+        await description.text()
+      ) as CondaEnv.IEnvSpecs;
+      // Clean the specification from environment name and prefix
+      delete specification.name;
+      delete specification.prefix;
+      conda = YAML.stringify(specification);
+    }
+
+    const specPath = PathExt.join(project.path, ENVIRONMENT_FILE);
+    let file: string;
+    try {
+      const m = await contents.get(specPath, {
+        content: true,
+        format: 'text',
+        type: 'file'
+      });
+      file = m.content;
+    } catch (error) {
+      console.debug('No environment file', error);
+    }
+
+    return { isIdentical: conda === file, conda, file };
   }
 }
 /* eslint-enable no-inner-declarations */
