@@ -45,14 +45,11 @@ jobs:
 
         python -m jupyterlab.browser_check
 
-    - name: Coveralls Python
+    - name: Coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       run: |
+        gem install coveralls-lcov
+        coveralls-lcov -v -n coverage/coverage.info > coverage.json
         python -m pip install coveralls
-        python -m coveralls
-
-    - name: Coveralls JavaScript
-      uses: coverallsapp/github-action@v1.1.1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        python -m coveralls --merge=coverage.json
