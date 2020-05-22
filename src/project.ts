@@ -108,6 +108,8 @@ class ProjectManager implements IProjectManager {
       this._defaultPath = settings.defaultPath;
     }
 
+    this._editableInstall = settings.editableInstall;
+
     if (settings.schema) {
       this._schema = new JSONSchemaBridge(
         settings.schema,
@@ -150,6 +152,14 @@ class ProjectManager implements IProjectManager {
    */
   get defaultPath(): string {
     return this._defaultPath;
+  }
+
+  /**
+   * Should the project be installed in pip editable mode
+   * in the conda environment?
+   */
+  get editableInstall(): boolean {
+    return this._editableInstall;
   }
 
   /**
@@ -296,6 +306,7 @@ class ProjectManager implements IProjectManager {
   private _configurationFilename: string;
   private _defaultCondaPackages: string | null = null;
   private _defaultPath: string | null = null;
+  private _editableInstall = true;
   private _project: Project.IModel | null = null;
   private _projectChanged = new Signal<this, Project.IChangedArgs>(this);
   private _schema: JSONSchemaBridge | null = null;
@@ -773,7 +784,9 @@ namespace Private {
             commands
           );
         }
-        await conda.getPackageManager(environmentName).develop(model.path);
+        if (manager.editableInstall) {
+          await conda.getPackageManager(environmentName).develop(model.path);
+        }
       } catch (error) {
         const message = `Fail to create the environment for ${model.name}`;
         console.error(message, error);

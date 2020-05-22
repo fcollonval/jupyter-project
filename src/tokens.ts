@@ -170,17 +170,22 @@ export namespace Templates {
      */
     configurationFilename: string;
     /**
+     * Synchronize a conda environment with the project
+     */
+    defaultCondaPackages?: string;
+    /**
      * Default path to open when a project is created
      */
     defaultPath?: string;
     /**
+     * Should the project be installed in pip editable mode
+     * in the conda environment?
+     */
+    editableInstall: boolean;
+    /**
      * JSON schema of the template parameter
      */
     schema?: JSONObject;
-    /**
-     * Synchronize a conda environment with the project
-     */
-    defaultCondaPackages?: string;
   }
   /**
    * Jupyter project settings

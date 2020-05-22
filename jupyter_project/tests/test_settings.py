@@ -58,12 +58,13 @@ class TestSettings(ServerTest):
                     },
                     "conda_pkgs": "python=3 ipykernel",
                     "default_path": "notebooks",
-                    "template": "my_magic.package",
+                    "editable_install": False,
                     "schema": {
                         "title": "My Project",
                         "description": "Project template description",
                         "properties": {"count": {"type": "number"}},
                     },
+                    "template": "my_magic.package",
                 },
             },
         }
@@ -138,6 +139,7 @@ class TestSettings(ServerTest):
                 "configurationFilename": "my-project.json",
                 "defaultCondaPackages": "python=3 ipykernel",
                 "defaultPath": "notebooks",
+                "editableInstall": False,
                 "schema": {
                     "title": "My Project",
                     "description": "Project template description",
