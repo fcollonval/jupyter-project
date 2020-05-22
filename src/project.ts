@@ -13,9 +13,9 @@ import { Contents } from '@jupyterlab/services';
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
-import { Signal } from '@phosphor/signaling';
+import { Signal, Slot } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
-import { IEnvironmentManager } from 'jupyterlab_conda';
+import { IEnvironmentManager, Conda } from 'jupyterlab_conda';
 import { INotification } from 'jupyterlab_toastify';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import YAML from 'yaml';
@@ -360,8 +360,27 @@ export function activateProjectManager(
   // the all application at launch time
   const manager = new ProjectManager(settings, state, app.restored);
 
+  // Update the conda environment description when closing a project
+  // or if the associated environment changes.
+  const condaSlot: Slot<Conda.IPackageManager, Conda.IPackageChange> = (
+    _,
+    change
+  ) => {
+    if (manager.project && change.environment === manager.project.environment) {
+      Private.updateEnvironmentSpec(
+        manager.project,
+        condaManager,
+        serviceManager.contents,
+        commands
+      ).catch(error => {
+        console.error(
+          `Fail to update environment '${change.environment} specifications.`,
+          error
+        );
+      });
+    }
+  };
   if (condaManager) {
-    // Update the conda environment description when closing a project
     manager.projectChanged.connect((_, change) => {
       if (
         change.type !== 'delete' &&
@@ -376,25 +395,6 @@ export function activateProjectManager(
         ).catch(error => {
           console.error(
             `Fail to update environment '${change.oldValue.environment} specifications.`,
-            error
-          );
-        });
-      }
-    });
-    // or if the associated environment changes.
-    condaManager.getPackageManager().packageChanged.connect((_, change) => {
-      if (
-        manager.project &&
-        change.environment === manager.project.environment
-      ) {
-        Private.updateEnvironmentSpec(
-          manager.project,
-          condaManager,
-          serviceManager.contents,
-          commands
-        ).catch(error => {
-          console.error(
-            `Fail to update environment '${change.environment} specifications.`,
             error
           );
         });
@@ -530,6 +530,7 @@ export function activateProjectManager(
         }
 
         if (condaManager && manager.withConda) {
+          condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
           toastId = await Private.openProject(
             manager,
             serviceManager.contents,
@@ -537,6 +538,7 @@ export function activateProjectManager(
             commands,
             toastId
           );
+          condaManager.getPackageManager().packageChanged.connect(condaSlot);
 
           // Force refreshing session to take into account the new environment
           serviceManager.sessions.refreshSpecs();
@@ -578,6 +580,9 @@ export function activateProjectManager(
         await resetWorkspace(commands);
         manager.close();
         // TODO Clean kernel white list
+        if (condaManager) {
+          condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
+        }
       } catch (error) {
         showErrorMessage('Failed to close the current project', error);
       }
@@ -624,6 +629,7 @@ export function activateProjectManager(
           toastId = await INotification.inProgress(message);
         }
 
+        condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
         try {
           await condaManager.remove(condaEnvironment);
 
@@ -737,7 +743,7 @@ namespace Private {
       value => value.name.toLocaleLowerCase() === environmentName
     );
 
-    const { isIdentical, file } = await Private.compareSpecification(
+    const { isIdentical, file, notInFile } = await Private.compareSpecification(
       conda,
       model,
       contentService
@@ -753,7 +759,13 @@ namespace Private {
         });
 
         try {
-          // Update the environment
+          // 1. Remove package not in the environment specification file
+          if (notInFile && notInFile.length > 0) {
+            await conda
+              .getPackageManager()
+              .remove(notInFile, foundEnvironment.name);
+          }
+          // 2. Update the environment according to the file
           await conda.update(foundEnvironment.name, file, ENVIRONMENT_FILE);
         } catch (error) {
           const message = `Fail to update environment ${foundEnvironment.name}`;
@@ -861,6 +873,8 @@ namespace Private {
     }
   }
 
+  const PACKAGE_NAME = /^([A-z][\w-]*)/;
+
   /**
    * Compare and returns the conda environment specifications from the conda
    * command and the environment file.
@@ -874,13 +888,22 @@ namespace Private {
     condaManager: IEnvironmentManager | null,
     project: Project.IModel | null,
     contents: Contents.IManager
-  ): Promise<{ isIdentical: boolean; conda?: string; file?: string }> {
+  ): Promise<{
+    isIdentical: boolean;
+    conda?: string;
+    file?: string;
+    notInFile?: string[];
+  }> {
     let conda: string;
+    let condaPkgs: string[];
     if (condaManager && project && project.environment) {
       const description = await condaManager.export(project.environment, true);
       const specification = YAML.parse(
         await description.text()
       ) as CondaEnv.IEnvSpecs;
+      condaPkgs = specification.dependencies
+        .sort()
+        .map(name => PACKAGE_NAME.exec(name)[0]);
       // Clean the specification from environment name and prefix
       delete specification.name;
       delete specification.prefix;
@@ -889,18 +912,56 @@ namespace Private {
 
     const specPath = PathExt.join(project.path, ENVIRONMENT_FILE);
     let file: string;
+    let filePkgs: string[];
     try {
       const m = await contents.get(specPath, {
         content: true,
         format: 'text',
         type: 'file'
       });
-      file = m.content;
+      const specification = YAML.parse(m.content) as CondaEnv.IEnvSpecs;
+      filePkgs = specification.dependencies
+        .sort()
+        .map(name => PACKAGE_NAME.exec(name)[0]);
+      if (specification.name) {
+        delete specification.name;
+      }
+      if (specification.prefix) {
+        delete specification.prefix;
+      }
+      file = YAML.stringify(specification);
     } catch (error) {
       console.debug('No environment file', error);
     }
 
-    return { isIdentical: conda === file, conda, file };
+    const isIdentical = conda === file;
+    let notInFile: string[];
+    if (!isIdentical && condaPkgs) {
+      if (filePkgs) {
+        notInFile = new Array<string>();
+        let fileI = 0;
+        let filePkg = filePkgs[fileI];
+        for (const condaPkg of condaPkgs) {
+          if (condaPkg < filePkg) {
+            notInFile.push(condaPkg);
+          } else {
+            while (condaPkg >= filePkg) {
+              if (fileI < filePkgs.length - 1) {
+                fileI += 1;
+                filePkg = filePkgs[fileI];
+              } else {
+                notInFile.push(condaPkg);
+                break;
+              }
+            }
+          }
+        }
+      } else {
+        notInFile = condaPkgs;
+      }
+    }
+
+    return { isIdentical, conda, file, notInFile };
   }
 }
 /* eslint-enable no-inner-declarations */
