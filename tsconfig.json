@@ -15,10 +15,12 @@
     "resolveJsonModule": true,
     "outDir": "lib",
     "rootDir": "src",
+    "sourceMap": true,
+    "sourceRoot": "./jupyter-project/src",
     "strict": true,
     "strictNullChecks": false,
     "target": "es2017",
-    "types": []
+    "types": ["jest"]
   },
   "include": ["src/*"]
 }

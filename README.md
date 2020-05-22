@@ -17,18 +17,28 @@ for the frontend extension.
 
 ## Requirements
 
-Python requirements:
+- Python requirements:
 
-- JupyterLab = 1.x
-- cookiecutter
-- jinja2
-- jsonschema
-- jupyter_conda ~=3.2 (optional)
+```py
+# setup.py#L63-L66
 
-Optional JupyterLab extension:
+"cookiecutter",
+"jinja2~=2.9",
+"jsonschema",
+"jupyterlab~=1.2"
+```
 
-- jupyterlab_toastify
-- jupyterlab_conda
+- Optional Python requirements:
+
+```py
+# setup.py#L69-L69
+
+"all": ["jupyter_conda~=3.3"],
+```
+
+- Optional JupyterLab extensions:
+
+  - jupyterlab_conda
 
 ## Install
 
@@ -204,7 +214,7 @@ template source:
 // ./binder/jupyter_notebook_config.json#L96-L97
 
 "project_template": {
-  "template": "https://github.com/fcollonval/cookiecutter-data-science",
+  "template": "https://github.com/drivendata/cookiecutter-data-science",
 ```
 
 The cookiecutter template parameters that you wish the user to be able to change must be
@@ -273,7 +283,7 @@ The binder example defines:
 ```json5
 // ./binder/jupyter_notebook_config.json#L128-L128
 
-"conda_pkgs": "Python 3"
+"conda_pkgs": "awscli click coverage flake8 ipykernel python-dotenv>=0.5.1 sphinx"
 ```
 
 > The default conda packages settings is the fallback if `environment.yml` is absent of the project
