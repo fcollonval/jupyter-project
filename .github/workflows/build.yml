@@ -21,8 +21,10 @@ jobs:
       with:
         python-version: '3.7'
         architecture: 'x64'
+    - name: Upgrade pip
+      run: python -m pip install --upgrade pip wheel
     - name: Install dependencies
-      run: python -m pip install wheel jupyterlab~=1.2 coverage[toml]
+      run: python -m pip install jupyterlab~=1.2 coverage[toml]
 
     - name: Test the extension
       run: |
@@ -54,6 +56,6 @@ jobs:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       run: |
         gem install coveralls-lcov
-        coveralls-lcov -v -n coverage/coverage.info > coverage.json
+        coveralls-lcov -v -n coverage/lcov.info > jscoverage.json
         python -m pip install coveralls
-        python -m coveralls --merge=coverage.json
+        python -m coveralls --merge=jscoverage.json
