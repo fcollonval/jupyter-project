@@ -47,6 +47,8 @@ jobs:
 
     - name: Install Ruby
       uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.6
     - name: Coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
