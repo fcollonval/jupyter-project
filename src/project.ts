@@ -360,7 +360,8 @@ export function activateProjectManager(
         Private.updateEnvironmentSpec(
           change.oldValue,
           condaManager,
-          serviceManager.contents
+          serviceManager.contents,
+          commands
         ).catch(error => {
           console.error(
             `Fail to update environment '${change.oldValue.environment} specifications.`,
@@ -378,7 +379,8 @@ export function activateProjectManager(
         Private.updateEnvironmentSpec(
           manager.project,
           condaManager,
-          serviceManager.contents
+          serviceManager.contents,
+          commands
         ).catch(error => {
           console.error(
             `Fail to update environment '${change.environment} specifications.`,
@@ -394,7 +396,7 @@ export function activateProjectManager(
     execute: async args => {
       const cwd: string =
         (args['cwd'] as string) || browserFactory.defaultBrowser.model.path;
-      let toastId = args['toastId'] as number;
+      let toastId = args['toastId'] as React.ReactText;
       const cleanToast = toastId === undefined;
 
       let params = {};
@@ -417,7 +419,7 @@ export function activateProjectManager(
             message
           });
         } else {
-          toastId = INotification.inProgress(message);
+          toastId = await INotification.inProgress(message);
         }
         const model = await manager.create(cwd, params);
 
@@ -461,7 +463,7 @@ export function activateProjectManager(
     execute: async args => {
       // 1. Get the configuration file
       const path = args['path'] as string;
-      let toastId = args['toastId'] as number;
+      let toastId = args['toastId'] as React.ReactText;
       const cleanToast = toastId === undefined;
 
       let configurationFile: Contents.IModel;
@@ -503,7 +505,7 @@ export function activateProjectManager(
             message
           });
         } else {
-          toastId = INotification.inProgress(message);
+          toastId = await INotification.inProgress(message);
         }
 
         const model = await manager.open(
@@ -521,6 +523,7 @@ export function activateProjectManager(
             manager,
             serviceManager.contents,
             condaManager,
+            commands,
             toastId
           );
 
@@ -588,7 +591,7 @@ export function activateProjectManager(
         return;
       }
 
-      let toastId = INotification.inProgress(
+      let toastId = await INotification.inProgress(
         `Removing project '${projectName}'...`
       );
       // 1. Remove asynchronously the folder
@@ -607,7 +610,7 @@ export function activateProjectManager(
         if (toastId) {
           INotification.update({ toastId, message });
         } else {
-          toastId = INotification.inProgress(message);
+          toastId = await INotification.inProgress(message);
         }
 
         try {
@@ -711,8 +714,9 @@ namespace Private {
     manager: ProjectManager,
     contentService: Contents.IManager,
     conda: IEnvironmentManager,
-    toastId: number
-  ): Promise<number | null> {
+    commands: CommandRegistry,
+    toastId: React.ReactText
+  ): Promise<React.ReactText | null> {
     const model = manager.project;
     let environmentName = (
       model.environment || model.name.replace(FORBIDDEN_ENV_CHAR, '_')
@@ -765,7 +769,8 @@ namespace Private {
           await updateEnvironmentSpec(
             { ...model, environment: environmentName },
             conda,
-            contentService
+            contentService,
+            commands
           );
         }
         await conda.getPackageManager(environmentName).develop(model.path);
@@ -805,7 +810,8 @@ namespace Private {
   export async function updateEnvironmentSpec(
     project: Project.IModel | null,
     condaManager: IEnvironmentManager | null,
-    contents: Contents.IManager
+    contents: Contents.IManager,
+    commands: CommandRegistry
   ): Promise<void> {
     if (project) {
       const { isIdentical, conda } = await compareSpecification(
@@ -823,7 +829,20 @@ namespace Private {
         });
 
         INotification.info(
-          `Environment '${project.environment}' specifications updated.`
+          `Environment '${project.environment}' specifications updated.`,
+          {
+            autoClose: 5000,
+            buttons: [
+              {
+                label: 'Open file',
+                callback: (): void => {
+                  commands.execute(ForeignCommandIDs.openPath, {
+                    path: specPath
+                  });
+                }
+              }
+            ]
+          }
         );
       }
     }

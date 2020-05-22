@@ -473,7 +473,7 @@ jupyter lab --watch
 ### Uninstall
 
 ```bash
-pip uninstall jupyter_project
+pip uninstall jupyter-project
 
 jupyter labextension uninstall jupyter-project
 ```

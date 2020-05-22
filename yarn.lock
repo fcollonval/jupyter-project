@@ -38,12 +38,12 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@blueprintjs/core@^3.26.1", "@blueprintjs/core@^3.9.0":
-  version "3.26.1"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.26.1.tgz#371b6c83a937efb6d9a6947c3c5b55dba09bb838"
-  integrity sha512-f5U9RBvSMV/eLEXlBeaYbx+LRAcrsSrnK8gScM4Jwnuto6d9m6CeVxNe6YkQxvKOs4lhiC+UdPN2A9yJcXrGHA==
+"@blueprintjs/core@^3.28.0", "@blueprintjs/core@^3.9.0":
+  version "3.28.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.28.0.tgz#5fb75878a6c082905a51f3e190c97d4609feb811"
+  integrity sha512-KTnvVT1hUR8GLtJwHSe3Z9AoSG6h4PIilKmBVdGVt55hRJx/I4PiXPkFGEM1sLFr6c+IojoOgrY/4e79VZWs0A==
   dependencies:
-    "@blueprintjs/icons" "^3.16.0"
+    "@blueprintjs/icons" "^3.18.0"
     "@types/dom4" "^2.0.1"
     classnames "^2.2"
     dom4 "^2.1.5"
@@ -55,20 +55,20 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.10.0"
 
-"@blueprintjs/icons@^3.16.0":
-  version "3.16.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.16.0.tgz#902c74a36ff24ad76fa309cca25b6877c2a9c027"
-  integrity sha512-VVBvgnpz8eQFhnX5OQGLdRqka9DU/CTtF3w9vnwKK2r9N/xRF0BPe9Ev1RzuUzP4GJG4GUIRaqiAX9+l/FviDg==
+"@blueprintjs/icons@^3.18.0":
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.18.0.tgz#acf7a6915baeb0558d1bec323c0083dbae48ae51"
+  integrity sha512-emvW6AHWcilE3QoYnTs0eCkAZvpn13liTLnfajMfMVPB2/KKeYDa+TVbEqhVXWhrPanXkvJlZCVcizQvFeEYxw==
   dependencies:
     classnames "^2.2"
     tslib "~1.10.0"
 
 "@blueprintjs/select@^3.3.0":
-  version "3.12.3"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/select/-/select-3.12.3.tgz#27a660d794b2464da2453991dedd115186766a92"
-  integrity sha512-WU6RGk2NSlPS4VjcpljmGQY+w4ezMCazoQfh37JMDNq5Xa/wzrKaleXifMmZUUWJNvjtsZ0sNDNLzI+DGuX0dQ==
+  version "3.13.1"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/select/-/select-3.13.1.tgz#576c4933242b0343de8883080810d912f5c18630"
+  integrity sha512-2TogyeYPz6H/ebuu2Wmb+10nXbz0uXKu7I8UtuYp2qaXeo8SwHMR43dsYhTk+1o1p0nbT1ipyA3IfF7Ky2UB2Q==
   dependencies:
-    "@blueprintjs/core" "^3.26.1"
+    "@blueprintjs/core" "^3.28.0"
     classnames "^2.2"
     tslib "~1.10.0"
 
@@ -77,7 +77,7 @@
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.8.0.tgz#bbbff68978fefdbe68ccb533bc8cbe1d1afb5413"
   integrity sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==
 
-"@jupyterlab/application@^1.0.0", "@jupyterlab/application@^1.2.0":
+"@jupyterlab/application@^1.2.0":
   version "1.2.8"
   resolved "https://registry.yarnpkg.com/@jupyterlab/application/-/application-1.2.8.tgz#2927bb0cc950e436a3457dd51c56d5f63700166e"
   integrity sha512-ruk3ACxkHo8FlKSpqMxufwka33p1RBeACcH2VCmZl8RZzKdvvMud7IYo+5+N87WsISOWm7c6v2HfQapM9mahcw==
@@ -546,9 +546,9 @@
   integrity sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
 
 "@types/react-transition-group@^4.2.0":
-  version "4.2.4"
-  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.2.4.tgz#c7416225987ccdb719262766c1483da8f826838d"
-  integrity sha512-8DMUaDqh0S70TjkqU0DxOu80tFUiiaS9rxkWip/nb7gtvAsbqOXm02UCmR8zdcjWujgeYPiPNTVpVpKzUDotwA==
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.4.0.tgz#882839db465df1320e4753e6e9f70ca7e9b4d46d"
+  integrity sha512-/QfLHGpu+2fQOqQaXh8MG9q03bFENooTb/it4jr5kKaZlDQfWvjqWZg48AwzPVMBHlRuTRAY7hRHCEOXz5kV6w==
   dependencies:
     "@types/react" "*"
 
@@ -1555,10 +1555,10 @@ jsx-ast-utils@^2.2.3:
     array-includes "^3.0.3"
     object.assign "^4.1.0"
 
-jupyterlab_conda@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/jupyterlab_conda/-/jupyterlab_conda-1.3.0.tgz#e1dc8daae27632a57ce6e2225d4574ac98946b8c"
-  integrity sha512-/NjPUuxCpSt1gGmfGET42/hsbNkbSt4HwPIZdsd/XNsTjTVQLphib+sgUqxBn+BGduiBWFvBawTFdchREx+99w==
+jupyterlab_conda@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/jupyterlab_conda/-/jupyterlab_conda-1.3.1.tgz#2c6f7881fea270fd5d24db15420b9daa40351d16"
+  integrity sha512-G9su/ZlGLoqi97Ir8sXaGTjOm+dm/g6SelL5Etilyj55xk4LIo9PdJ4ns3mQ6BEjXEu7snXvF5Z/EZLW4QQ1Cw==
   dependencies:
     "@jupyterlab/application" "^1.2.0"
     "@jupyterlab/apputils" "^1.2.0"
@@ -1569,18 +1569,17 @@ jupyterlab_conda@^1.3.0:
     "@phosphor/coreutils" "^1.3.0"
     "@phosphor/signaling" "^1.2.0"
     "@phosphor/widgets" "^1.6.0"
-    jupyterlab_toastify "^2.3.2"
+    jupyterlab_toastify "^4.0.0"
     react-virtualized "^9.21.1"
     semver "^6.3.0"
     typestyle "^2.0.0"
 
-jupyterlab_toastify@^2.0.0, jupyterlab_toastify@^2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/jupyterlab_toastify/-/jupyterlab_toastify-2.3.2.tgz#e3c103ccb72d4eecd8e1046590571a84afa958b5"
-  integrity sha512-fWH+zdXBIx/k811eNTyY0TxdF5b9zIqZsR0noi2z25csWmPPjhOBUPb1kpUDSwKz8YI3aqTBYNnL2hnvNWbdKA==
+jupyterlab_toastify@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/jupyterlab_toastify/-/jupyterlab_toastify-4.0.0.tgz#ff462411329b6543cc78c77d549248c98f9b1fbb"
+  integrity sha512-etLuLxdEiHikM+4M78d6zc47zeIFgeWetBZY5xhxs6X1/7U5isZYxvK53h4RFfJWqJhgP2G8qSA7kWFpGzTP3A==
   dependencies:
-    "@jupyterlab/application" "^1.0.0"
-    react-toastify "^4.4.3"
+    react-toastify "^6.0.5"
 
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"
@@ -1667,9 +1666,9 @@ mkdirp@^1.0.3:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 moment@^2.24.0:
-  version "2.25.3"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.25.3.tgz#252ff41319cf41e47761a1a88cab30edfe9808c0"
-  integrity sha512-PuYv0PHxZvzc15Sp8ybUCoQ+xpyPWvjOuK72a5ovzp2LI32rJXOiIfyoFoYvG3s6EwwrdkMyWuRiEHSZRLJNdg==
+  version "2.26.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.26.0.tgz#5e1f82c6bafca6e83e808b30c8705eed0dcbd39a"
+  integrity sha512-oIixUO+OamkUkwjhAVE18rAMfRJNsNe/Stid/gwHSOfHrOtw9EhAY2AHvdKZ/k/MggcYELFCJz/Sn2pL8b8JMw==
 
 ms@^2.1.1:
   version "2.1.2"
@@ -1740,13 +1739,12 @@ object.assign@^4.1.0:
     object-keys "^1.0.11"
 
 object.entries@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/object.entries/-/object.entries-1.1.1.tgz#ee1cf04153de02bb093fec33683900f57ce5399b"
-  integrity sha512-ilqR7BgdyZetJutmDPfXCDffGa0/Yzl2ivVNpbx/g4UeWrCdRnFDUBrKJGLhGieRHDATnyZXWBeCb29k9CJysQ==
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/object.entries/-/object.entries-1.1.2.tgz#bc73f00acb6b6bb16c203434b10f9a7e797d3add"
+  integrity sha512-BQdB9qKmb/HyNdMNWVr7O3+z5MUIx3aiegEIJqjMBbBf0YT9RRxTJSim4mzFqtyr7PDAHigq0N9dO0m0tRakQA==
   dependencies:
     define-properties "^1.1.3"
-    es-abstract "^1.17.0-next.1"
-    function-bind "^1.1.1"
+    es-abstract "^1.17.5"
     has "^1.0.3"
 
 object.fromentries@^2.0.2:
@@ -1915,16 +1913,16 @@ react-popper@^1.3.7:
     typed-styles "^0.0.7"
     warning "^4.0.2"
 
-react-toastify@^4.4.3:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-4.5.2.tgz#a75b5f8b6219f62d4aacd0455d578a53341e37ca"
-  integrity sha512-KymDDhkcX5EvFht17nO0MCsegM/Kdhyfxhi+WQl2tE3IxJrueOhY6TUnALTfvz7eDRUjPYBGb+ywWqWrGyvBnw==
+react-toastify@^6.0.5:
+  version "6.0.5"
+  resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-6.0.5.tgz#6435b2bf6a298863bc71342dcc88e8283cdb4630"
+  integrity sha512-1YXSb6Jr478c1TJEyVpxLHFvtmeXGMvdpZc0fke/7lK+MoLBC+NFgB74bq+C2SZe6LdK+K1voEURJoY88WqWvA==
   dependencies:
     classnames "^2.2.6"
-    prop-types "^15.6.0"
-    react-transition-group "^2.4.0"
+    prop-types "^15.7.2"
+    react-transition-group "^4.4.1"
 
-react-transition-group@^2.4.0, react-transition-group@^2.9.0:
+react-transition-group@^2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-2.9.0.tgz#df9cdb025796211151a436c69a8f3b97b5b07c8d"
   integrity sha512-+HzNTCHpeQyl4MJ/bdE0u6XRMe9+XG/+aL4mCxVN4DnPBQ0/5bfHWPDuOZUzYdMj94daZaZdCCc1Dzt9R/xSSg==
@@ -1934,7 +1932,7 @@ react-transition-group@^2.4.0, react-transition-group@^2.9.0:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
-react-transition-group@^4.4.0:
+react-transition-group@^4.4.0, react-transition-group@^4.4.1:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.1.tgz#63868f9325a38ea5ee9535d828327f85773345c9"
   integrity sha512-Djqr7OQ2aPUiYurhPalTrVy9ddmFCCzwhqQmtN+J3+3DzLO209Fdr70QrN8Z3DsglWql6iY1lDWAfpFiBtuKGw==
