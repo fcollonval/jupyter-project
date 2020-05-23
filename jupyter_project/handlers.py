@@ -37,7 +37,9 @@ class FileTemplatesHandler(APIHandler):
             default_name (str): File default name - will be rendered with same parameters than template
             template (jinja2.Template): Jinja2 template to use for component generation.
         """
-        self.default_name = Template(default_name or "Untitled", extensions=jinja2_extensions)
+        self.default_name = Template(
+            default_name or "Untitled", extensions=jinja2_extensions
+        )
         self.template = template
 
     @tornado.web.authenticated
@@ -137,7 +139,7 @@ class ProjectsHandler(APIHandler):
             raise tornado.web.HTTPError(
                 404, reason="Project cookiecutter template not found."
             )
-        
+
         configuration = None
         if len(path) == 0:
             # Close the current open project
@@ -314,7 +316,7 @@ def setup_handlers(
 
     env = Environment(
         loader=PrefixLoader({name: t["loader"] for name, t in templates.items()}),
-        extensions=jinja2_extensions
+        extensions=jinja2_extensions,
     )
 
     ## Create the handlers
@@ -341,7 +343,7 @@ def setup_handlers(
                     FileTemplatesHandler,
                     {
                         "default_name": file.default_name,
-                        "template": env.get_template(f"{name}/{pfile.as_posix()}")
+                        "template": env.get_template(f"{name}/{pfile.as_posix()}"),
                     },
                 )
             )
@@ -379,7 +381,9 @@ def setup_handlers(
         )
         project_settings = {
             "configurationFilename": project_template.configuration_filename,
+            "defaultCondaPackages": project_template.conda_pkgs,
             "defaultPath": default_path,
+            "editableInstall": project_template.editable_install,
             "schema": (
                 project_template.schema if len(project_template.schema) else None
             ),

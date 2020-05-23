@@ -9,18 +9,19 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { defaultIconRegistry } from '@jupyterlab/ui-components';
+import { IEnvironmentManager } from 'jupyterlab_conda';
 import { activateFileGenerator } from './filetemplates';
 import { requestAPI } from './jupyter-project';
 import { activateProjectManager } from './project';
 import { registerIcons } from './style';
 import { setCurrentTheme } from './theme';
-import { IProjectManager, PluginID, Templates } from './tokens';
+import { IProjectManager, PLUGIN_ID, Templates } from './tokens';
 
 /**
  * Initialization data for the jupyter-project extension.
  */
 const extension: JupyterFrontEndPlugin<IProjectManager> = {
-  id: PluginID,
+  id: PLUGIN_ID,
   autoStart: true,
   activate: async (
     app: JupyterFrontEnd,
@@ -30,7 +31,8 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
     launcher: ILauncher | null,
     menu: IMainMenu | null,
     statusbar: IStatusBar | null,
-    themeManager: IThemeManager | null
+    themeManager: IThemeManager | null,
+    condaManager: IEnvironmentManager | null
   ): Promise<IProjectManager> => {
     const { commands } = app;
 
@@ -51,6 +53,7 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
           browserFactory,
           settings.projectTemplate,
           palette,
+          condaManager,
           launcher,
           menu,
           statusbar
@@ -71,7 +74,7 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
 
       console.log('JupyterLab extension jupyter-project is activated!');
     } catch (error) {
-      console.error(`Fail to activate ${PluginID}`, error);
+      console.error(`Fail to activate ${PLUGIN_ID}`, error);
     }
 
     app.restored.then(() => {
@@ -84,7 +87,13 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
     return manager;
   },
   requires: [ICommandPalette, IFileBrowserFactory, IStateDB],
-  optional: [ILauncher, IMainMenu, IStatusBar, IThemeManager]
+  optional: [
+    ILauncher,
+    IMainMenu,
+    IStatusBar,
+    IThemeManager,
+    IEnvironmentManager
+  ]
 };
 
 export default extension;

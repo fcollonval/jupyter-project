@@ -6,13 +6,13 @@ import { Bridge } from 'uniforms';
 /**
  * Plugin ID
  */
-export const PluginID = 'jupyter-project';
+export const PLUGIN_ID = 'jupyter-project';
 
 /**
  * Project Manager Plugin Token
  */
 export const IProjectManager = new Token<IProjectManager>(
-  `${PluginID}:IProjectManager`
+  `${PLUGIN_ID}:IProjectManager`
 );
 
 /**
@@ -90,19 +90,46 @@ export namespace Form {
   }
 }
 
+/**
+ * Project namespace
+ */
 export namespace Project {
+  /** Type of change project reason */
+  export type ChangeType = 'delete' | 'new' | 'open';
+  /**
+   * Project model interface
+   */
   export interface IModel {
     /** Project name */
     name: string;
     /** Current project path */
     path: string;
+    /** Conda environment associated to the project */
+    environment?: string;
+    /** Other keys from the project configuration file */
+    [key: string]: any;
+  }
+  /**
+   * Project change interface
+   */
+  export interface IChangedArgs {
+    /** New project model */
+    newValue: IModel | null;
+    /** Previous project model */
+    oldValue: IModel | null;
+    /** Type of change */
+    type: ChangeType;
   }
 }
 export interface IProjectManager {
-  /** Current project properties */
+  /**
+   * Current project properties
+   */
   project: Project.IModel | null;
-  /** Signal emitted when project changes */
-  projectChanged: Signal<IProjectManager, Project.IModel>;
+  /**
+   * Signal emitted when project changes
+   */
+  projectChanged: Signal<IProjectManager, Project.IChangedArgs>;
 }
 
 /**
@@ -143,9 +170,18 @@ export namespace Templates {
      */
     configurationFilename: string;
     /**
+     * Synchronize a conda environment with the project
+     */
+    defaultCondaPackages?: string;
+    /**
      * Default path to open when a project is created
      */
     defaultPath?: string;
+    /**
+     * Should the project be installed in pip editable mode
+     * in the conda environment?
+     */
+    editableInstall: boolean;
     /**
      * JSON schema of the template parameter
      */

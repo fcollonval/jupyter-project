@@ -1,6 +1,6 @@
 # jupyter-project
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/master?urlpath=lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/with-conda?urlpath=lab)
 [![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Test/badge.svg)](https://github.com/fcollonval/jupyter-project/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter-project/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter-project?branch=master)
 [![PyPI](https://img.shields.io/pypi/v/jupyter-project)](https://pypi.org/project/jupyter-project/)
@@ -11,18 +11,34 @@ to generate projects from a [cookiecutter](https://cookiecutter.readthedocs.io/e
 from [Jinja2](https://jinja.palletsprojects.com/en/master/) templates. Those templates can be parametrized directly from
 the frontend by specifying [JSON schemas](https://json-schema.org/).
 
-
 This extension is composed of a Python package named `jupyter_project`
 for the server extension and a NPM package named `jupyter-project`
 for the frontend extension.
 
-
 ## Requirements
 
-* JupyterLab = 1.x
-* cookiecutter
-* jinja2
-* jsonschema
+- Python requirements:
+
+```py
+# setup.py#L63-L66
+
+"cookiecutter",
+"jinja2~=2.9",
+"jsonschema",
+"jupyterlab~=1.2"
+```
+
+- Optional Python requirements:
+
+```py
+# setup.py#L69-L69
+
+"all": ["jupyter_conda~=3.3"],
+```
+
+- Optional JupyterLab extensions:
+
+  - jupyterlab_conda
 
 ## Install
 
@@ -48,7 +64,7 @@ The section for this extension must be named **JupyterProject**:
 "JupyterProject": {
 ```
 
-It accepts to optional keys: *file_templates* and *project_template*. The first defines a list
+It accepts to optional keys: _file_templates_ and _project_template_. The first defines a list
 of places containing templated files. And the second describe the project template. They can
 both exist alone (i.e. only file templates or only the project template).
 
@@ -66,7 +82,7 @@ part of the `jupyter_project` Python module:
     "location": "examples",
 ```
 
-The last parameter appearing here is *name*. It described uniquely the source of file templates.
+The last parameter appearing here is _name_. It described uniquely the source of file templates.
 
 Than comes the list of templated files available in that source. There are three templated
 file examples. The shortest configuration is:
@@ -113,14 +129,13 @@ to rendered the templates.
 
 In the settings, you can see three additional entries that have not been explained yet:
 
-* `template_name`: A nicer name for the template to be displayed in the frontend.
-* `default_name`: Default name for the file generated from the template (the string may contain Jinja2 variables defined in the `schema`).
-* `destination`: If you are using the project template, the generated file will be placed
-within the destination folder inside the active project folder. If no project is active
-the file will be written in the current folder.
+- `template_name`: A nicer name for the template to be displayed in the frontend.
+- `default_name`: Default name for the file generated from the template (the string may contain Jinja2 variables defined in the `schema`).
+- `destination`: If you are using the project template, the generated file will be placed
+  within the destination folder inside the active project folder. If no project is active
+  the file will be written in the current folder.
 
-
-The latest file template example is a complete example of all possibilities (including 
+The latest file template example is a complete example of all possibilities (including
 type of variables that you could used in the schema):
 
 ```json5
@@ -128,7 +143,7 @@ type of variables that you could used in the schema):
 
 {
   "destination": "notebooks",
-  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"> <path d=\"M 0.62754418,5.7679165 V 13.566266 L 8.5124129,13.135686 V 6.6832665 Z\" style=\"fill:#353564;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"m 0.62754418,13.566266 2.80479342,1.46719 12.1283534,-1.12061 -7.0482781,-0.77716 z\" style=\"fill:#afafde;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 8.5124129,6.6832665 15.560691,3.3386664 V 13.912846 l -7.0482781,-0.77716 z\" style=\"fill:#e9e9ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 0.62754418,5.7679165 3.4323376,0.28889643 15.560691,3.3386664 8.5124129,6.6832665 Z\" style=\"fill:#4d4d9f;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 3.4323376,0.28889643 V 15.033456 L 15.560691,13.912846 V 3.3386664 Z\" style=\"fill:#d7d7ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path d=\"M 0.62754418,5.7679165 3.4323376,0.28889643 V 15.033456 l -2.80479342,-1.46719 z\" style=\"fill:#8686bf;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1\" /> <path class=\"jp-icon-accent0\" fill=\"#faff00\" d=\"m 12.098275,4.7065364 -4.9999997,-0.62651 v 8.9554396 l 4.9999997,-0.32893 v -1.1 l -3.4999997,0.19305 V 8.9065364 h 1.9999997 v -1.1 l -1.9999997,-0.1 V 5.3539365 l 3.4999997,0.3526 z\" style=\"fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1\" /> </svg> ",
+  "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"> <rect class=\"jp-icon3\" fill=\"#ffffff\" width=\"16\" height=\"16\" rx=\"2\" style=\"fill-opacity:1\" /> <path class=\"jp-icon-accent0\" fill=\"#faff00\" d=\"m 12.098275,4.7065364 -4.9999997,-0.62651 v 8.9554396 l 4.9999997,-0.32893 v -1.1 l -3.4999997,0.19305 V 8.9065364 h 1.9999997 v -1.1 l -1.9999997,-0.1 V 5.3539365 l 3.4999997,0.3526 z\" style=\"fill-opacity:1;stroke:none\" /> </svg> ",
   "template_name": "Example",
   "template": "example.ipynb",
   "schema": {
@@ -195,12 +210,11 @@ The second major configuration section is `project_template`. Each template must
 specified a value for `template` that points to a valid [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/)
 template source:
 
-
 ```json5
 // ./binder/jupyter_notebook_config.json#L96-L97
 
 "project_template": {
-  "template": "https://github.com/fcollonval/cookiecutter-data-science",
+  "template": "https://github.com/drivendata/cookiecutter-data-science",
 ```
 
 The cookiecutter template parameters that you wish the user to be able to change must be
@@ -247,36 +261,156 @@ provide the default path (folder or file) to be opened by JupyterLab once the pr
 been generated:
 
 ```json5
-// ./binder/jupyter_notebook_config.json#L98-L125
+// ./binder/jupyter_notebook_config.json#L126-L127
 
-"schema": {
-  "type": "object",
-  "properties": {
-    "project_name": {
-      "type": "string",
-      "default": "Project Name"
+"folder_name": "{{ repo_name }}",
+"default_path": "README.md",
+```
+
+#### Conda environment integration
+
+If the [`jupyter_conda`](https://github.com/fcollonval/jupyter_conda) optional extension is installed
+and if `conda_pkgs` is specified in the `project_template` configuration, then a Conda environment
+will follow the life cycle of the project; i.e. creation of an environment at project creation,
+update of the environment when opening a project and deletion at project deletion.
+
+The `conda_pkgs` setting should be set to a string matching the default environment type of conda environment
+to be created at project creation (see [`jupyter_conda`](https://github.com/fcollonval/jupyter_conda/blob/master/labextension/schema/plugin.json#L13)
+labextension for more information). You can also set a packages list separated by space.
+
+The binder example defines:
+
+```json5
+// ./binder/jupyter_notebook_config.json#L128-L128
+
+"conda_pkgs": "awscli click coverage flake8 ipykernel python-dotenv>=0.5.1 sphinx"
+```
+
+> The default conda packages settings is the fallback if `environment.yml` is absent of the project
+> cookiecutter template.
+
+#### Full configuration
+
+Here is the description of all server extension settings:
+
+```json
+{
+  "JupyterProject": {
+    "file_templates": {
+      "description": "List of file template loaders",
+      "type": "array",
+      "items": {
+        "description": ,
+        "type": "object",
+        "properties": {
+          "location": {
+            "description": "Templates path",
+            "type": "string"
+          },
+          "module": {
+            "description": "Python package containing the templates 'location' [optional]",
+            "type": "string"
+          },
+          "name": {
+            "description": "Templates group name",
+            "type": "string"
+          },
+          "files": {
+            "description": "List of template files",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "default_name": {
+                  "description": "Default file name (without extension; support Jinja2 templating using the schema parameters)",
+                  "default": "Untitled",
+                  "type": "string"
+                },
+                "destination": {
+                  "description": "Relative destination folder [optional]",
+                  "type": "string"
+                },
+                "icon": {
+                  "description": "Template icon to display in the frontend [optional]",
+                  "default": null,
+                  "type": "string"
+                },
+                "schema": {
+                  "description": "JSON schema list describing the templates parameters [optional]",
+                  "type": "object"
+                },
+                "template": {
+                  "description": "Template path",
+                  "type": "string"
+                },
+                "template_name" : {
+                  "description": "Template name in the UI [optional]",
+                  "type": "string"
+                }
+              },
+              "required": ["template"]
+            }
+          }
+        },
+        "required": ["files", "location", "name"]
+      }
     },
-    "repo_name": {
-      "title": "Folder name",
-      "type": "string",
-      "pattern": "^[a-zA-Z_]\\w*$",
-      "default": "project_name"
-    },
-    "author_name": {
-      "type": "string",
-      "description": "Your name (or your organization/company/team)"
-    },
-    "description": {
-      "type": "string",
-      "description": "A short description of the project."
-    },
-    "open_source_license": {
-      "type": "string",
-      "enum": ["MIT", "BSD-3-Clause", "No license file"]
+    "project_template": {
+      "description": "The project template options",
+      "type": "object",
+      "properties": {
+        "configuration_filename": {
+          "description": "Name of the project configuration JSON file [optional]",
+          "default": "jupyter-project.json",
+          "type": "string"
+        },
+        "configuration_schema": {
+          "description": "JSON schema describing the project configuration file [optional]",
+          "default": {
+            "type": "object",
+            "properties": {"name": {"type": "string"}},
+            "required": ["name"],
+          },
+          "type": "object"
+        },
+        "conda_pkgs": {
+          "default": null,
+          "description": "Type of conda environment or space separated list of conda packages (requires `jupyter_conda`) [optional]",
+          "type": "string"
+        },
+        "default_path": {
+          "description": "Default file or folder to open; relative to the project root [optional]",
+          "type": "string"
+        },
+        "folder_name": {
+          "description": "Project name (support Jinja2 templating using the schema parameters) [optional]",
+          "default": "{{ name|lower|replace(' ', '_') }}",
+          "type": "string"
+        },
+        "module": {
+          "description": "Python package containing the template [optional]",
+          "type": "string"
+        },
+        "schema": {
+          "description": "JSON schema describing the template parameters [optional]",
+          "default": {
+            "type": "object",
+            "properties": {"name": {"type": "string", "pattern": "^[a-zA-Z_]\\w*$"}},
+            "required": ["name"],
+          },
+          "type": "object"
+        },
+        "template": {
+          "description": "Cookiecutter template source",
+          "default": null,
+          "type": "string"
+        }
+      },
+      "required": ["template"]
     }
-  },
-  "required": ["project_name", "repo_name"]
-},
+  }
+}
 ```
 
 ## Troubleshoot
@@ -349,7 +483,7 @@ jupyter lab --watch
 ### Uninstall
 
 ```bash
-pip uninstall jupyter_project
+pip uninstall jupyter-project
 
 jupyter labextension uninstall jupyter-project
 ```

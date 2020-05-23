@@ -1,9 +1,31 @@
+const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
+
+const jlabConfig = jestJupyterLab('jupyter-project', __dirname);
+
+const {
+  coverageDirectory,
+  globals,
+  moduleFileExtensions,
+  moduleNameMapper,
+  preset,
+  setupFilesAfterEnv,
+  setupFiles,
+  testPathIgnorePatterns
+} = jlabConfig;
+
 module.exports = {
-  // collectCoverageFrom: ['packages/*/src/*.{js,ts,tsx}'],
-  // coverageReporters: ['html', 'lcovonly', 'text-summary'],
-  setupFiles: ['./scripts/setupEnzyme.js'],
-  testMatch: ['**/__tests__/**/!(_)*.{js,ts,tsx}'],
-  transform: {
-    '^.+\\.(js|ts|tsx)$': './scripts/transform.js'
-  }
+  coverageDirectory,
+  globals,
+  moduleFileExtensions,
+  moduleNameMapper,
+  preset,
+  setupFilesAfterEnv,
+  setupFiles,
+  testPathIgnorePatterns,
+  automock: false,
+  collectCoverageFrom: ['src/**.{ts,tsx}', '!src/*.d.ts'],
+  coverageReporters: ['lcov', 'text'],
+  reporters: ['default'],
+  testRegex: 'src/.*/.*.spec.ts[x]?$',
+  transformIgnorePatterns: ['/node_modules/(?!(@jupyterlab/.*)/)']
 };

@@ -41,11 +41,11 @@ class FileTemplate(HasTraits):
     icon = Unicode(
         default_value=None,
         allow_none=True,
-        help="Template icon to display in the frontend.",
+        help="Template icon to display in the frontend [optional]",
         config=True,
     )
     schema = JSONSchema(
-        help="JSON schema list describing the templates parameters", config=True
+        help="JSON schema list describing the templates parameters [optional]", config=True
     )
     template = Path(help="Template path", config=True)
     template_name = Unicode(help="Template name in the UI [optional]", config=True)

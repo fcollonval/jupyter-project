@@ -66,6 +66,7 @@ setup_args = dict(
         "jupyterlab~=1.2"
     ],
     extras_require={
+        "all": ["jupyter_conda~=3.3"],
         "test": ["pytest", "pytest-asyncio"]
     },
     zip_safe=False,

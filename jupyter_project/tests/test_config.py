@@ -222,6 +222,7 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
             dict(template="my_magic.package",),
         ),
         ({"project_template": {"template": "",},}, TraitError, None,),
+        ({"project_template": {"template": "my_magic.package", "folder_name": ""},}, TraitError, None,),
         (
             {
                 "project_template": {
@@ -230,8 +231,11 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                         title="Project configuration",
                         description="My project configuration structure",
                     ),
-                    "template": "my_magic.package",
+                    "conda_pkgs": "Python 3",
                     "default_path": "my_workspace",
+                    "editable_install": False,
+                    "folder_name": "banana",
+                    "template": "my_magic.package",
                     "schema": dict(
                         title="Project parameters",
                         description="My project template parameters",
@@ -245,12 +249,15 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                     title="Project configuration",
                     description="My project configuration structure",
                 ),
+                conda_pkgs="Python 3",
+                default_path="my_workspace",
+                editable_install=False,
+                folder_name="banana",
                 template="my_magic.package",
                 schema=dict(
                     title="Project parameters",
                     description="My project template parameters",
                 ),
-                default_path="my_workspace",
             ),
         ),
     ],

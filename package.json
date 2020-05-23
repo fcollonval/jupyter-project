@@ -1,6 +1,6 @@
 {
   "name": "jupyter-project",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.0",
   "description": "An JupyterLab extension to handle project and files template.",
   "keywords": [
     "jupyter",
@@ -34,9 +34,10 @@
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:labextension": "rimraf jupyter_project/labextension",
     "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "lint": "eslint . --ext .ts,.tsx --fix",
-    "lint:check": "eslint . --ext .ts,.tsx && jlpm run embedme --verify",
+    "lint": "eslint . --ext .ts,.tsx --fix && jlpm run embedme README.md",
+    "lint:check": "eslint . --ext .ts,.tsx && jlpm run embedme --verify README.md",
     "prepare": "jlpm run clean && jlpm run build",
+    "test": "jest --coverage",
     "watch": "tsc -w"
   },
   "dependencies": {
@@ -53,11 +54,18 @@
     "@phosphor/signaling": "^1.3.0",
     "@phosphor/widgets": "^1.9.0",
     "ajv": "^6.12.2",
+    "jupyterlab_conda": "^1.3.1",
+    "jupyterlab_toastify": "^4.0.0",
     "uniforms": "^2.6.7",
     "uniforms-bridge-json-schema": "^2.6.7",
-    "uniforms-material": "^2.6.7"
+    "uniforms-material": "^2.6.7",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@jupyterlab/testutils": "^1.2.0",
+    "@types/jest": "^25.2.3",
     "@types/react": "~16.8.13",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
@@ -66,10 +74,12 @@
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.19.0",
+    "jest": "^25.0.0",
     "mkdirp": "^1.0.3",
     "prettier": "^1.16.4",
     "react": "~16.8.0",
     "rimraf": "^2.6.1",
+    "ts-jest": "^25.0.0",
     "typescript": "~3.5.2"
   },
   "sideEffects": [

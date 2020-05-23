@@ -10,7 +10,7 @@ from jinja2 import (
 )
 import jsonschema
 from cookiecutter.main import cookiecutter
-from traitlets import HasTraits, TraitError, TraitType, Unicode, validate
+from traitlets import Bool, HasTraits, TraitError, TraitType, Unicode, validate
 from traitlets.utils.bunch import Bunch
 
 from .jinja2 import jinja2_extensions
@@ -36,8 +36,19 @@ class ProjectTemplate(HasTraits):
         help="JSON schema describing the project configuration file [optional]",
         config=True,
     )
+    conda_pkgs = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="Type of conda environment or space separated list of conda packages (requires `jupyter_conda`) [optional]",
+        config=True
+    )
     default_path = Path(
         help="Default file or folder to open; relative to the project root [optional]",
+        config=True,
+    )
+    editable_install = Bool(
+        default_value=True,
+        help="Should the project be installed in pip editable mode in the conda environment?",
         config=True,
     )
     folder_name = Unicode(

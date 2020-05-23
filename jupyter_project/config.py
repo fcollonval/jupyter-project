@@ -12,7 +12,7 @@ class JupyterProject(Configurable):
     file_templates = List(
         default_value=list(),
         trait=AutoInstance(FileTemplateLoader),
-        help="List of file templates",
+        help="List of file template loaders",
         config=True,
     )
 
