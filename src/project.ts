@@ -72,7 +72,7 @@ namespace CondaEnv {
     /**
      * Packages list
      */
-    dependencies: string[];
+    dependencies?: string[];
     /**
      * Environment name
      */
@@ -1011,17 +1011,30 @@ namespace Private {
     let conda: string;
     let condaPkgs: string[];
     if (condaManager && project && project.environment) {
-      const description = await condaManager.export(project.environment, true);
-      const specification = YAML.parse(
-        await description.text()
-      ) as CondaEnv.IEnvSpecs;
-      condaPkgs = specification.dependencies
-        .sort()
-        .map(name => PACKAGE_NAME.exec(name)[0]);
-      // Clean the specification from environment name and prefix
-      delete specification.name;
-      delete specification.prefix;
-      conda = YAML.stringify(specification);
+      try {
+        // Does not raise any error if the environment does not exist, but dependencies will be absent.
+        const description = await condaManager.export(
+          project.environment,
+          true
+        );
+        const specification = YAML.parse(
+          await description.text()
+        ) as CondaEnv.IEnvSpecs;
+        if (specification.dependencies) {
+          condaPkgs = specification.dependencies
+            .sort()
+            .map(name => PACKAGE_NAME.exec(name)[0]);
+        }
+        // Clean the specification from environment name and prefix
+        delete specification.name;
+        delete specification.prefix;
+        conda = YAML.stringify(specification);
+      } catch (error) {
+        console.debug(
+          `Fail to list the packages for conda environment ${project.environment}`,
+          error
+        );
+      }
     }
 
     const specPath = PathExt.join(project.path, ENVIRONMENT_FILE);
@@ -1034,9 +1047,11 @@ namespace Private {
         type: 'file'
       });
       const specification = YAML.parse(m.content) as CondaEnv.IEnvSpecs;
-      filePkgs = specification.dependencies
-        .sort()
-        .map(name => PACKAGE_NAME.exec(name)[0]);
+      if (specification.dependencies) {
+        filePkgs = specification.dependencies
+          .sort()
+          .map(name => PACKAGE_NAME.exec(name)[0]);
+      }
       if (specification.name) {
         delete specification.name;
       }
