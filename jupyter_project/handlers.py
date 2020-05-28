@@ -257,16 +257,20 @@ class SettingsHandler(APIHandler):
 
         Return body:
         {
-            "fileTemplates": [
+            fileTemplates: [
                 {
-                    "endpoint": str,
-                    "destination": str | null,
-                    "schema": JSONschema | null
+                    destination: str | null,
+                    endpoint: str,
+                    icon: str | null,
+                    name: str,
+                    schema: JSONschema | null
                 }
             ],
-            "projectTemplate": {
+            projectTemplate: {
                 configurationFilename: str,
+                defaultCondaPackages: str | null,
                 defaultPath: str | null,
+                editableInstall: bool,
                 schema: JSONschema | null
             }
         }

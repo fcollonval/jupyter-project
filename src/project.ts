@@ -3,7 +3,8 @@ import {
   Dialog,
   ICommandPalette,
   showDialog,
-  showErrorMessage
+  showErrorMessage,
+  InputDialog
 } from '@jupyterlab/apputils';
 import { IStateDB, PathExt, URLExt } from '@jupyterlab/coreutils';
 import { FileDialog, IFileBrowserFactory } from '@jupyterlab/filebrowser';
@@ -30,6 +31,7 @@ import {
   Templates
 } from './tokens';
 import { createValidator } from './validator';
+import { IGitExtension } from '@jupyterlab/git';
 
 /**
  * Default conda environment file
@@ -49,6 +51,7 @@ const STATE_ID = `${PLUGIN_ID}:project`;
  */
 namespace ForeignCommandIDs {
   export const closeAll = 'application:close-all';
+  export const gitInit = 'git:init';
   export const goTo = 'filebrowser:go-to-path';
   export const openPath = 'filebrowser:open-path';
   export const saveAll = 'docmanager:save-all';
@@ -338,6 +341,8 @@ async function resetWorkspace(commands: CommandRegistry): Promise<void> {
  * @param browserFactory The file browser factory
  * @param settings The project template settings
  * @param palette The command palette
+ * @param condaManager The Conda extension service
+ * @param git The Git extension service
  * @param launcher The application launcher
  * @param menu The application menu
  * @param statusbar The application status bar
@@ -349,11 +354,13 @@ export function activateProjectManager(
   settings: Templates.IProject,
   palette: ICommandPalette,
   condaManager: IEnvironmentManager | null,
+  git: IGitExtension | null,
   launcher: ILauncher | null,
   menu: IMainMenu | null,
   statusbar: IStatusBar | null
 ): IProjectManager {
   const { commands, serviceManager } = app;
+  const filebrowser = browserFactory.defaultBrowser.model;
   const category = 'Project';
 
   // Cannot blocking wait for the application otherwise this will bock
@@ -405,8 +412,7 @@ export function activateProjectManager(
   commands.addCommand(CommandIDs.newProject, {
     caption: 'Create a new project.',
     execute: async args => {
-      const cwd: string =
-        (args['cwd'] as string) || browserFactory.defaultBrowser.model.path;
+      const cwd: string = (args['cwd'] as string) || filebrowser.path;
       let toastId = args['toastId'] as React.ReactText;
       const cleanToast = toastId === undefined;
 
@@ -423,7 +429,7 @@ export function activateProjectManager(
       }
 
       try {
-        const message = 'Creating project.';
+        const message = 'Creating project...';
         if (toastId) {
           INotification.update({
             toastId,
@@ -434,10 +440,39 @@ export function activateProjectManager(
         }
         const model = await manager.create(cwd, params);
 
+        // Initialize as Git repository
+        if (git) {
+          try {
+            INotification.update({
+              toastId,
+              message: 'Initializing Git...'
+            });
+            // TODO @jupyterlab/git does not respect frontend path...
+            // await git.init(model.path);
+            await filebrowser.cd(model.path);
+            await commands.execute(ForeignCommandIDs.gitInit);
+          } catch (error) {
+            console.error(
+              'Fail to initialize the project as Git repository.',
+              error
+            );
+          }
+        }
+
         await commands.execute(CommandIDs.openProject, {
           path: model.path,
           toastId
         });
+
+        if (git) {
+          try {
+            // Add all files and commit
+            await git.addAllUntracked();
+            await git.commit(`Initialize project ${model.name}`);
+          } catch (error) {
+            console.error('Fail to commit the project files.', error);
+          }
+        }
 
         if (cleanToast) {
           INotification.update({
@@ -464,6 +499,80 @@ export function activateProjectManager(
         ? ''
         : 'jp-JupyterProjectProjectIcon',
     label: args => (!args['isLauncher'] ? 'New Project' : 'New')
+  });
+
+  commands.addCommand(CommandIDs.importProject, {
+    caption: 'Import a project by cloning a Git repository',
+    execute: async args => {
+      if (!git) {
+        showErrorMessage(
+          'Git extension not available',
+          'The `@jupyterlab/git` extension is not installed.'
+        );
+        return;
+      }
+
+      const path: string = (args['cwd'] as string) || filebrowser.path;
+      let toastId = args['toastId'] as React.ReactText;
+      const cleanToast = toastId === undefined;
+
+      let url = args['url'] as string;
+      if (!url) {
+        const answer = await InputDialog.getText({
+          title: 'URL of the Git repository to import',
+          placeholder: 'https://my.git.server/project/repository.git'
+        });
+
+        if (!answer.button.accept) {
+          return;
+        }
+
+        url = answer.value;
+      }
+
+      try {
+        const message = 'Importing project...';
+        if (toastId) {
+          INotification.update({
+            toastId,
+            message
+          });
+        } else {
+          toastId = await INotification.inProgress(message);
+        }
+
+        await git.clone(path, url);
+
+        const folderName = PathExt.basename(url, 'git');
+        await commands.execute(CommandIDs.openProject, {
+          path: PathExt.join(path, folderName),
+          toastId
+        });
+
+        if (cleanToast) {
+          INotification.update({
+            toastId,
+            message: `Project successfully import from '${url}'.`,
+            type: 'success',
+            autoClose: 5000
+          });
+        }
+      } catch (error) {
+        const message = 'Fail to import the project';
+        await manager.close();
+        console.error(message, error);
+
+        INotification.update({
+          toastId,
+          message,
+          type: 'error'
+        });
+      }
+    },
+    iconClass: args =>
+      args['isLauncher'] ? 'jp-JupyterProjectProjectIcon' : '',
+    isVisible: () => git !== null,
+    label: args => (!args['isLauncher'] ? 'Import Project' : 'Import')
   });
 
   commands.addCommand(CommandIDs.openProject, {
@@ -493,8 +602,8 @@ export function activateProjectManager(
         // From the user through an open file dialog
         const result = await FileDialog.getOpenFiles({
           filter: value => value.name === manager.configurationFilename,
-          iconRegistry: browserFactory.defaultBrowser.model.iconRegistry,
-          manager: browserFactory.defaultBrowser.model.manager,
+          iconRegistry: filebrowser.iconRegistry,
+          manager: filebrowser.manager,
           title: 'Select the project file'
         });
 
@@ -656,7 +765,11 @@ export function activateProjectManager(
 
   if (launcher) {
     // Add Project Cards
-    [CommandIDs.newProject, CommandIDs.openProject].forEach(command => {
+    [
+      CommandIDs.newProject,
+      CommandIDs.openProject,
+      CommandIDs.importProject
+    ].forEach(command => {
       launcher.add({
         command,
         args: { isLauncher: true },
@@ -667,6 +780,7 @@ export function activateProjectManager(
 
   const projectCommands = [
     CommandIDs.newProject,
+    CommandIDs.importProject,
     CommandIDs.openProject,
     CommandIDs.closeProject,
     CommandIDs.deleteProject

@@ -31,7 +31,7 @@ for the frontend extension.
 - Optional Python requirements:
 
 ```py
-# setup.py#L69-L69
+# setup.py#L69-L72
 
 "all": ["jupyter_conda~=3.3"],
 ```
