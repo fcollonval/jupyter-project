@@ -33,7 +33,10 @@ for the frontend extension.
 ```py
 # setup.py#L69-L72
 
-"all": ["jupyter_conda~=3.3"],
+"all": [
+    "jupyter_conda~=3.3", 
+    "jupyterlab-git>=0.10,<0.20"
+],
 ```
 
 - Optional JupyterLab extensions:
