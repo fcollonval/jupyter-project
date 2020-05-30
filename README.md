@@ -106,6 +106,9 @@ That schema will be used to prompt the user with a form that will be validated a
 the schema. Then the form values will be passed to [Jinja2](https://jinja.palletsprojects.com/en/master/)
 to rendered the templates.
 
+> In addition, if a project is active, its properties like name or dirname will be available in
+> the Jinja template as ``jproject.<property>`` (e.g. ``jproject.name`` for the project name).
+
 ```json5
 // ./binder/jupyter_notebook_config.json#L74-L92
 
@@ -136,7 +139,10 @@ In the settings, you can see three additional entries that have not been explain
 - `default_name`: Default name for the file generated from the template (the string may contain Jinja2 variables defined in the `schema`).
 - `destination`: If you are using the project template, the generated file will be placed
   within the destination folder inside the active project folder. If no project is active
-  the file will be written in the current folder.
+  the file will be written in the current folder. It can contain project templated variable:
+  
+  - ``{{jproject.name}}``: Project name
+  - ``{{jproject.dirname}}``: Project directory name
 
 The latest file template example is a complete example of all possibilities (including
 type of variables that you could used in the schema):
@@ -261,7 +267,10 @@ template. This is a string accepting Jinja2 variables defined in the `schema`.
 
 The latest option in the example is `default_path`. This is optional and, if set, it should
 provide the default path (folder or file) to be opened by JupyterLab once the project has
-been generated:
+been generated. It can contain project templated variable:
+  
+- ``{{jproject.name}}``: Project name
+- ``{{jproject.dirname}}``: Project directory name
 
 ```json5
 // ./binder/jupyter_notebook_config.json#L126-L127
