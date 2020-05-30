@@ -5,6 +5,7 @@ import {
 import { ICommandPalette, IThemeManager } from '@jupyterlab/apputils';
 import { IStateDB } from '@jupyterlab/coreutils';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import { IGitExtension } from '@jupyterlab/git';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { IStatusBar } from '@jupyterlab/statusbar';
@@ -32,7 +33,8 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
     menu: IMainMenu | null,
     statusbar: IStatusBar | null,
     themeManager: IThemeManager | null,
-    condaManager: IEnvironmentManager | null
+    condaManager: IEnvironmentManager | null,
+    git: IGitExtension | null
   ): Promise<IProjectManager> => {
     const { commands } = app;
 
@@ -54,6 +56,7 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
           settings.projectTemplate,
           palette,
           condaManager,
+          git,
           launcher,
           menu,
           statusbar
@@ -92,7 +95,8 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
     IMainMenu,
     IStatusBar,
     IThemeManager,
-    IEnvironmentManager
+    IEnvironmentManager,
+    IGitExtension
   ]
 };
 

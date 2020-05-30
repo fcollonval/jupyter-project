@@ -28,6 +28,10 @@ export namespace CommandIDs {
    */
   export const deleteProject = 'jupyter-project:project-delete';
   /**
+   * Import a project by cloning a Git repository
+   */
+  export const importProject = 'jupyter-project:project-import';
+  /**
    * Create new project command
    */
   export const newProject = 'jupyter-project:project-create';
