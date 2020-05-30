@@ -28,20 +28,18 @@ export async function requestAPI<T>(
     throw new ServerConnection.NetworkError(error);
   }
 
-  let data: any = null;
-  if (response.status !== 204) {
+  let data: any = await response.text();
+
+  if (data.length > 0) {
     try {
-      data = await response.json();
+      data = JSON.stringify(data);
     } catch (error) {
       console.log('Not a JSON response body.', response);
     }
   }
 
   if (!response.ok) {
-    throw new ServerConnection.ResponseError(
-      response,
-      data ? data.message : null
-    );
+    throw new ServerConnection.ResponseError(response, data.message || data);
   }
 
   return data;

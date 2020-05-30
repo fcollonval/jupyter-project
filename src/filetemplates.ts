@@ -18,7 +18,15 @@ import { ReadonlyJSONObject } from '@phosphor/coreutils';
 import { JSONSchemaBridge } from 'uniforms-bridge-json-schema';
 import { showForm } from './form';
 import { requestAPI } from './jupyter-project';
-import { CommandIDs, IProjectManager, PLUGIN_ID, Templates } from './tokens';
+import { getProjectInfo } from './project';
+import {
+  CommandIDs,
+  IProjectManager,
+  PLUGIN_ID,
+  Project,
+  Templates
+} from './tokens';
+import { ForeignCommandIDs, renderStringTemplate } from './utils';
 import { createValidator } from './validator';
 
 /**
@@ -90,16 +98,24 @@ class FileGenerator {
    *
    * @param path Path in which the file should be rendered
    * @param params Template parameters
-   * @param inProject Is the template generated in a project context
+   * @param project Project context
    */
   async render(
     path: string,
     params: ReadonlyJSONObject,
-    inProject = false
+    project: Project.IModel | null = null
   ): Promise<Contents.IModel> {
     let fullpath = path;
-    if (inProject && this._destination) {
-      fullpath = URLExt.join(path, this._destination);
+    if (project) {
+      if (this.destination) {
+        const destination = renderStringTemplate(this.destination, project);
+        fullpath = URLExt.join(path, destination);
+      }
+      // Add the project properties to the user specified parameters
+      params = {
+        ...params,
+        jproject: getProjectInfo(project)
+      };
     }
     const endpoint = URLExt.join('files', this._endpoint, fullpath);
     return requestAPI<Contents.IModel>(endpoint, {
@@ -192,14 +208,12 @@ export function activateFileGenerator(
 
       // 2. Find where to generate the file
       let cwd: string;
-      let inProject = false;
       if (args['cwd'] && !args['isLauncher']) {
         // Launcher add automatically cwd to args - so we ignore that case
         // Use the argument path
         cwd = args['cwd'] as string;
-      } else if (manager.project && generator.destination) {
+      } else if (manager.project) {
         // Use the project path
-        inProject = true;
         cwd = manager.project.path;
       } else {
         // Use the current path
@@ -220,8 +234,8 @@ export function activateFileGenerator(
       }
 
       try {
-        const model = await generator.render(cwd, params, inProject);
-        commands.execute('docmanager:open', {
+        const model = await generator.render(cwd, params, manager.project);
+        commands.execute(ForeignCommandIDs.documentOpen, {
           path: model.path
         });
       } catch (error) {

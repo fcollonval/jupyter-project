@@ -16,7 +16,7 @@ import { CommandRegistry } from '@phosphor/commands';
 import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
 import { Signal, Slot } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
-import { IEnvironmentManager, Conda } from 'jupyterlab_conda';
+import { Conda, IEnvironmentManager } from 'jupyterlab_conda';
 import { INotification } from 'jupyterlab_toastify';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
 import YAML from 'yaml';
@@ -30,6 +30,7 @@ import {
   Project,
   Templates
 } from './tokens';
+import { ForeignCommandIDs, renderStringTemplate } from './utils';
 import { createValidator } from './validator';
 import { IGitExtension } from '@jupyterlab/git';
 
@@ -45,17 +46,6 @@ const FORBIDDEN_ENV_CHAR = /[/\s:#]/gi;
  * Project manager state ID
  */
 const STATE_ID = `${PLUGIN_ID}:project`;
-
-/**
- * Namespace of foreign command IDs used
- */
-namespace ForeignCommandIDs {
-  export const closeAll = 'application:close-all';
-  export const gitInit = 'git:init';
-  export const goTo = 'filebrowser:go-to-path';
-  export const openPath = 'filebrowser:open-path';
-  export const saveAll = 'docmanager:save-all';
-}
 
 /**
  * Namespace for Conda
@@ -154,7 +144,11 @@ class ProjectManager implements IProjectManager {
    * Default path to open in a project
    */
   get defaultPath(): string {
-    return this._defaultPath;
+    let defaultPath = this._defaultPath;
+    if (this.project) {
+      defaultPath = renderStringTemplate(defaultPath, this.project);
+    }
+    return defaultPath;
   }
 
   /**
@@ -314,6 +308,18 @@ class ProjectManager implements IProjectManager {
   private _projectChanged = new Signal<this, Project.IChangedArgs>(this);
   private _schema: JSONSchemaBridge | null = null;
   private _state: IStateDB;
+}
+
+/**
+ * Build the project info from project model
+ * @param project The project model
+ * @returns The project info
+ */
+export function getProjectInfo(project: Project.IModel): Project.IInfo {
+  return {
+    ...project,
+    dirname: PathExt.dirname(project.path)
+  };
 }
 
 /**

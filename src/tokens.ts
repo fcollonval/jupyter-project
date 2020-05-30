@@ -124,6 +124,11 @@ export namespace Project {
     /** Type of change */
     type: ChangeType;
   }
+
+  export interface IInfo extends IModel {
+    /** Project directory name */
+    dirname: string;
+  }
 }
 export interface IProjectManager {
   /**
