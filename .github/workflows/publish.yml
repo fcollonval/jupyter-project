@@ -23,13 +23,14 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install setuptools wheel twine jupyter-packaging jupyterlab
-    - name: Build and publish
+    - name: Build and publish NPM package
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: Build and publish Python package
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/*
-    - run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
