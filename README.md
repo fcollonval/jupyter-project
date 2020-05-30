@@ -499,10 +499,3 @@ pip uninstall jupyter-project
 
 jupyter labextension uninstall jupyter-project
 ```
-
-## Changelog
-
-### v0.1.0
-
-- Handle Jinja2 file templates
-- Handle project cookiecutter template
