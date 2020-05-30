@@ -4,7 +4,6 @@ const jlabConfig = jestJupyterLab('jupyter-project', __dirname);
 
 const {
   coverageDirectory,
-  globals,
   moduleFileExtensions,
   moduleNameMapper,
   preset,
@@ -15,7 +14,6 @@ const {
 
 module.exports = {
   coverageDirectory,
-  globals,
   moduleFileExtensions,
   moduleNameMapper,
   preset,
@@ -25,6 +23,11 @@ module.exports = {
   automock: false,
   collectCoverageFrom: ['src/**.{ts,tsx}', '!src/*.d.ts'],
   coverageReporters: ['lcov', 'text'],
+  globals: {
+      'ts-jest': {
+          tsConfig: `./tsconfig.json`
+      }
+  },
   reporters: ['default'],
   testRegex: 'src/.*/.*.spec.ts[x]?$',
   transformIgnorePatterns: ['/node_modules/(?!(@jupyterlab/.*)/)']
