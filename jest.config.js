@@ -30,5 +30,5 @@ module.exports = {
   },
   reporters: ['default'],
   testRegex: 'src/.*/.*.spec.ts[x]?$',
-  transformIgnorePatterns: ['/node_modules/(?!(@jupyterlab/.*)/)']
+  transformIgnorePatterns: ['/node_modules/(?!(@?jupyterlab.*)/)']
 };
