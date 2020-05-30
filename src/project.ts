@@ -943,10 +943,13 @@ namespace Private {
 
     // Update the config file
     const filePath = PathExt.join(model.path, manager.configurationFilename);
+    // Remove `path` if it exists - as it is user specific
+    const toSave = { ...model };
+    delete toSave.path;
     await contentService.save(filePath, {
       type: 'file',
       format: 'text',
-      content: JSON.stringify(model)
+      content: JSON.stringify(toSave)
     });
 
     return toastId;

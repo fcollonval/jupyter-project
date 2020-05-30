@@ -71,7 +71,7 @@ class FileTemplatesHandler(APIHandler):
         filename = cm.increment_filename(filename, path)
         fullpath = url_path_join(path, filename)
 
-        realpath = Path(cm.root_dir) / url2path(fullpath)
+        realpath = Path(cm.root_dir).absolute() / url2path(fullpath)
         if not realpath.parent.exists():
             realpath.parent.mkdir(parents=True)
 
@@ -113,7 +113,7 @@ class ProjectsHandler(APIHandler):
         Returns:
             Path: Absolute path
         """
-        return Path(self.contents_manager.root_dir) / url2path(path)
+        return Path(self.contents_manager.root_dir).absolute() / url2path(path)
 
     @tornado.web.authenticated
     async def get(self, path: str = ""):
