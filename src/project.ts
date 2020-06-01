@@ -2,18 +2,23 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
   Dialog,
   ICommandPalette,
+  InputDialog,
   showDialog,
-  showErrorMessage,
-  InputDialog
+  showErrorMessage
 } from '@jupyterlab/apputils';
 import { IStateDB, PathExt, URLExt } from '@jupyterlab/coreutils';
 import { FileDialog, IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import { IGitExtension } from '@jupyterlab/git';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { Contents } from '@jupyterlab/services';
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { CommandRegistry } from '@phosphor/commands';
-import { JSONExt, ReadonlyJSONObject } from '@phosphor/coreutils';
+import {
+  JSONExt,
+  PromiseDelegate,
+  ReadonlyJSONObject
+} from '@phosphor/coreutils';
 import { Signal, Slot } from '@phosphor/signaling';
 import { Menu } from '@phosphor/widgets';
 import { Conda, IEnvironmentManager } from 'jupyterlab_conda';
@@ -32,7 +37,6 @@ import {
 } from './tokens';
 import { ForeignCommandIDs, renderStringTemplate } from './utils';
 import { createValidator } from './validator';
-import { IGitExtension } from '@jupyterlab/git';
 
 /**
  * Default conda environment file
@@ -119,10 +123,13 @@ class ProjectManager implements IProjectManager {
         if (this.project) {
           this.open(this.project.path);
         }
+        this._restored.resolve();
       })
       .catch(error => {
-        console.error('Unable to restore saved project.', error);
+        const message = 'Unable to restore saved project.';
+        console.error(message, error);
         this.reset();
+        this._restored.reject(message);
       });
   }
 
@@ -171,6 +178,13 @@ class ProjectManager implements IProjectManager {
    */
   get projectChanged(): Signal<this, Project.IChangedArgs> {
     return this._projectChanged;
+  }
+
+  /**
+   * A promise resolved when the project state has been restored.
+   */
+  get restored(): Promise<void> {
+    return this._restored.promise;
   }
 
   /**
@@ -306,6 +320,7 @@ class ProjectManager implements IProjectManager {
   private _editableInstall = true;
   private _project: Project.IModel | null = null;
   private _projectChanged = new Signal<this, Project.IChangedArgs>(this);
+  private _restored = new PromiseDelegate<void>();
   private _schema: JSONSchemaBridge | null = null;
   private _state: IStateDB;
 }
@@ -414,6 +429,53 @@ export function activateProjectManager(
       }
     });
   }
+
+  // Update the conda environment when git HEAD changes
+  const gitSlot: Slot<IGitExtension, void> = git => {
+    if (condaManager && manager.project && manager.project.environment) {
+      const errorMsg =
+        'Fail to update conda environment after git HEAD changed';
+      Private.compareSpecification(
+        condaManager,
+        manager.project,
+        serviceManager.contents
+      )
+        .then(async ({ isIdentical, file, notInFile }) => {
+          if (!isIdentical && file) {
+            const toastId = await INotification.inProgress(
+              `Updating environment for branch ${git.currentBranch}...`
+            );
+            return Private.updateEnvironment(
+              manager.project.environment,
+              file,
+              notInFile,
+              condaManager,
+              toastId
+            );
+          }
+        })
+        .then(toastId => {
+          if (toastId === null) {
+            return INotification.error(errorMsg);
+          }
+        })
+        .catch(error => {
+          console.error(errorMsg, error);
+        });
+    }
+  };
+
+  manager.restored.then(() => {
+    if (manager.project && condaManager && manager.withConda) {
+      // Apply kernel whitelist
+      serviceManager.sessions.refreshSpecs();
+
+      condaManager.getPackageManager().packageChanged.connect(condaSlot);
+      if (git) {
+        git.headChanged.connect(gitSlot);
+      }
+    }
+  });
 
   commands.addCommand(CommandIDs.newProject, {
     caption: 'Create a new project.',
@@ -646,6 +708,9 @@ export function activateProjectManager(
 
         if (condaManager && manager.withConda) {
           condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
+          if (git) {
+            git.headChanged.disconnect(gitSlot);
+          }
           toastId = await Private.openProject(
             manager,
             serviceManager.contents,
@@ -658,6 +723,9 @@ export function activateProjectManager(
             await manager.open(manager.project.path);
           }
           condaManager.getPackageManager().packageChanged.connect(condaSlot);
+          if (git) {
+            git.headChanged.connect(gitSlot);
+          }
 
           // Force refreshing session to take into account the new environment
           serviceManager.sessions.refreshSpecs();
@@ -699,10 +767,14 @@ export function activateProjectManager(
         await resetWorkspace(commands);
         await manager.close();
         if (condaManager) {
-          condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
-
           // Force refreshing session to take into account the whitelist suppression
           serviceManager.sessions.refreshSpecs();
+
+          condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
+
+          if (git) {
+            git.headChanged.disconnect(gitSlot);
+          }
         }
       } catch (error) {
         showErrorMessage('Failed to close the current project', error);
@@ -754,6 +826,9 @@ export function activateProjectManager(
         }
 
         condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
+        if (git) {
+          git.headChanged.disconnect(gitSlot);
+        }
         try {
           await condaManager.remove(condaEnvironment);
 
@@ -882,26 +957,13 @@ namespace Private {
       environmentName = foundEnvironment.name;
 
       if (!isIdentical && file) {
-        INotification.update({
-          toastId,
-          message: `Updating conda environment ${environmentName}... Please wait`
-        });
-
-        try {
-          // 1. Remove package not in the environment specification file
-          if (notInFile && notInFile.length > 0) {
-            await conda
-              .getPackageManager()
-              .remove(notInFile, foundEnvironment.name);
-          }
-          // 2. Update the environment according to the file
-          await conda.update(foundEnvironment.name, file, ENVIRONMENT_FILE);
-        } catch (error) {
-          const message = `Fail to update environment ${foundEnvironment.name}`;
-          console.error(message, error);
-          INotification.update({ toastId, message });
-          toastId = null;
-        }
+        toastId = await updateEnvironment(
+          environmentName,
+          file,
+          notInFile,
+          conda,
+          toastId
+        );
       }
     } else {
       // Import an environment
@@ -961,6 +1023,34 @@ namespace Private {
       content: JSON.stringify(toSave)
     });
 
+    return toastId;
+  }
+
+  export async function updateEnvironment(
+    environmentName: string,
+    file: string,
+    notInFile: string[],
+    conda: IEnvironmentManager,
+    toastId: React.ReactText
+  ): Promise<React.ReactText | null> {
+    INotification.update({
+      toastId,
+      message: `Updating conda environment ${environmentName}... Please wait`
+    });
+
+    try {
+      // 1. Remove package not in the environment specification file
+      if (notInFile && notInFile.length > 0) {
+        await conda.getPackageManager().remove(notInFile, environmentName);
+      }
+      // 2. Update the environment according to the file
+      await conda.update(environmentName, file, ENVIRONMENT_FILE);
+    } catch (error) {
+      const message = `Fail to update environment ${environmentName}`;
+      console.error(message, error);
+      INotification.update({ toastId, message });
+      toastId = null;
+    }
     return toastId;
   }
 
