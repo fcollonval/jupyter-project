@@ -336,8 +336,10 @@ kernel (i.e. only that kernel will be available when the project is opened) (def
 
 #### Git integration
 
-If the [`jupyterlab-git`](https://github.com/jupyterlab/jupyterlab-git) optional extension is installed
-when creating a project, it will be initialized as a git repository.
+If the [`jupyterlab-git`](https://github.com/jupyterlab/jupyterlab-git) optional extension is installed, the following features/behaviors are to be expected:
+
+- When creating a project, it will be initialized as a git repository and a first commit with all produced files will be carried out.
+- When the git HEAD changes (branch changes, pull action,...), the conda environment will be updated if the `environment.yml` file changed.
 
 ### Full configuration
 
