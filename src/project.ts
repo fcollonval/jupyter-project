@@ -653,6 +653,10 @@ export function activateProjectManager(
             commands,
             toastId
           );
+          // Re-open to set the kernel whitelist
+          if(manager.project.environment){
+            await manager.open(manager.project.path);
+          }
           condaManager.getPackageManager().packageChanged.connect(condaSlot);
 
           // Force refreshing session to take into account the new environment
@@ -693,10 +697,12 @@ export function activateProjectManager(
     execute: async () => {
       try {
         await resetWorkspace(commands);
-        manager.close();
-        // TODO Clean kernel white list
+        await manager.close();
         if (condaManager) {
           condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
+
+          // Force refreshing session to take into account the new environment
+          serviceManager.sessions.refreshSpecs();
         }
       } catch (error) {
         showErrorMessage('Failed to close the current project', error);
@@ -749,7 +755,7 @@ export function activateProjectManager(
           await condaManager.remove(condaEnvironment);
 
           // Force refreshing session to take into account the new environment
-          await serviceManager.sessions.refreshSpecs();
+          serviceManager.sessions.refreshSpecs();
         } catch (error) {
           const message = `Failed to remove the project environment ${condaEnvironment}`;
           console.error(message, error);
@@ -922,7 +928,7 @@ namespace Private {
       } catch (error) {
         const message = `Fail to create the environment for ${model.name}`;
         console.error(message, error);
-        INotification.update({ toastId, message });
+        INotification.update({ toastId, message, type: 'error' });
         return null;
       }
     }
