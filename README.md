@@ -26,6 +26,8 @@ for the frontend extension.
   - [Complete configuration](#Full-configuration)
 - [Troubleshoot](#Troubleshoot)
 - [Contributing](#Contributing)
+- [Uninstall](#Uninstall)
+- [Alternatives](#Alternatives)
 
 ## Requirements
 
@@ -555,3 +557,10 @@ Or with pip:
 conda remove jupyter-project
 jupyter labextension uninstall jupyter-project
 ```
+
+## Alternatives
+
+Don't like what you see here? Try these other approaches:
+
+- [jupyterlab-starters](https://github.com/deathbeds/jupyterlab-starters)
+- [jupyterlab_templates](https://github.com/timkpaine/jupyterlab_templates)
