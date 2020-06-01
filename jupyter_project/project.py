@@ -51,6 +51,11 @@ class ProjectTemplate(HasTraits):
         help="Should the project be installed in pip editable mode in the conda environment?",
         config=True,
     )
+    filter_kernel = Bool(
+        default_value=True,
+        help="Should the kernel be filtered to match only the conda environment?",
+        config=True,
+    )
     folder_name = Unicode(
         default_value="{{ name|lower|replace(' ', '_') }}",
         help="Project name (support Jinja2 templating using the schema parameters) [optional]",

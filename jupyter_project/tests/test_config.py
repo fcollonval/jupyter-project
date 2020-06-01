@@ -175,7 +175,11 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
             },
             [],
             dict(
-                template="my_magic.package", configuration_filename="my-project.json",
+                template="my_magic.package", 
+                configuration_filename="my-project.json",
+                conda_pkgs=None,
+                editable_install=True,
+                filter_kernel=True,
             ),
         ),
         (
@@ -234,6 +238,7 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                     "conda_pkgs": "Python 3",
                     "default_path": "my_workspace",
                     "editable_install": False,
+                    "filter_kernel": False,
                     "folder_name": "banana",
                     "template": "my_magic.package",
                     "schema": dict(
@@ -252,6 +257,7 @@ from jupyter_project.config import FileTemplateLoader, JupyterProject, ProjectTe
                 conda_pkgs="Python 3",
                 default_path="my_workspace",
                 editable_install=False,
+                filter_kernel=False,
                 folder_name="banana",
                 template="my_magic.package",
                 schema=dict(

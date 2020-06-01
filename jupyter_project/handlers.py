@@ -141,11 +141,7 @@ class ProjectsHandler(APIHandler):
             )
 
         configuration = None
-        if len(path) == 0:
-            # Close the current open project
-            pass
-
-        else:
+        if len(path) != 0:
             configuration = dict()
             fullpath = self._get_realpath(path)
             # Check that the path is a project
@@ -160,6 +156,17 @@ class ProjectsHandler(APIHandler):
                 )
             else:
                 configuration["path"] = path
+
+        if self.template.conda_pkgs is not None and self.template.filter_kernel:
+            if len(path) == 0:
+                # Close the current open project
+                self.log.debug(f"[jupyter-project] Clear Kernel whitelist")
+                self.kernel_spec_manager.whitelist = set()
+            elif "environment" in configuration:
+                kernelspecs = self.kernel_spec_manager.get_all_specs()
+                kernels = {n for n, s in kernelspecs.items() if s["spec"]["metadata"].get("conda_env_name") == configuration["environment"]}
+                self.log.debug(f"[jupyter-project] Set Kernel whitelist to {kernels}")
+                self.kernel_spec_manager.whitelist = kernels
 
         self.finish(json.dumps({"project": configuration}))
 

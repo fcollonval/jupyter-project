@@ -284,7 +284,7 @@ been generated. It can contain project templated variable:
 If the [`jupyter_conda`](https://github.com/fcollonval/jupyter_conda) optional extension is installed
 and if `conda_pkgs` is specified in the `project_template` configuration, then a Conda environment
 will follow the life cycle of the project; i.e. creation of an environment at project creation,
-update of the environment when opening a project and deletion at project deletion.
+update of the environment when opening a project and changing its packages and deletion at project deletion.
 
 The `conda_pkgs` setting should be set to a string matching the default environment type of conda environment
 to be created at project creation (see [`jupyter_conda`](https://github.com/fcollonval/jupyter_conda/blob/master/labextension/schema/plugin.json#L13)
@@ -300,6 +300,13 @@ The binder example defines:
 
 > The default conda packages settings is the fallback if `environment.yml` is absent of the project
 > cookiecutter template.
+
+There are two configurable options for the project template when using the conda integration:
+
+- `editable_install`: If True, the project folder will be installed in editable mode using `pip` in the conda environment (default: True)
+- `filter_kernel`: If True, the kernel manager [whitelist](https://jupyter-notebook.readthedocs.io/en/stable/search.html?q=whitelist&check_keywords=yes&area=default)
+will be set dynamically to the one of the project environment
+kernel (i.e. only that kernel will be available when the project is opened) (default: True).
 
 #### Full configuration
 
@@ -395,6 +402,15 @@ Here is the description of all server extension settings:
           "description": "Default file or folder to open; relative to the project root [optional]",
           "type": "string"
         },
+        "editable_install": {
+          "description": "Should the project be installed in pip editable mode in the conda environment?",
+          "type": "boolean",
+          "default": true
+        },
+        "filter_kernel": {
+          "description": "Should the kernel be filtered to match only the conda environment?",
+          "type": "boolean",
+          "default": true
         "folder_name": {
           "description": "Project name (support Jinja2 templating using the schema parameters) [optional]",
           "default": "{{ name|lower|replace(' ', '_') }}",
