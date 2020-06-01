@@ -146,6 +146,7 @@ class TestSettings(ServerTest):
                     "description": "Project template description",
                     "properties": {"count": {"type": "number"}},
                 },
+                "withGit": True,
             },
         }
 
