@@ -3,6 +3,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/with-conda?urlpath=lab)
 [![Github Actions Status](https://github.com/fcollonval/jupyter-project/workflows/Test/badge.svg)](https://github.com/fcollonval/jupyter-project/actions?query=workflow%3ATest)
 [![Coverage Status](https://coveralls.io/repos/github/fcollonval/jupyter-project/badge.svg?branch=master)](https://coveralls.io/github/fcollonval/jupyter-project?branch=master)
+[![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/jupyter-project)](https://anaconda.org/conda-forge/jupyter-project)
 [![PyPI](https://img.shields.io/pypi/v/jupyter-project)](https://pypi.org/project/jupyter-project/)
 [![npm](https://img.shields.io/npm/v/jupyter-project)](https://www.npmjs.com/package/jupyter-project)
 
@@ -14,6 +15,17 @@ the frontend by specifying [JSON schemas](https://json-schema.org/).
 This extension is composed of a Python package named `jupyter_project`
 for the server extension and a NPM package named `jupyter-project`
 for the frontend extension.
+
+- [Requirements](#Requirements)
+- [Install](#Install)
+- [Configuration](#Configuring-the-extension)
+  - [File templates](#File-templates)
+  - [Project template](#Project-template)
+    - [Conda integration](#Conda-environment-integration)
+    - [Git integration](#Git-integration)
+  - [Complete configuration](#Full-configuration)
+- [Troubleshoot](#Troubleshoot)
+- [Contributing](#Contributing)
 
 ## Requirements
 
@@ -41,18 +53,28 @@ for the frontend extension.
 
 - Optional JupyterLab extensions:
 
+  - @jupyterlab/git
   - jupyterlab_conda
 
 ## Install
 
-Note: You will need NodeJS to install the extension.
+> Note: You will need NodeJS to install the extension.
+
+With pip:
 
 ```bash
 pip install jupyter_project
 jupyter lab build
 ```
 
-### Configuring the extension
+Or with conda:
+
+```bash
+conda install -c conda-forge jupyter_project
+jupyter lab build
+```
+
+## Configuring the extension
 
 By default, this extension will not add anything to JupyterLab as the templates must be configured
 as part of the server extension configuration key **JupyterProject** (see [Jupyter server configuration](https://jupyter-notebook.readthedocs.io/en/stable/config_overview.html#) for more information).
@@ -70,6 +92,8 @@ The section for this extension must be named **JupyterProject**:
 It accepts to optional keys: _file_templates_ and _project_template_. The first defines a list
 of places containing templated files. And the second describe the project template. They can
 both exist alone (i.e. only file templates or only the project template).
+
+### File templates
 
 The file templates can be located in a `location` provided by its fullpath or in a `location`
 within a Python `module`. In the Binder example, the template are located in the folder `examples`
@@ -215,7 +239,9 @@ svg that will be used to set a customized icon in the frontend for the template.
 If you need to set templates from different sources, you can add entry similar to
 `data-sciences` in the `file_templates` list.
 
-The second major configuration section is `project_template`. Each template must
+### Project template
+
+The second major configuration section is `project_template`. The template must
 specified a value for `template` that points to a valid [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/)
 template source:
 
@@ -308,7 +334,12 @@ There are two configurable options for the project template when using the conda
 will be set dynamically to the one of the project environment
 kernel (i.e. only that kernel will be available when the project is opened) (default: True).
 
-#### Full configuration
+#### Git integration
+
+If the [`jupyterlab-git`](https://github.com/jupyterlab/jupyterlab-git) optional extension is installed
+when creating a project, it will be initialized as a git repository.
+
+### Full configuration
 
 Here is the description of all server extension settings:
 
@@ -411,6 +442,7 @@ Here is the description of all server extension settings:
           "description": "Should the kernel be filtered to match only the conda environment?",
           "type": "boolean",
           "default": true
+        },
         "folder_name": {
           "description": "Project name (support Jinja2 templating using the schema parameters) [optional]",
           "default": "{{ name|lower|replace(' ', '_') }}",
@@ -508,10 +540,18 @@ jupyter lab --watch
 
 > To run with an working example, execute `jupyter lab` from the binder folder to use the local `jupyter_notebook_config.json` as configuration.
 
-### Uninstall
+## Uninstall
+
+With pip:
 
 ```bash
 pip uninstall jupyter-project
+jupyter labextension uninstall jupyter-project
+```
 
+Or with pip:
+
+```bash
+conda remove jupyter-project
 jupyter labextension uninstall jupyter-project
 ```
