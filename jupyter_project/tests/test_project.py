@@ -13,6 +13,7 @@ import jsonschema
 import pytest
 import tornado
 from cookiecutter.exceptions import CookiecutterException
+from jupyter_client.kernelspec import KernelSpecManager
 from traitlets import TraitError
 from traitlets.config import Config
 
@@ -203,6 +204,7 @@ class TestProjectTemplate(ServerTest):
             "JupyterProject": {
                 "project_template": {
                     "configuration_filename": "my-project.json",
+                    "conda_pkgs": "ipykernel",
                     "module": "my_magic.package",
                     "template": "my-project-template",
                     "schema": {
@@ -233,10 +235,12 @@ class TestProjectTemplate(ServerTest):
         mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
 
     def test_project_get_no_path(self):
+        self.notebook.kernel_spec_manager.whitelist = {"tic", "tac"}
         answer = self.api_tester.get(["projects",])
         assert answer.status_code == 200
         conf = answer.json()
         assert conf == {"project": None}
+        assert self.notebook.kernel_spec_manager.whitelist == set()
 
     def test_project_get_no_configuration(self):
         path = generate_path()
@@ -265,6 +269,102 @@ class TestProjectTemplate(ServerTest):
                 self.api_tester.get(["projects", path])
 
         mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
+
+    def test_project_get_set_whitelist(self):
+        path = generate_path()
+        env_name = "banana"
+        kernel_name = "conda-kernel-myname"
+        self.notebook.kernel_spec_manager.whitelist = {"tic", "tac"}
+
+        with mock.patch(
+            "jupyter_project.handlers.ProjectTemplate.get_configuration"
+        ) as mock_configuration:
+            mock_configuration.return_value = {"environment": env_name}
+            with mock.patch(
+                "jupyter_project.handlers.ProjectsHandler.kernel_spec_manager"
+            ) as mocked_specs:
+                mocked_specs.configure_mock(
+                    **{
+                        "get_all_specs.return_value": {
+                            kernel_name: {
+                                "spec": {"metadata": {"conda_env_name": env_name}}
+                            }
+                        }
+                    }
+                )
+                answer = self.api_tester.get(["projects", path])
+                assert answer.status_code == 200
+
+        mocked_specs.get_all_specs.assert_called_once()
+        assert mocked_specs.whitelist == {
+            kernel_name,
+        }
+        mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
+
+    def test_project_get_no_conda(self):
+        path = generate_path()
+        self.notebook.kernel_spec_manager.whitelist = {"tic", "tac"}
+        with mock.patch("jupyter_project.handlers.ProjectTemplate.conda_pkgs", None):
+            answer = self.api_tester.get(["projects",])
+            assert answer.status_code == 200
+            conf = answer.json()
+            assert conf == {"project": None}
+            assert self.notebook.kernel_spec_manager.whitelist == {"tic", "tac"}
+
+            with mock.patch(
+                "jupyter_project.handlers.ProjectTemplate.get_configuration"
+            ) as mock_configuration:
+                mock_configuration.return_value = dict()
+                answer = self.api_tester.get(["projects", path])
+                assert answer.status_code == 200
+                conf = answer.json()
+
+            assert self.notebook.kernel_spec_manager.whitelist == {"tic", "tac"}
+            mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
+
+    def test_project_get_no_filter(self):
+        path = generate_path()
+        self.notebook.kernel_spec_manager.whitelist = {"tic", "tac"}
+        with mock.patch(
+            "jupyter_project.handlers.ProjectTemplate.filter_kernel", False
+        ):
+            answer = self.api_tester.get(["projects",])
+            assert answer.status_code == 200
+            conf = answer.json()
+            assert conf == {"project": None}
+            assert self.notebook.kernel_spec_manager.whitelist == {"tic", "tac"}
+
+            with mock.patch(
+                "jupyter_project.handlers.ProjectTemplate.get_configuration"
+            ) as mock_configuration:
+                mock_configuration.return_value = dict()
+                answer = self.api_tester.get(["projects", path])
+                assert answer.status_code == 200
+                conf = answer.json()
+
+            assert self.notebook.kernel_spec_manager.whitelist == {"tic", "tac"}
+            mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
+
+    def test_project_get_no_configuration_environment(self):
+        path = generate_path()
+        self.notebook.kernel_spec_manager.whitelist = {"tic", "tac"}
+
+        with mock.patch(
+            "jupyter_project.handlers.ProjectTemplate.get_configuration"
+        ) as mock_configuration:
+            mock_configuration.return_value = dict()
+            answer = self.api_tester.get(["projects", path])
+            assert answer.status_code == 200
+            conf = answer.json()
+
+        assert self.notebook.kernel_spec_manager.whitelist == {"tic", "tac"}
+        mock_configuration.assert_called_once_with(Path(self.notebook_dir) / path)
+
+        answer = self.api_tester.get(["projects",])
+        assert answer.status_code == 200
+        conf = answer.json()
+        assert conf == {"project": None}
+        assert self.notebook.kernel_spec_manager.whitelist == set()
 
     def test_project_post(self):
         path = generate_path()

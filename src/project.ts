@@ -701,7 +701,7 @@ export function activateProjectManager(
         if (condaManager) {
           condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
 
-          // Force refreshing session to take into account the new environment
+          // Force refreshing session to take into account the whitelist suppression
           serviceManager.sessions.refreshSpecs();
         }
       } catch (error) {
@@ -742,6 +742,9 @@ export function activateProjectManager(
         toastId = null;
       }
       if (condaEnvironment && condaManager) {
+        // Force refreshing session to take into account the whitelist suppression
+        serviceManager.sessions.refreshSpecs();
+
         // 2. Remove associated conda environment
         const message = `Removing conda environment '${condaEnvironment}'...`;
         if (toastId) {
@@ -754,7 +757,7 @@ export function activateProjectManager(
         try {
           await condaManager.remove(condaEnvironment);
 
-          // Force refreshing session to take into account the new environment
+          // Force refreshing session to take into account the removed environment
           serviceManager.sessions.refreshSpecs();
         } catch (error) {
           const message = `Failed to remove the project environment ${condaEnvironment}`;

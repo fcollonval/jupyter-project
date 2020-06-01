@@ -165,9 +165,8 @@ class ProjectsHandler(APIHandler):
             elif "environment" in configuration:
                 kernelspecs = self.kernel_spec_manager.get_all_specs()
                 kernels = {n for n, s in kernelspecs.items() if s["spec"]["metadata"].get("conda_env_name") == configuration["environment"]}
-                if len(kernels) == 1:
-                    self.log.debug(f"[jupyter-project] Set Kernel whitelist to {kernels}")
-                    self.kernel_spec_manager.whitelist = kernels
+                self.log.debug(f"[jupyter-project] Set Kernel whitelist to {kernels}")
+                self.kernel_spec_manager.whitelist = kernels
 
         self.finish(json.dumps({"project": configuration}))
 

@@ -59,6 +59,7 @@ class TestSettings(ServerTest):
                     "conda_pkgs": "python=3 ipykernel",
                     "default_path": "notebooks",
                     "editable_install": False,
+                    "filter_kernel": False,
                     "schema": {
                         "title": "My Project",
                         "description": "Project template description",
