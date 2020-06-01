@@ -654,7 +654,7 @@ export function activateProjectManager(
             toastId
           );
           // Re-open to set the kernel whitelist
-          if(manager.project.environment){
+          if (manager.project.environment) {
             await manager.open(manager.project.path);
           }
           condaManager.getPackageManager().packageChanged.connect(condaSlot);
