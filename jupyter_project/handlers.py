@@ -278,7 +278,8 @@ class SettingsHandler(APIHandler):
                 defaultCondaPackages: str | null,
                 defaultPath: str | null,
                 editableInstall: bool,
-                schema: JSONschema | null
+                schema: JSONschema | null,
+                withGit: bool
             }
         }
         """
@@ -398,6 +399,7 @@ def setup_handlers(
             "schema": (
                 project_template.schema if len(project_template.schema) else None
             ),
+            "withGit": True,  # TODO make it configurable
         }
 
     handlers.append(

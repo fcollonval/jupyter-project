@@ -195,6 +195,10 @@ export namespace Templates {
      * JSON schema of the template parameter
      */
     schema?: JSONObject;
+    /**
+     * Is the project connected to @jupyterlab/git?
+     */
+    withGit: boolean;
   }
   /**
    * Jupyter project settings
