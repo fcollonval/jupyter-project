@@ -195,13 +195,6 @@ class ProjectManager implements IProjectManager {
   }
 
   /**
-   * Should we synchronize an conda environment with the project
-   */
-  get withConda(): boolean {
-    return this.defaultCondaPackages ? true : false;
-  }
-
-  /**
    * Generate a new project in path
    *
    * @param path Path where to generate the project
@@ -384,6 +377,13 @@ export function activateProjectManager(
   const filebrowser = browserFactory.defaultBrowser.model;
   const category = 'Project';
 
+  if (!settings.defaultCondaPackages) {
+    condaManager = null;
+  }
+  if (!settings.withGit) {
+    git = null;
+  }
+
   // Cannot blocking wait for the application otherwise this will bock
   // the all application at launch time
   const manager = new ProjectManager(settings, state, app.restored);
@@ -493,7 +493,7 @@ export function activateProjectManager(
   };
 
   manager.restored.then(() => {
-    if (manager.project && condaManager && manager.withConda) {
+    if (manager.project && condaManager) {
       // Apply kernel whitelist
       serviceManager.sessions.refreshSpecs();
 
@@ -733,7 +733,7 @@ export function activateProjectManager(
           });
         }
 
-        if (condaManager && manager.withConda) {
+        if (condaManager) {
           condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
           if (git) {
             git.headChanged.disconnect(gitSlot);
