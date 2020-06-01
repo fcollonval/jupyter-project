@@ -97,6 +97,8 @@ class ProjectTemplate(HasTraits):
             "configuration_filename",
             "configuration_schema",
             "default_path",
+            "editable_install",
+            "filter_kernel",
             "folder_name",
             "module",
             "schema",
