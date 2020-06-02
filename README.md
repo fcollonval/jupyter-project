@@ -31,6 +31,9 @@ for the frontend extension.
 
 ![screencast](doc/preview-jupyter-project.gif)
 
+Test it with all third-parties extensions: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/master?urlpath=lab)  
+Test it without them: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/binder-no-3rd-parties?urlpath=lab)
+
 ## Requirements
 
 - Python requirements:
