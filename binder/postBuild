@@ -7,7 +7,5 @@
 # as server configuration
 # 
 set -eux
-python -m pip install . --ignore-installed --no-deps
-jupyter labextension install jupyterlab_conda --no-build
-jupyter lab build --minimize=True --dev-build=False --debug
+jupyter lab build
 cp -f ./binder/jupyter_notebook_config.json .
