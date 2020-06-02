@@ -29,6 +29,8 @@ for the frontend extension.
 - [Uninstall](#Uninstall)
 - [Alternatives](#Alternatives)
 
+![screencast](doc/preview-jupyter-project.gif)
+
 ## Requirements
 
 - Python requirements:
