@@ -6,21 +6,22 @@ import {
   showDialog,
   showErrorMessage
 } from '@jupyterlab/apputils';
-import { IStateDB, PathExt, URLExt } from '@jupyterlab/coreutils';
+import { PathExt, URLExt } from '@jupyterlab/coreutils';
 import { FileDialog, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IGitExtension } from '@jupyterlab/git';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
 import { Contents } from '@jupyterlab/services';
+import { IStateDB } from '@jupyterlab/statedb';
 import { IStatusBar } from '@jupyterlab/statusbar';
-import { CommandRegistry } from '@phosphor/commands';
+import { CommandRegistry } from '@lumino/commands';
 import {
   JSONExt,
   PromiseDelegate,
   ReadonlyJSONObject
-} from '@phosphor/coreutils';
-import { Signal, Slot } from '@phosphor/signaling';
-import { Menu } from '@phosphor/widgets';
+} from '@lumino/coreutils';
+import { Signal, Slot } from '@lumino/signaling';
+import { Menu } from '@lumino/widgets';
 import { Conda, IEnvironmentManager } from 'jupyterlab_conda';
 import { INotification } from 'jupyterlab_toastify';
 import JSONSchemaBridge from 'uniforms-bridge-json-schema';
@@ -37,6 +38,7 @@ import {
 } from './tokens';
 import { ForeignCommandIDs, renderStringTemplate } from './utils';
 import { createValidator } from './validator';
+import { projectIcon } from './style';
 
 /**
  * Default conda environment file
@@ -495,7 +497,7 @@ export function activateProjectManager(
   manager.restored.then(() => {
     if (manager.project && condaManager) {
       // Apply kernel whitelist
-      serviceManager.sessions.refreshSpecs();
+      serviceManager.kernelspecs.refreshSpecs();
 
       condaManager.getPackageManager().packageChanged.connect(condaSlot);
       if (git) {
@@ -589,10 +591,8 @@ export function activateProjectManager(
         });
       }
     },
-    iconClass: args =>
-      args['isPalette'] || !args['isLauncher']
-        ? ''
-        : 'jp-JupyterProjectProjectIcon',
+    icon: args =>
+      args['isPalette'] || !args['isLauncher'] ? null : projectIcon,
     label: args => (!args['isLauncher'] ? 'New Project' : 'New')
   });
 
@@ -664,8 +664,7 @@ export function activateProjectManager(
         });
       }
     },
-    iconClass: args =>
-      args['isLauncher'] ? 'jp-JupyterProjectProjectIcon' : '',
+    icon: args => (args['isLauncher'] ? projectIcon : null),
     isVisible: () => git !== null,
     label: args => (!args['isLauncher'] ? 'Import Project' : 'Import')
   });
@@ -697,7 +696,6 @@ export function activateProjectManager(
         // From the user through an open file dialog
         const result = await FileDialog.getOpenFiles({
           filter: value => value.name === manager.configurationFilename,
-          iconRegistry: filebrowser.iconRegistry,
           manager: filebrowser.manager,
           title: 'Select the project file'
         });
@@ -755,7 +753,7 @@ export function activateProjectManager(
           }
 
           // Force refreshing session to take into account the new environment
-          serviceManager.sessions.refreshSpecs();
+          serviceManager.kernelspecs.refreshSpecs();
         }
 
         if (cleanToast) {
@@ -795,7 +793,7 @@ export function activateProjectManager(
         await manager.close();
         if (condaManager) {
           // Force refreshing session to take into account the whitelist suppression
-          serviceManager.sessions.refreshSpecs();
+          serviceManager.kernelspecs.refreshSpecs();
 
           condaManager.getPackageManager().packageChanged.disconnect(condaSlot);
 
@@ -842,7 +840,7 @@ export function activateProjectManager(
       }
       if (condaEnvironment && condaManager) {
         // Force refreshing session to take into account the whitelist suppression
-        serviceManager.sessions.refreshSpecs();
+        serviceManager.kernelspecs.refreshSpecs();
 
         // 2. Remove associated conda environment
         const message = `Removing conda environment '${condaEnvironment}'...`;
@@ -860,7 +858,7 @@ export function activateProjectManager(
           await condaManager.remove(condaEnvironment);
 
           // Force refreshing session to take into account the removed environment
-          serviceManager.sessions.refreshSpecs();
+          serviceManager.kernelspecs.refreshSpecs();
         } catch (error) {
           const message = `Failed to remove the project environment ${condaEnvironment}`;
           console.error(message, error);
