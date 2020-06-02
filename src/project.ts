@@ -1141,7 +1141,7 @@ namespace Private {
     isIdentical: boolean;
     conda?: string;
     file?: string;
-    notInFile?: Set<string>;
+    notInFile: Set<string>;
   }> {
     let conda: string;
     let condaPkgs: Set<string>;
@@ -1203,7 +1203,15 @@ namespace Private {
     }
 
     const isIdentical = conda === file;
-    const notInFile = new Set([...condaPkgs].filter(pkg => !filePkgs.has(pkg)));
+
+    let notInFile = new Set<string>();
+    if (!isIdentical && condaPkgs) {
+      if (filePkgs) {
+        notInFile = new Set([...condaPkgs].filter(pkg => !filePkgs.has(pkg)));
+      } else {
+        notInFile = condaPkgs;
+      }
+    }
 
     return { isIdentical, conda, file, notInFile };
   }
