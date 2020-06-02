@@ -993,8 +993,7 @@ namespace Private {
         );
       }
     } else {
-      // Import an environment
-
+      // Create the environment from the requirements
       INotification.update({
         toastId,
         message: `Creating conda environment ${environmentName}... Please wait`
@@ -1002,7 +1001,7 @@ namespace Private {
 
       try {
         if (file) {
-          // Create the environment from the requirements
+          // Import an environment
           await conda.import(environmentName, file, ENVIRONMENT_FILE);
         } else {
           // Create an environment

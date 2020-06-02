@@ -163,6 +163,12 @@ class ProjectsHandler(APIHandler):
                 self.log.debug(f"[jupyter-project] Clear Kernel whitelist")
                 self.kernel_spec_manager.whitelist = set()
             elif "environment" in configuration:
+                # Trick nb_conda_kernels to for refreshing the spec
+                try:
+                    self.kernel_spec_manager._conda_kernels_cache_expiry = None
+                    self.kernel_spec_manager._conda_info_cache_expiry = None
+                except AttributeError:
+                    pass
                 kernelspecs = self.kernel_spec_manager.get_all_specs()
                 kernels = {n for n, s in kernelspecs.items() if s["spec"]["metadata"].get("conda_env_name") == configuration["environment"]}
                 self.log.debug(f"[jupyter-project] Set Kernel whitelist to {kernels}")
