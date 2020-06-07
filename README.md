@@ -44,8 +44,10 @@ Test it without them: [![Binder](https://mybinder.org/badge_logo.svg)](https://m
 "cookiecutter",
 "jinja2~=2.9",
 "jsonschema",
-"jupyterlab~=1.2"
+"jupyterlab~=2.0"
 ```
+
+This extension is also available for JupyterLab 1.2.x.
 
 - Optional Python requirements:
 
@@ -54,7 +56,7 @@ Test it without them: [![Binder](https://mybinder.org/badge_logo.svg)](https://m
 
 "all": [
     "jupyter_conda~=3.3", 
-    "jupyterlab-git>=0.10,<0.20"
+    "jupyterlab-git~=0.20"
 ],
 ```
 
@@ -62,6 +64,8 @@ Test it without them: [![Binder](https://mybinder.org/badge_logo.svg)](https://m
 
   - @jupyterlab/git
   - jupyterlab_conda
+
+> On JupyterLab 2.x, the features coming from the optional JupyterLab extensions are not available due to a [bug in JupyterLab](https://github.com/jupyterlab/jupyterlab/issues/8504).
 
 ## Install
 
