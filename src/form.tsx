@@ -1,6 +1,6 @@
 import { Dialog, ReactWidget } from '@jupyterlab/apputils';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { JSONObject, PromiseDelegate } from '@phosphor/coreutils';
+import { JSONObject, PromiseDelegate } from '@lumino/coreutils';
 import * as React from 'react';
 import { AutoForm, AutoFields, ErrorsField } from 'uniforms-material';
 import { Form } from './tokens';

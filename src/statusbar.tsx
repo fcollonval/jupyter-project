@@ -1,6 +1,6 @@
 import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
 import { TextItem } from '@jupyterlab/statusbar';
-import { Widget } from '@phosphor/widgets';
+import { Widget } from '@lumino/widgets';
 import * as React from 'react';
 import { IProjectManager } from './tokens';
 
@@ -14,7 +14,7 @@ const ProjectComponent: React.FunctionComponent<IProjectStatusProps> = (
   return (
     <UseSignal
       signal={props.manager.projectChanged}
-      initialArgs={{ newValue: null }}
+      initialArgs={{ newValue: null, oldValue: null, type: 'open' }}
     >
       {(_, change): JSX.Element =>
         change.newValue ? (

@@ -63,12 +63,12 @@ setup_args = dict(
         "cookiecutter",
         "jinja2~=2.9",
         "jsonschema",
-        "jupyterlab~=1.2"
+        "jupyterlab~=2.0"
     ],
     extras_require={
         "all": [
             "jupyter_conda~=3.3", 
-            "jupyterlab-git>=0.10,<0.20"
+            "jupyterlab-git~=0.20"
         ],
         "test": ["pytest", "pytest-asyncio"],
     },

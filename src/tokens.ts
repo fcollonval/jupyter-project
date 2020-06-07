@@ -1,6 +1,6 @@
 import { Dialog } from '@jupyterlab/apputils';
-import { JSONObject, Token } from '@phosphor/coreutils';
-import { Signal } from '@phosphor/signaling';
+import { JSONObject, Token } from '@lumino/coreutils';
+import { Signal } from '@lumino/signaling';
 import { Bridge } from 'uniforms';
 
 /**

@@ -3,18 +3,16 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { ICommandPalette, IThemeManager } from '@jupyterlab/apputils';
-import { IStateDB } from '@jupyterlab/coreutils';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IGitExtension } from '@jupyterlab/git';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
+import { IStateDB } from '@jupyterlab/statedb';
 import { IStatusBar } from '@jupyterlab/statusbar';
-import { defaultIconRegistry } from '@jupyterlab/ui-components';
 import { IEnvironmentManager } from 'jupyterlab_conda';
 import { activateFileGenerator } from './filetemplates';
 import { requestAPI } from './jupyter-project';
 import { activateProjectManager } from './project';
-import { registerIcons } from './style';
 import { setCurrentTheme } from './theme';
 import { IProjectManager, PLUGIN_ID, Templates } from './tokens';
 
@@ -37,10 +35,6 @@ const extension: JupyterFrontEndPlugin<IProjectManager> = {
     git: IGitExtension | null
   ): Promise<IProjectManager> => {
     const { commands } = app;
-
-    const iconRegistry = defaultIconRegistry;
-    registerIcons(iconRegistry);
-
     let manager: IProjectManager | null = null;
 
     try {
