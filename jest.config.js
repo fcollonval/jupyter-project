@@ -9,7 +9,8 @@ const {
   preset,
   setupFilesAfterEnv,
   setupFiles,
-  testPathIgnorePatterns
+  testPathIgnorePatterns,
+  transform
 } = jlabConfig;
 
 module.exports = {
@@ -20,6 +21,7 @@ module.exports = {
   setupFilesAfterEnv,
   setupFiles,
   testPathIgnorePatterns,
+  transform,
   automock: false,
   collectCoverageFrom: ['src/**.{ts,tsx}', '!src/*.d.ts'],
   coverageReporters: ['lcov', 'text'],
