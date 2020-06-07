@@ -8,6 +8,7 @@
 # 
 set -eux
 # python -m pip install . --ignore-installed --no-deps
-jupyter labextension install jupyter-project jupyterlab_conda --no-build
+python -m pip install jupyter-project~=1.0 --ignore-installed --no-deps
+jupyter labextension install jupyterlab_conda --no-build
 jupyter lab build --minimize=True --dev-build=False --debug
 cp -f ./binder/jupyter_notebook_config.json .
