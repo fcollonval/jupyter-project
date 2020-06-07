@@ -8,5 +8,6 @@ dependencies:
   - jsonschema
   - jupyter_conda ~=3.3
   - jupyterlab ~=1.2
+  - jupyterlab-git >=0.10,<0.20
   - nodejs ~=12.0
   - python ~=3.8

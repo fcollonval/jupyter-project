@@ -991,8 +991,7 @@ namespace Private {
         );
       }
     } else {
-      // Import an environment
-
+      // Create the environment from the requirements
       INotification.update({
         toastId,
         message: `Creating conda environment ${environmentName}... Please wait`
@@ -1000,7 +999,7 @@ namespace Private {
 
       try {
         if (file) {
-          // Create the environment from the requirements
+          // Import an environment
           await conda.import(environmentName, file, ENVIRONMENT_FILE);
         } else {
           // Create an environment
@@ -1139,7 +1138,7 @@ namespace Private {
     isIdentical: boolean;
     conda?: string;
     file?: string;
-    notInFile?: Set<string>;
+    notInFile: Set<string>;
   }> {
     let conda: string;
     let condaPkgs: Set<string>;
@@ -1201,7 +1200,15 @@ namespace Private {
     }
 
     const isIdentical = conda === file;
-    const notInFile = new Set([...condaPkgs].filter(pkg => !filePkgs.has(pkg)));
+
+    let notInFile = new Set<string>();
+    if (!isIdentical && condaPkgs) {
+      if (filePkgs) {
+        notInFile = new Set([...condaPkgs].filter(pkg => !filePkgs.has(pkg)));
+      } else {
+        notInFile = condaPkgs;
+      }
+    }
 
     return { isIdentical, conda, file, notInFile };
   }

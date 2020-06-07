@@ -8,9 +8,6 @@
 # 
 set -eux
 python -m pip install . --ignore-installed --no-deps
-# Clean up the folder
-jlpm run clean
-rm -rf node_modules
 jupyter labextension install jupyterlab_conda --no-build
 jupyter lab build --minimize=True --dev-build=False --debug
 cp -f ./binder/jupyter_notebook_config.json .
