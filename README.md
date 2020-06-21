@@ -74,14 +74,14 @@ This extension is also available for JupyterLab 1.2.x.
 With pip:
 
 ```bash
-pip install jupyter_project
+pip install jupyter-project
 jupyter lab build
 ```
 
 Or with conda:
 
 ```bash
-conda install -c conda-forge jupyter_project
+conda install -c conda-forge jupyter-project
 jupyter lab build
 ```
 
