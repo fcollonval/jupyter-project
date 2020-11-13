@@ -87,7 +87,7 @@ namespace Private {
         },
         background: {
           default: getCSSVar('--jp-layout-color1'),
-          paper: getCSSVar('--jp-layout-color2')
+          paper: getCSSVar('--jp-layout-color1')
         }
       },
       typography: {
