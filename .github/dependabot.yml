@@ -10,8 +10,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "npm prod"
-      prefix-development: "npm dev"
+      prefix: "npm"
       include: "scope"
  
   - package-ecosystem: "pip" # See documentation for possible values
@@ -19,6 +18,5 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "pip prod"
-      prefix-development: "pip dev"
+      prefix: "pip"
       include: "scope"
