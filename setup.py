@@ -61,7 +61,7 @@ setup_args = dict(
     packages=setuptools.find_packages(),
     install_requires=[
         "cookiecutter",
-        "jinja2~=2.9",
+        "jinja2>=2.9,<4.0",
         "jsonschema",
         "jupyterlab~=2.0"
     ],
