@@ -1532,9 +1532,9 @@
     json5 "^2.1.1"
 
 "@jupyterlab/statedb@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/statedb/-/statedb-2.1.0.tgz#3b1889417563bb855bb3fd64fb8d2f45f5df7013"
-  integrity sha512-3L0NGJvNeI2KeU6jrY97riEmxcKtHb1WRxbMU9ORIppR5Sb5x3K3qErep7r9qu0lV7XH9Zb95uMukX4bgj2GaA==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/statedb/-/statedb-2.3.1.tgz#c6a04d2c2f6c45a3e62a276e0cbe06a3fcb36d83"
+  integrity sha512-4f4hgSFg08sTIQjXlVOv93EGMAVxFOrZ4pk3RTyxnptfBboTvX/h9AmqE6REaNxi1KMwCXMeVO9gO+CFlFnFdA==
   dependencies:
     "@lumino/commands" "^1.10.1"
     "@lumino/coreutils" "^1.4.2"
