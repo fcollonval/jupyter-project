@@ -59,7 +59,7 @@
     "jupyterlab_conda": "^2.1.2",
     "jupyterlab_toastify": "^4.0.0",
     "uniforms": "^2.6.7",
-    "uniforms-bridge-json-schema": "^2.6.7",
+    "uniforms-bridge-json-schema": "^3.5.4",
     "uniforms-material": "^2.6.7",
     "yaml": "^1.10.0"
   },
