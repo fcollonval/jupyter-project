@@ -9,14 +9,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    versioning-strategy: lockfile-only
     commit-message:
       prefix: "npm"
-      include: "scope"
- 
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "pip"
       include: "scope"
