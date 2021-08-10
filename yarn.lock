@@ -2752,9 +2752,9 @@ electron-to-chromium@^1.3.723:
   integrity sha512-+LPJVRsN7hGZ9EIUUiWCpO7l4E3qBYHNadazlucBfsXBbccDFNKUBAgzE68FnkWGJPwD/AfKhSzL+G+Iqb8A4A==
 
 embedme@^1.21.0:
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/embedme/-/embedme-1.21.0.tgz#124004c9ff3b991765aff261c4831ba1d7499ae5"
-  integrity sha512-9OiUblCWa277k5M8DFNYQsMMScqBH8Dk45SgYxPZZCEnsArtrgUMAwW245g1i5r2duu7xuhSCJi0kE6iKxEstw==
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/embedme/-/embedme-1.22.0.tgz#d197ca86eca1ade95b72bd033e900597ff2b47d5"
+  integrity sha512-WBQnZkgFc/egR+KeC+f382f76dwlLRU6+h2MwWkogYX8lqZeHoYm67pvk6TCTs99W+tC6IiRqUJySwfvclAvYQ==
   dependencies:
     chalk "3.0.0"
     commander "5.1.0"
