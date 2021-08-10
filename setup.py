@@ -63,7 +63,7 @@ setup_args = dict(
         "cookiecutter",
         "jinja2~=2.9",
         "jsonschema",
-        "jupyterlab~=2.0"
+        "jupyterlab>=2,<4"
     ],
     extras_require={
         "all": [
