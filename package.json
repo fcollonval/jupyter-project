@@ -44,7 +44,7 @@
     "@jupyterlab/application": "^2.0.0",
     "@jupyterlab/apputils": "^2.0.0",
     "@jupyterlab/coreutils": "^4.0.0",
-    "@jupyterlab/filebrowser": "^2.0.0",
+    "@jupyterlab/filebrowser": "^3.1.4",
     "@jupyterlab/git": "^0.20.0",
     "@jupyterlab/launcher": "^2.0.0",
     "@jupyterlab/mainmenu": "^2.0.0",
