@@ -6362,9 +6362,9 @@ uniforms-material@^2.6.7:
     uniforms "^2.6.7"
 
 uniforms@^2.6.7:
-  version "2.6.7"
-  resolved "https://registry.yarnpkg.com/uniforms/-/uniforms-2.6.7.tgz#eabf3d9682fea57b28c9948b4feff4fab2fee760"
-  integrity sha512-Ry490QGJYtSelO1iDbKWUsuJTUabNrgF/X7Jasdi7B+5s6NuEX8mJBBsWgJqBheMNUW1ahB56JA0Flnay4kpeg==
+  version "2.6.9"
+  resolved "https://registry.yarnpkg.com/uniforms/-/uniforms-2.6.9.tgz#0741532cf82331d5e432f0fb5547ac24713965ba"
+  integrity sha512-RnKx276c4xS5yoo8MxH2EtZbmzpsb5vFWP+VYCMC8tH/VSK4jlVBgCbCTADbMlcojwnAOGjUrA+m3s4tacdLbg==
   dependencies:
     invariant "^2.0.0"
     lodash "^4.0.0"
