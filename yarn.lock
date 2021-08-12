@@ -1171,15 +1171,15 @@
     "@lumino/widgets" "^1.11.1"
 
 "@jupyterlab/apputils@^2.0.0", "@jupyterlab/apputils@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/apputils/-/apputils-2.1.1.tgz#069dc8214261c01c9e2ef58209137430649d4c01"
-  integrity sha512-orGzvW2S1k/FjW42dhygq8XJZbQRBTsNXXKFWsqewSn9sNTd3irKjDEwS3Ilce1w+LsS/t3H03xCnsOYPu8LSQ==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/apputils/-/apputils-2.3.1.tgz#1732e73ddd47b24ecaa4e44b1e22da458da16826"
+  integrity sha512-2K0/+pJqw0K7tmrNEZnMQr67ZMYiN1wYuchZdQ24ibObweJm4p155T4zCFx1YvFa233WDzBNpUQIosNGeYqCYw==
   dependencies:
-    "@jupyterlab/coreutils" "^4.1.0"
-    "@jupyterlab/services" "^5.1.0"
-    "@jupyterlab/settingregistry" "^2.1.0"
-    "@jupyterlab/statedb" "^2.1.0"
-    "@jupyterlab/ui-components" "^2.1.1"
+    "@jupyterlab/coreutils" "^4.3.1"
+    "@jupyterlab/services" "^5.3.1"
+    "@jupyterlab/settingregistry" "^2.3.1"
+    "@jupyterlab/statedb" "^2.3.1"
+    "@jupyterlab/ui-components" "^2.3.1"
     "@lumino/algorithm" "^1.2.3"
     "@lumino/commands" "^1.10.1"
     "@lumino/coreutils" "^1.4.2"
@@ -1518,7 +1518,7 @@
     lodash.escape "^4.0.1"
     marked "^0.8.0"
 
-"@jupyterlab/services@^5.0.0", "@jupyterlab/services@^5.1.0":
+"@jupyterlab/services@^5.0.0", "@jupyterlab/services@^5.1.0", "@jupyterlab/services@^5.3.1":
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/@jupyterlab/services/-/services-5.3.1.tgz#5f6a3dd90347b7d0a4d6d3335ae20f296640d744"
   integrity sha512-bV3UVihpeX5W5V57xLoL8gK0PVkvBeiSmHIlFEL2S8rCCDWLcyed7PoLnTe9eRvbCBZpZOEyqs9tk1zlQkQwqQ==
@@ -1536,7 +1536,7 @@
     node-fetch "^2.6.0"
     ws "^7.2.0"
 
-"@jupyterlab/settingregistry@^2.0.0", "@jupyterlab/settingregistry@^2.0.1", "@jupyterlab/settingregistry@^2.1.0", "@jupyterlab/settingregistry@^2.3.1":
+"@jupyterlab/settingregistry@^2.0.0", "@jupyterlab/settingregistry@^2.0.1", "@jupyterlab/settingregistry@^2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@jupyterlab/settingregistry/-/settingregistry-2.3.1.tgz#9821f3462285f82efdf8d7214b9ae60f3969ecbf"
   integrity sha512-UeZObQ6pMkca1SSYzrmPKGwiRZdm6yuBf1Ab8Cv4cGBzVplFmUp8kHjbK/V+PSV9nhog/qlpUREHoy4jlMFxUA==
@@ -1619,14 +1619,14 @@
     path "~0.12.7"
     simulate-event "~1.4.0"
 
-"@jupyterlab/ui-components@^2.0.0", "@jupyterlab/ui-components@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/ui-components/-/ui-components-2.1.1.tgz#ace65290ebe3e913e85e574d5d94f3c9f55d244c"
-  integrity sha512-VZWtJud5XXzSTK6HJebbqg7TkJmvuRk5K+F30u+pgX7PStC4j8OFD7IXCreLWmrvxoVvEXd4GFH2sVng5cgsQA==
+"@jupyterlab/ui-components@^2.0.0", "@jupyterlab/ui-components@^2.1.1", "@jupyterlab/ui-components@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/ui-components/-/ui-components-2.3.1.tgz#fb493737f5994d230a956187ddfcc0d03c39d379"
+  integrity sha512-U+4MkSuf9Sp6oc0gn16kfmq5kaVmgPoOhVJd7gmLuzbrgicVQEUEBWrYilolqUvRXX9IH+FMSnGjOB3EBDsmGg==
   dependencies:
     "@blueprintjs/core" "^3.22.2"
     "@blueprintjs/select" "^3.11.2"
-    "@jupyterlab/coreutils" "^4.1.0"
+    "@jupyterlab/coreutils" "^4.3.1"
     "@lumino/coreutils" "^1.4.2"
     "@lumino/signaling" "^1.3.5"
     "@lumino/virtualdom" "^1.6.1"
