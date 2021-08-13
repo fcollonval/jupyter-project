@@ -1413,13 +1413,13 @@
     react "~16.9.0"
 
 "@jupyterlab/mainmenu@^2.0.0":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/mainmenu/-/mainmenu-2.1.1.tgz#c8f7fe518e7515afae27622d283177f2456fcc41"
-  integrity sha512-cr3fNHnEVHCpPPppbM4c8Qjr4Jh2c2+AlDBMycmRfdKzdhdRBhBBwpxN9+V4KWi2u4ilazjd1o52jooz09SKbA==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/mainmenu/-/mainmenu-2.3.1.tgz#2162b607a5f975c76380fcf7b3ceb72b09c27968"
+  integrity sha512-BdBosViA4/5SxKN59d/l6FShtgpBzA8CezXAlwhZIkWz0C3NVcIDWan2IyCFfPggUyQraX1J6bWLkHx9VWzpnA==
   dependencies:
-    "@jupyterlab/apputils" "^2.1.1"
-    "@jupyterlab/services" "^5.1.0"
-    "@jupyterlab/ui-components" "^2.1.1"
+    "@jupyterlab/apputils" "^2.3.1"
+    "@jupyterlab/services" "^5.3.1"
+    "@jupyterlab/ui-components" "^2.3.1"
     "@lumino/algorithm" "^1.2.3"
     "@lumino/commands" "^1.10.1"
     "@lumino/coreutils" "^1.4.2"
