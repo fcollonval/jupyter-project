@@ -1155,19 +1155,19 @@
     chalk "^3.0.0"
 
 "@jupyterlab/application@^2.0.0":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/application/-/application-2.1.2.tgz#b69df3fc89fa586b984e4bbc9112f0cd6e703c96"
-  integrity sha512-b32BZGAt+LZWdzEN/c6RbmMxpbRxAIPrrl1HvopykWMdxMkFK9Y2g/qptg9Q2Lfo/t9WA/+i4NDOTUXFDB/9oQ==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/application/-/application-2.3.1.tgz#8b28606007bb6facfb1eac73a481969f92bbff62"
+  integrity sha512-SkhR8x7i5V7YxYexaW6fWrEe18HZos3wYCCE++KYpQuf+feQ2CXALX0vYXfKx077k+DNYVjTm8C0RzpFNE8e6Q==
   dependencies:
     "@fortawesome/fontawesome-free" "^5.12.0"
-    "@jupyterlab/apputils" "^2.1.1"
-    "@jupyterlab/coreutils" "^4.1.0"
-    "@jupyterlab/docregistry" "^2.1.2"
-    "@jupyterlab/rendermime" "^2.1.1"
-    "@jupyterlab/rendermime-interfaces" "^2.1.0"
-    "@jupyterlab/services" "^5.1.0"
-    "@jupyterlab/statedb" "^2.1.0"
-    "@jupyterlab/ui-components" "^2.1.1"
+    "@jupyterlab/apputils" "^2.3.1"
+    "@jupyterlab/coreutils" "^4.3.1"
+    "@jupyterlab/docregistry" "^2.3.1"
+    "@jupyterlab/rendermime" "^2.3.1"
+    "@jupyterlab/rendermime-interfaces" "^2.3.0"
+    "@jupyterlab/services" "^5.3.1"
+    "@jupyterlab/statedb" "^2.3.1"
+    "@jupyterlab/ui-components" "^2.3.1"
     "@lumino/algorithm" "^1.2.3"
     "@lumino/application" "^1.8.4"
     "@lumino/commands" "^1.10.1"
@@ -1333,7 +1333,7 @@
     "@lumino/widgets" "^1.11.1"
     react "~16.9.0"
 
-"@jupyterlab/docregistry@^2.1.2", "@jupyterlab/docregistry@^2.3.1":
+"@jupyterlab/docregistry@^2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@jupyterlab/docregistry/-/docregistry-2.3.1.tgz#e68361392cd9d511fa29262233c523a43d91e2b9"
   integrity sha512-CYsdulpOi7yBealSRTQwOkGtVH039wZJzxg2JdLqw3nXrZIdfhVRx14pNYY4rGmG03z5TxB4czEMb+AZp4Y0vA==
@@ -1518,15 +1518,7 @@
     "@lumino/signaling" "^1.3.5"
     "@lumino/widgets" "^1.11.1"
 
-"@jupyterlab/rendermime-interfaces@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/rendermime-interfaces/-/rendermime-interfaces-2.1.0.tgz#936fec0248a70c0e64c8bf292e9719fbc5d3516c"
-  integrity sha512-WZsFan4snRX3UkxMer4dOpsQcV1R3Two8wT4wLM7nrIHuwHxuruiIlzpmsZENaKfF6C5SKP5esi6DSfjs5y90g==
-  dependencies:
-    "@lumino/coreutils" "^1.4.2"
-    "@lumino/widgets" "^1.11.1"
-
-"@jupyterlab/rendermime-interfaces@^2.3.0":
+"@jupyterlab/rendermime-interfaces@^2.1.0", "@jupyterlab/rendermime-interfaces@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@jupyterlab/rendermime-interfaces/-/rendermime-interfaces-2.3.0.tgz#21a8be116c6b14bce308e1d2b8ce6eb03643f874"
   integrity sha512-rETyiv9HnsIZTq6qSZAor4pweaIqCQOsN0Pc6dOdeJm+cyKH8pm7eKo/1UvpEAAEt/tFz4lSVRb924SWlErtnQ==
