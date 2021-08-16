@@ -6817,14 +6817,14 @@ unicode-property-aliases-ecmascript@^1.0.4:
   integrity sha512-PqSoPh/pWetQ2phoj5RLiaqIk4kCNwoV3CI+LfGmWLKI3rE3kl1h59XpX2BjgDrmbxD9ARtQobPGU1SguCYuQg==
 
 uniforms-bridge-json-schema@^2.6.7:
-  version "2.6.7"
-  resolved "https://registry.yarnpkg.com/uniforms-bridge-json-schema/-/uniforms-bridge-json-schema-2.6.7.tgz#93d225df65d987e52220a75f3fb0338a7d798a94"
-  integrity sha512-65JwLOhZrUN8dYxJbHIGg44kZP36gZt836/tUFo+c38r7Mk/X0KlQzzgqZWdon6AfPMOLl8+skxd5ah1TxawSw==
+  version "2.6.9"
+  resolved "https://registry.yarnpkg.com/uniforms-bridge-json-schema/-/uniforms-bridge-json-schema-2.6.9.tgz#504a7a121d310795036a24967426750895d4bae6"
+  integrity sha512-cZL2EBrhzRRsZ4M7gUvpTLaKc+PYCJ4r1awxQyI7j18V0m21Ir0kDh1zoTDVqvi+S2uIHDjoy4ey9ukki4zeYA==
   dependencies:
     invariant "^2.0.0"
     lodash "^4.0.0"
     tslib "^1.10.0"
-    uniforms "^2.6.7"
+    uniforms "^2.6.9"
 
 uniforms-material@^2.6.7:
   version "2.6.9"
