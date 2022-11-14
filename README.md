@@ -1,3 +1,5 @@
+**This project is archived (lack of time to maintain)** If you wish to take over its development, feel free to fork it or to contact me on https://gitter.im/jupyterlab/jupyterlab.
+
 # jupyter-project
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fcollonval/jupyter-project/master?urlpath=lab)
